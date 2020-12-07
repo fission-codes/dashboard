@@ -17,3 +17,7 @@ It goes alongside the rest of the Fission platform components, including:
 # Table of Contents
 
 # How To
+
+# Tailwind UI
+
+Note: we are using **Tailwind UI**, which has commercial licensing requirements. If you intend to use this project for your own public, production purposes, you must [buy a Tailwind UI license](https://tailwindui.com/pricing). Pull 
