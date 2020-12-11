@@ -1,0 +1,14 @@
+@import "fission-kit/fonts/body/fontface.css";
+@import "fission-kit/fonts/display/fontface.css";
+@import "fission-kit/fonts/mono/fontface.css";
+
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+body {
+  @apply bg-gray-900 font-body font-normal text-gray-100;
+  @apply dark:bg-darkness dark:text-gray-500;
+}
