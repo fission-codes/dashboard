@@ -18,6 +18,25 @@ It goes alongside the rest of the Fission platform components, including:
 
 # How To
 
+## Build with [nix](https://github.com/NixOS/nix)
+
+```sh
+$ nix-shell
+```
+
+This will set you up with a shell that has all executable tools needed for development.
+
+We recommend using [`lorri`](https://github.com/target/lorri) for something a better developer experience.
+
+## Run
+
+```
+$ just install-deps
+$ just
+```
+
+Now there is a development server running on http://localhost:8004. Open that link in your browser to see the running app.
+
 # Tailwind UI
 
 Note: we are using **Tailwind UI**, which has commercial licensing requirements. If you intend to use this project for your own public, production purposes, you must [buy a Tailwind UI license](https://tailwindui.com/pricing).
