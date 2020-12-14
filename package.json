@@ -5,6 +5,7 @@
   "author": "Steven Vandevelde <icid.asset@gmail.com>",
   "type": "module",
   "devDependencies": {
+    "elm-live": "^4.0.2",
     "elm-tailwind-css": "^1.1.1"
   },
   "dependencies": {

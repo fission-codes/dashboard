@@ -1,4 +1,5 @@
 dist := "build"
+node_bin := "./node_modules/.bin"
 
 
 @default: dev-build
@@ -24,6 +25,17 @@ dist := "build"
 	elm make \
 		--output {{dist}}/application.js \
 		src/Application/Main.elm
+
+
+@hot:
+	just hot-server & \
+	just watch-css & \
+	just watch-html
+
+
+@hot-server:
+	echo "🔥  Start a hot-reloading elm-live server at http://localhost:8004"
+	{{node_bin}}/elm-live src/Application/Main.elm --hot --port=8004 --pushstate --dir=build -- --output={{dist}}/application.js --debug
 
 
 @fonts:
