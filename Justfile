@@ -11,6 +11,7 @@ dist := "build"
 
 @css-large:
 	echo "💄  Compiling CSS"
+	mkdir -p src/Library/Css
 	pnpx etc src/Css/Application.css \
 		--config src/Css/Tailwind.js \
 		--elm-module Css.Classes \
