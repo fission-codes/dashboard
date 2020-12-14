@@ -11,4 +11,9 @@
 body {
   @apply bg-gray-900 font-body font-normal text-gray-100;
   @apply dark:bg-darkness dark:text-gray-500;
+  @apply min-h-full;
+}
+
+html {
+  @apply h-full;
 }
