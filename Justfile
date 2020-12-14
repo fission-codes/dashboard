@@ -17,7 +17,8 @@ node_bin := "./node_modules/.bin"
 		--config src/Css/Tailwind.js \
 		--elm-module Css.Classes \
 		--elm-path src/Library/Css/Classes.elm \
-		--output {{dist}}/application.css
+		--output {{dist}}/application.css \
+		--post-plugin-before postcss-import
 
 
 @elm-dev:
