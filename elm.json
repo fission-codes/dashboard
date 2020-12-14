@@ -13,6 +13,7 @@
             "elm/time": "1.0.0",
             "elm/url": "1.0.0",
             "elm-community/list-extra": "8.2.4",
+            "feathericons/elm-feather": "1.5.0",
             "icidasset/elm-material-icons": "5.0.0"
         },
         "indirect": {
