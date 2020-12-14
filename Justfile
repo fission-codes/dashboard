@@ -35,7 +35,14 @@ node_bin := "./node_modules/.bin"
 
 @hot-server:
 	echo "🔥  Start a hot-reloading elm-live server at http://localhost:8004"
-	{{node_bin}}/elm-live src/Application/Main.elm --hot --port=8004 --pushstate --dir=build -- --output={{dist}}/application.js --debug
+	{{node_bin}}/elm-live src/Application/Main.elm \
+		--hot \
+		--port=8004 \
+		--pushstate \
+		--dir=build \
+		-- \
+		--output={{dist}}/application.js \
+		--debug
 
 
 @fonts:
