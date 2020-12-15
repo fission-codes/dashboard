@@ -149,9 +149,9 @@ settingInput element =
         []
 
 
-infoText : List (Html msg) -> Html msg
-infoText content =
-    span [ text_sm, text_gray_200 ] content
+infoTextAttributes : List (Attribute msg)
+infoTextAttributes =
+    [ text_sm, text_gray_200 ]
 
 
 sectionUsername : { username : List (Html msg) } -> Html msg
@@ -159,13 +159,13 @@ sectionUsername element =
     settingSection
         [ sectionTitle [] "Username"
         , sectionParagraph
-            (List.concat
-                [ [ infoText
-                        [ text "Your username is unique among all fission users." ]
-                  ]
-                , element.username
+            [ responsiveGroup
+                [ span
+                    (md__w_1over3 :: infoTextAttributes)
+                    [ text "Your username is unique among all fission users." ]
+                , div [ flex, flex_col, space_y_5 ] element.username
                 ]
-            )
+            ]
         ]
 
 
@@ -220,29 +220,28 @@ sectionEmail element =
     settingSection
         [ sectionTitle [] "Email"
         , sectionParagraph
-            [ div
-                [ flex
-                , flex_col
-                , space_y_2
-                ]
-                (List.concat
-                    [ element.email
-                    , [ span
-                            [ flex
-                            , flex_row
-                            , items_center
-                            , space_x_2
-                            ]
-                            element.verificationStatus
-                      ]
+            [ responsiveGroup
+                [ groupHeading "Your email"
+                , div
+                    [ flex
+                    , flex_col
+                    , space_y_2
                     ]
-                )
-            , div
-                [ flex
-                , flex_col
-                , space_y_2
+                    element.email
                 ]
-                [ label
+            , responsiveGroup
+                [ groupHeading ""
+                , span
+                    [ flex
+                    , flex_row
+                    , items_center
+                    , space_x_2
+                    ]
+                    element.verificationStatus
+                ]
+            , responsiveGroup
+                [ groupHeading "Check to recieve pretty fun emails"
+                , label
                     [ flex
                     , flex_row
                     , space_x_2
@@ -260,7 +259,7 @@ sectionEmail element =
                         ]
                         [ text "Product Updates" ]
                     ]
-                , infoText
+                , span (md__hidden :: infoTextAttributes)
                     [ text "Check to recieve pretty fun emails" ]
                 ]
             ]
@@ -272,53 +271,83 @@ sectionManageAccount =
     settingSection
         [ sectionTitle [] "Manage Account"
         , sectionParagraph
-            [ span [ text_sm, text_gray_200 ]
-                [ text "Permanently delete your account and all associated data. "
-                , a [] [ text "Read more" ]
-                ]
-            , form
-                [ flex
-                , flex_row
-                , space_x_3
-                ]
-                [ input
-                    [ type_ "text"
-                    , placeholder "Your account name"
-
-                    --
-                    , flex_grow
-                    , flex_shrink
-                    , min_w_0
-                    , max_w_xs
-                    , text_base
-                    , font_display
-                    , text_gray_200
-                    , placeholder_gray_400
-                    , px_3
-                    , py_1
-                    , border
-                    , border_gray_500
-                    , bg_gray_900
-                    , rounded
+            [ responsiveGroup
+                [ span
+                    (md__w_1over3 :: infoTextAttributes)
+                    [ text "Permanently delete your account and all associated data. "
+                    , a [] [ text "Read more" ]
                     ]
-                    []
-                , input
-                    [ type_ "submit"
-                    , value "Delete Account"
-
-                    --
-                    , rounded
-                    , bg_red
-                    , text_white
-                    , font_body
-                    , text_base
-                    , px_3
-                    , py_1
+                , form
+                    [ flex
+                    , flex_row
+                    , space_x_3
                     ]
-                    []
+                    [ input
+                        [ type_ "text"
+                        , placeholder "Your account name"
+
+                        --
+                        , flex_grow
+                        , flex_shrink
+                        , min_w_0
+                        , max_w_xs
+                        , text_base
+                        , font_display
+                        , text_gray_200
+                        , placeholder_gray_400
+                        , px_3
+                        , py_1
+                        , border
+                        , border_gray_500
+                        , bg_gray_900
+                        , rounded
+                        ]
+                        []
+                    , input
+                        [ type_ "submit"
+                        , value "Delete Account"
+
+                        --
+                        , rounded
+                        , bg_red
+                        , text_white
+                        , font_body
+                        , text_base
+                        , px_3
+                        , py_1
+                        ]
+                        []
+                    ]
                 ]
             ]
         ]
+
+
+responsiveGroup : List (Html msg) -> Html msg
+responsiveGroup content =
+    div
+        [ flex
+        , flex_col
+        , space_y_2
+
+        --
+        , md__flex_row
+        , md__space_y_0
+        , md__space_x_5
+        ]
+        content
+
+
+groupHeading : String -> Html msg
+groupHeading title =
+    span
+        (hidden
+            --
+            :: md__inline
+            :: md__w_1over3
+            :: infoTextAttributes
+        )
+        [ text title ]
 
 
 type VerificationStatus

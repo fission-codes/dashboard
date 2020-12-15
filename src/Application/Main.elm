@@ -2,7 +2,6 @@ module Main exposing (main)
 
 import Browser
 import Browser.Navigation
-import Css.Classes as C
 import FeatherIcons
 import Html exposing (Html)
 import Html.Attributes as A
@@ -133,8 +132,7 @@ view model =
                         , onCheckProductUpdates = ProductUpdatesCheck
                         , verificationStatus = viewVerificationStatus model
                         }
-
-                    -- , View.sectionManageAccount
+                    , View.sectionManageAccount
                     ]
             , footer = View.appFooter
             }
@@ -191,7 +189,7 @@ viewEmail model =
                         , Html.text "Is there a typo?"
                         ]
                     ]
-                , [ View.infoText
+                , [ Html.span View.infoTextAttributes
                         [ Html.text "You’ll have to verify your email address again, once changed." ]
                   ]
                 ]
