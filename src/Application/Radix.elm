@@ -37,3 +37,7 @@ type
     -----------------------------------------
     = UrlChanged Url
     | UrlRequested UrlRequest
+      --
+    | UsernameEdit
+    | UsernameUpdate String
+    | UsernameSave
