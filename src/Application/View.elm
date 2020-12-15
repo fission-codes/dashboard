@@ -112,19 +112,6 @@ appFooter =
     ]
 
 
-editableInput : { content : Html msg, button : Html msg } -> Html msg
-editableInput element =
-    span
-        [ flex
-        , flex_row
-        , items_center
-        , space_x_2
-        ]
-        [ element.content
-        , element.button
-        ]
-
-
 settingSection : List (Html msg) -> Html msg
 settingSection content =
     section [ my_8 ] content
@@ -167,6 +154,55 @@ infoText content =
     span [ text_sm, text_gray_200 ] content
 
 
+sectionUsername : { username : List (Html msg) } -> Html msg
+sectionUsername element =
+    settingSection
+        [ sectionTitle [] "Username"
+        , sectionParagraph
+            (List.concat
+                [ [ infoText
+                        [ text "Your username is unique among all fission users." ]
+                  ]
+                , element.username
+                ]
+            )
+        ]
+
+
+usernameSettingViewing : { username : String, onClickUpdate : msg } -> Html msg
+usernameSettingViewing element =
+    span
+        [ flex
+        , flex_row
+        , items_center
+        , space_x_2
+        ]
+        [ settingText [ Html.text element.username ]
+        , uppercaseButton
+            [ Events.onClick element.onClickUpdate ]
+            "Update"
+        ]
+
+
+usernameSettingEditing : { username : String, onInput : String -> msg, onClickSave : msg } -> Html msg
+usernameSettingEditing element =
+    span
+        [ flex
+        , flex_row
+        , items_center
+        , space_x_2
+        ]
+        [ settingInput
+            { value = element.username
+            , placeholder = "my_account_name"
+            , onInput = element.onInput
+            }
+        , uppercaseButton
+            [ Events.onClick element.onClickSave ]
+            "Save"
+        ]
+
+
 sectionEmail : Html msg
 sectionEmail =
     settingSection
@@ -183,10 +219,7 @@ sectionEmail =
                     , items_center
                     , space_x_2
                     ]
-                    [ span
-                        [ font_display
-                        , text_gray_200
-                        ]
+                    [ settingText
                         [ text "my-email@me.com" ]
                     , uppercaseButton [] "Update"
                     ]
@@ -195,10 +228,7 @@ sectionEmail =
                     , br [] []
                     , text "Is there a typo?"
                     ]
-                , span
-                    [ text_sm
-                    , text_gray_200
-                    ]
+                , infoText
                     [ text "You’ll have to verify your email address again, once changed." ]
                 , span
                     [ flex
@@ -232,10 +262,7 @@ sectionEmail =
                         ]
                         [ text "Product Updates" ]
                     ]
-                , span
-                    [ text_sm
-                    , text_gray_200
-                    ]
+                , infoText
                     [ text "Check to recieve pretty fun emails" ]
                 ]
             ]

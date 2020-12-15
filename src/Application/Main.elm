@@ -35,7 +35,9 @@ main =
 init : Flags -> Url -> Browser.Navigation.Key -> ( Model, Cmd Msg )
 init _ _ _ =
     Tuple.pair
-        { username = SettingIs "matheus23" }
+        { username = SettingIs "matheus23"
+        , email = SettingIs "my-email@me.com"
+        }
         Cmd.none
 
 
@@ -52,6 +54,16 @@ update msg model =
                     updateSetting
                         settingMsg
                         model.username
+              }
+            , Cmd.none
+            )
+
+        Email settingMsg ->
+            ( { model
+                | email =
+                    updateSetting
+                        settingMsg
+                        model.email
               }
             , Cmd.none
             )
@@ -98,45 +110,28 @@ view model =
         View.appShell
             { header = View.appHeader
             , main =
-                [ View.settingSection
-                    [ View.sectionTitle [] "Username"
-                    , View.sectionParagraph
-                        (View.infoText
-                            [ Html.text "Your username is unique among all fission users." ]
-                            :: (case model.username of
-                                    SettingIs username ->
-                                        [ View.editableInput
-                                            { content = View.settingText [ Html.text username ]
-                                            , button =
-                                                View.uppercaseButton
-                                                    [ Events.onClick (Username SettingEdit)
-                                                    ]
-                                                    "Update"
-                                            }
-                                        ]
+                [ View.sectionUsername
+                    { username =
+                        case model.username of
+                            SettingIs username ->
+                                [ View.usernameSettingViewing
+                                    { username = username
+                                    , onClickUpdate = Username SettingEdit
+                                    }
+                                ]
 
-                                    SettingEditing username ->
-                                        List.concat
-                                            [ [ View.editableInput
-                                                    { content =
-                                                        View.settingInput
-                                                            { value = username
-                                                            , placeholder = "my_account_name"
-                                                            , onInput = Username << SettingUpdate
-                                                            }
-                                                    , button =
-                                                        View.uppercaseButton
-                                                            [ Events.onClick (Username SettingSave)
-                                                            ]
-                                                            "Save"
-                                                    }
-                                              ]
-                                            , when (username == "matheus23")
-                                                [ View.warning [ Html.text "Sorry, this username was already taken." ] ]
-                                            ]
-                               )
-                        )
-                    ]
+                            SettingEditing username ->
+                                List.concat
+                                    [ [ View.usernameSettingEditing
+                                            { username = username
+                                            , onInput = Username << SettingUpdate
+                                            , onClickSave = Username SettingSave
+                                            }
+                                      ]
+                                    , when (username == "matheus23")
+                                        [ View.warning [ Html.text "Sorry, this username was already taken." ] ]
+                                    ]
+                    }
                 , View.spacer
                 , View.sectionEmail
                 , View.spacer
