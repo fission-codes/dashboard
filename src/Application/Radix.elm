@@ -17,13 +17,8 @@ type alias Flags =
 
 
 type alias Model =
-    { username : UsernameModel
+    { username : SettingModel
     }
-
-
-type UsernameModel
-    = UsernameIs String
-    | UsernameEditing String
 
 
 
@@ -37,7 +32,19 @@ type
     -----------------------------------------
     = UrlChanged Url
     | UrlRequested UrlRequest
-      --
-    | UsernameEdit
-    | UsernameUpdate String
-    | UsernameSave
+    | Username SettingMsg
+
+
+
+-- Settings
+
+
+type SettingModel
+    = SettingIs String
+    | SettingEditing String
+
+
+type SettingMsg
+    = SettingEdit
+    | SettingUpdate String
+    | SettingSave
