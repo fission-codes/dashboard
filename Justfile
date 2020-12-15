@@ -28,24 +28,6 @@ node_bin := "./node_modules/.bin"
 		src/Application/Main.elm
 
 
-@hot:
-	just hot-server & \
-	just watch-css & \
-	just watch-html
-
-
-@hot-server:
-	echo "🔥  Start a hot-reloading elm-live server at http://localhost:8004"
-	{{node_bin}}/elm-live src/Application/Main.elm \
-		--hot \
-		--port=8004 \
-		--pushstate \
-		--dir=build \
-		-- \
-		--output={{dist}}/application.js \
-		--debug
-
-
 @fonts:
 	echo "🔤  Copying fonts"
 	mkdir -p {{dist}}/fonts/
@@ -83,6 +65,25 @@ node_bin := "./node_modules/.bin"
 	echo "🧞  Putting up a server for ya"
 	echo "http://localhost:8004"
 	devd --quiet build --port=8004 --all
+
+
+@hot:
+	just dev-build
+	just hot-server & \
+	just watch-css & \
+	just watch-html
+
+
+@hot-server:
+	echo "🔥  Start a hot-reloading elm-live server at http://localhost:8004"
+	{{node_bin}}/elm-live src/Application/Main.elm \
+		--hot \
+		--port=8004 \
+		--pushstate \
+		--dir={{dist}} \
+		-- \
+		--output={{dist}}/application.js \
+		--debug
 
 
 @install-deps:
