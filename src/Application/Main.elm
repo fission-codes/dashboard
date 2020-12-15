@@ -34,7 +34,7 @@ main =
 init : Flags -> Url -> Browser.Navigation.Key -> ( Model, Cmd Msg )
 init _ _ _ =
     Tuple.pair
-        {}
+        { username = UsernameIs "matheus23" }
         Cmd.none
 
 

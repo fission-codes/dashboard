@@ -53,7 +53,9 @@ appHeader =
             , items_center
             ]
             [ logo []
-            , menuButton []
+
+            -- reintroduce, once there are more than 1 page
+            -- , menuButton []
             ]
         ]
     ]
@@ -111,35 +113,55 @@ appFooter =
 
 sectionUsername : Html msg
 sectionUsername =
-    section [ my_8 ]
+    settingSection
         [ sectionTitle [] "Username"
         , sectionParagraph
-            [ span
-                [ text_sm
-                , text_gray_200
-                ]
+            [ infoText
                 [ text "Your username is unique among all fission users." ]
-            , span
-                [ flex
-                , flex_row
-                , items_center
-                , space_x_2
-                ]
-                [ span
-                    [ font_display
-                    , text_gray_200
-                    ]
-                    [ text "matheus23" ]
-                , uppercaseButton [] "Update"
-                ]
+            , editableInput
+                { content = settingText [ text "matheus23" ]
+                , button = uppercaseButton [] "Update"
+                }
             , warning [ text "Sorry, this username was already taken." ]
             ]
         ]
 
 
+type
+    InputMode
+    -- | Edit String
+    = View String
+
+
+editableInput : { content : Html msg, button : Html msg } -> Html msg
+editableInput element =
+    span
+        [ flex
+        , flex_row
+        , items_center
+        , space_x_2
+        ]
+        [ element.content
+        , element.button
+        ]
+
+settingSection : List (Html msg) -> Html msg
+settingSection content =
+    section [ my_8 ] content
+
+settingText : List (Html msg) -> Html msg
+settingText content =
+    span [ font_display, text_gray_200 ] content
+
+
+infoText : List (Html msg) -> Html msg
+infoText content =
+    span [ text_sm, text_gray_200 ] content
+
+
 sectionEmail : Html msg
 sectionEmail =
-    section [ my_8 ]
+    settingSection
         [ sectionTitle [] "Email"
         , sectionParagraph
             [ div
@@ -214,7 +236,7 @@ sectionEmail =
 
 sectionManageAccount : Html msg
 sectionManageAccount =
-    section [ my_8 ]
+    settingSection
         [ sectionTitle [] "Manage Account"
         , sectionParagraph
             [ span [ text_sm, text_gray_200 ]

@@ -17,7 +17,13 @@ type alias Flags =
 
 
 type alias Model =
-    {}
+    { username : UsernameModel
+    }
+
+
+type UsernameModel
+    = UsernameIs String
+    | UsernameEditing String
 
 
 
