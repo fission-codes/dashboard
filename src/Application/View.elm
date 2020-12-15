@@ -4,6 +4,7 @@ import Css.Classes exposing (..)
 import FeatherIcons
 import Html exposing (..)
 import Html.Attributes exposing (checked, height, href, placeholder, src, type_, value, width)
+import Html.Events as Events
 
 
 appShell :
@@ -111,12 +112,6 @@ appFooter =
     ]
 
 
-type
-    InputMode
-    -- | Edit String
-    = View String
-
-
 editableInput : { content : Html msg, button : Html msg } -> Html msg
 editableInput element =
     span
@@ -140,12 +135,13 @@ settingText content =
     span [ font_display, text_gray_200 ] content
 
 
-settingInput : { value : String, placeholder : String } -> Html msg
+settingInput : { value : String, placeholder : String, onInput : String -> msg } -> Html msg
 settingInput element =
     input
         [ type_ "text"
         , placeholder element.placeholder
         , value element.value
+        , Events.onInput element.onInput
 
         --
         , flex_grow
@@ -399,13 +395,15 @@ spacer =
 uppercaseButton : List (Attribute msg) -> String -> Html msg
 uppercaseButton attributes buttonText =
     button
-        [ uppercase
-        , text_purple
-        , font_display
-        , text_xs
-        , tracking_widest
-        , p_2
-        ]
+        (List.append attributes
+            [ uppercase
+            , text_purple
+            , font_display
+            , text_xs
+            , tracking_widest
+            , p_2
+            ]
+        )
         [ text buttonText ]
 
 
