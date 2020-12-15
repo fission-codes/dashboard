@@ -18,6 +18,7 @@ type alias Flags =
 
 type alias Model =
     { username : SettingModel
+    , email : SettingModel
     }
 
 
@@ -33,6 +34,7 @@ type
     = UrlChanged Url
     | UrlRequested UrlRequest
     | Username SettingMsg
+    | Email SettingMsg
 
 
 
