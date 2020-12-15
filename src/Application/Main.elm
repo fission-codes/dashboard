@@ -37,6 +37,7 @@ init _ _ _ =
     Tuple.pair
         { username = SettingIs "matheus23"
         , email = SettingIs "my-email@me.com"
+        , productUpdates = False
         }
         Cmd.none
 
@@ -65,6 +66,11 @@ update msg model =
                         settingMsg
                         model.email
               }
+            , Cmd.none
+            )
+
+        ProductUpdatesCheck checked ->
+            ( { model | productUpdates = checked }
             , Cmd.none
             )
 
@@ -162,6 +168,8 @@ view model =
                                             [ Html.text "You’ll have to verify your email address again, once changed." ]
                                       ]
                                     ]
+                    , productUpdates = model.productUpdates
+                    , onCheckProductUpdates = ProductUpdatesCheck
                     }
                 , View.spacer
                 , View.sectionManageAccount
