@@ -169,23 +169,23 @@ sectionUsername element =
         ]
 
 
-usernameSettingViewing : { username : String, onClickUpdate : msg } -> Html msg
-usernameSettingViewing element =
+settingViewing : { value : String, onClickUpdate : msg } -> Html msg
+settingViewing element =
     span
         [ flex
         , flex_row
         , items_center
         , space_x_2
         ]
-        [ settingText [ Html.text element.username ]
+        [ settingText [ Html.text element.value ]
         , uppercaseButton
             [ Events.onClick element.onClickUpdate ]
             "Update"
         ]
 
 
-usernameSettingEditing : { username : String, onInput : String -> msg, onClickSave : msg } -> Html msg
-usernameSettingEditing element =
+settingEditing : { value : String, onInput : String -> msg, onClickSave : msg } -> Html msg
+settingEditing element =
     span
         [ flex
         , flex_row
@@ -193,7 +193,7 @@ usernameSettingEditing element =
         , space_x_2
         ]
         [ settingInput
-            { value = element.username
+            { value = element.value
             , placeholder = "my_account_name"
             , onInput = element.onInput
             }
@@ -203,8 +203,8 @@ usernameSettingEditing element =
         ]
 
 
-sectionEmail : Html msg
-sectionEmail =
+sectionEmail : { email : List (Html msg) } -> Html msg
+sectionEmail element =
     settingSection
         [ sectionTitle [] "Email"
         , sectionParagraph
@@ -213,33 +213,20 @@ sectionEmail =
                 , flex_col
                 , space_y_2
                 ]
-                [ span
-                    [ flex
-                    , flex_row
-                    , items_center
-                    , space_x_2
+                (List.concat
+                    [ element.email
+                    , [ span
+                            [ flex
+                            , flex_row
+                            , items_center
+                            , space_x_2
+                            ]
+                            [ verificationStatus NotVerified
+                            , uppercaseButton [] "Resend Verification Email"
+                            ]
+                      ]
                     ]
-                    [ settingText
-                        [ text "my-email@me.com" ]
-                    , uppercaseButton [] "Update"
-                    ]
-                , warning
-                    [ text "This doesn’t seem to be an Email address."
-                    , br [] []
-                    , text "Is there a typo?"
-                    ]
-                , infoText
-                    [ text "You’ll have to verify your email address again, once changed." ]
-                , span
-                    [ flex
-                    , flex_row
-                    , items_center
-                    , space_x_2
-                    ]
-                    [ verificationStatus NotVerified
-                    , uppercaseButton [] "Resend Verification Email"
-                    ]
-                ]
+                )
             , div
                 [ flex
                 , flex_col
@@ -291,6 +278,7 @@ sectionManageAccount =
                     , flex_grow
                     , flex_shrink
                     , min_w_0
+                    , max_w_xs
                     , text_base
                     , font_display
                     , text_gray_200

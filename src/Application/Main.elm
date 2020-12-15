@@ -114,16 +114,16 @@ view model =
                     { username =
                         case model.username of
                             SettingIs username ->
-                                [ View.usernameSettingViewing
-                                    { username = username
+                                [ View.settingViewing
+                                    { value = username
                                     , onClickUpdate = Username SettingEdit
                                     }
                                 ]
 
                             SettingEditing username ->
                                 List.concat
-                                    [ [ View.usernameSettingEditing
-                                            { username = username
+                                    [ [ View.settingEditing
+                                            { value = username
                                             , onInput = Username << SettingUpdate
                                             , onClickSave = Username SettingSave
                                             }
@@ -134,6 +134,35 @@ view model =
                     }
                 , View.spacer
                 , View.sectionEmail
+                    { email =
+                        case model.email of
+                            SettingIs email ->
+                                [ View.settingViewing
+                                    { value = email
+                                    , onClickUpdate = Email SettingEdit
+                                    }
+                                ]
+
+                            SettingEditing email ->
+                                List.concat
+                                    [ [ View.settingEditing
+                                            { value = email
+                                            , onInput = Email << SettingUpdate
+                                            , onClickSave = Email SettingSave
+                                            }
+                                      ]
+                                    , when (not (String.contains "@" email))
+                                        [ View.warning
+                                            [ Html.text "This doesn’t seem to be an email address."
+                                            , Html.br [] []
+                                            , Html.text "Is there a typo?"
+                                            ]
+                                        ]
+                                    , [ View.infoText
+                                            [ Html.text "You’ll have to verify your email address again, once changed." ]
+                                      ]
+                                    ]
+                    }
                 , View.spacer
                 , View.sectionManageAccount
                 ]
