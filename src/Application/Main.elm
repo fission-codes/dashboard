@@ -116,67 +116,77 @@ view model =
         View.appShell
             { header = View.appHeader
             , main =
-                [ View.sectionUsername
-                    { username =
-                        case model.username of
-                            SettingIs username ->
-                                [ View.settingViewing
-                                    { value = username
-                                    , onClickUpdate = Username SettingEdit
-                                    }
-                                ]
+                List.intersperse View.spacer
+                    [ View.sectionUsername
+                        { username = viewUsername model
+                        }
+                    , View.sectionEmail
+                        { email = viewEmail model
+                        , productUpdates = model.productUpdates
+                        , onCheckProductUpdates = ProductUpdatesCheck
+                        }
 
-                            SettingEditing username ->
-                                List.concat
-                                    [ [ View.settingEditing
-                                            { value = username
-                                            , onInput = Username << SettingUpdate
-                                            , onSave = Username SettingSave
-                                            }
-                                      ]
-                                    , when (username == "matheus23")
-                                        [ View.warning [ Html.text "Sorry, this username was already taken." ] ]
-                                    ]
-                    }
-                , View.spacer
-                , View.sectionEmail
-                    { email =
-                        case model.email of
-                            SettingIs email ->
-                                [ View.settingViewing
-                                    { value = email
-                                    , onClickUpdate = Email SettingEdit
-                                    }
-                                ]
-
-                            SettingEditing email ->
-                                List.concat
-                                    [ [ View.settingEditing
-                                            { value = email
-                                            , onInput = Email << SettingUpdate
-                                            , onSave = Email SettingSave
-                                            }
-                                      ]
-                                    , when (not (String.contains "@" email))
-                                        [ View.warning
-                                            [ Html.text "This doesn’t seem to be an email address."
-                                            , Html.br [] []
-                                            , Html.text "Is there a typo?"
-                                            ]
-                                        ]
-                                    , [ View.infoText
-                                            [ Html.text "You’ll have to verify your email address again, once changed." ]
-                                      ]
-                                    ]
-                    , productUpdates = model.productUpdates
-                    , onCheckProductUpdates = ProductUpdatesCheck
-                    }
-                , View.spacer
-                , View.sectionManageAccount
-                ]
+                    -- , View.sectionManageAccount
+                    ]
             , footer = View.appFooter
             }
     }
+
+
+viewUsername : Model -> List (Html Msg)
+viewUsername model =
+    case model.username of
+        SettingIs username ->
+            [ View.settingViewing
+                { value = username
+                , onClickUpdate = Username SettingEdit
+                }
+            ]
+
+        SettingEditing username ->
+            List.concat
+                [ [ View.settingEditing
+                        { value = username
+                        , onInput = Username << SettingUpdate
+                        , onSave = Username SettingSave
+                        }
+                  ]
+                , when (username == "matheus23")
+                    [ View.warning [ Html.text "Sorry, this username was already taken." ] ]
+                ]
+
+
+viewEmail : Model -> List (Html Msg)
+viewEmail model =
+    case model.email of
+        SettingIs email ->
+            [ View.settingViewing
+                { value = email
+                , onClickUpdate = Email SettingEdit
+                }
+            ]
+
+        SettingEditing email ->
+            List.concat
+                [ [ View.settingEditing
+                        { value = email
+                        , onInput = Email << SettingUpdate
+                        , onSave = Email SettingSave
+                        }
+                  ]
+
+                -- TODO improve email verification
+                , when (not (String.contains "@" email))
+                    [ View.warning
+                        [ Html.text "This doesn’t seem to be an email address."
+                        , Html.br [] []
+                        , Html.text "Is there a typo?"
+                        ]
+                    ]
+                , [ View.infoText
+                        [ Html.text "You’ll have to verify your email address again, once changed." ]
+                  ]
+                ]
 
 
 when : Bool -> List a -> List a
