@@ -111,22 +111,6 @@ appFooter =
     ]
 
 
-sectionUsername : Html msg
-sectionUsername =
-    settingSection
-        [ sectionTitle [] "Username"
-        , sectionParagraph
-            [ infoText
-                [ text "Your username is unique among all fission users." ]
-            , editableInput
-                { content = settingText [ text "matheus23" ]
-                , button = uppercaseButton [] "Update"
-                }
-            , warning [ text "Sorry, this username was already taken." ]
-            ]
-        ]
-
-
 type
     InputMode
     -- | Edit String
@@ -145,13 +129,41 @@ editableInput element =
         , element.button
         ]
 
+
 settingSection : List (Html msg) -> Html msg
 settingSection content =
     section [ my_8 ] content
 
+
 settingText : List (Html msg) -> Html msg
 settingText content =
     span [ font_display, text_gray_200 ] content
+
+
+settingInput : { value : String, placeholder : String } -> Html msg
+settingInput element =
+    input
+        [ type_ "text"
+        , placeholder element.placeholder
+        , value element.value
+
+        --
+        , flex_grow
+        , flex_shrink
+        , min_w_0
+        , max_w_xs
+        , text_base
+        , font_display
+        , text_gray_200
+        , placeholder_gray_400
+        , px_3
+        , py_1
+        , border
+        , border_gray_500
+        , bg_gray_900
+        , rounded
+        ]
+        []
 
 
 infoText : List (Html msg) -> Html msg

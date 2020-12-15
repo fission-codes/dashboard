@@ -34,7 +34,7 @@ main =
 init : Flags -> Url -> Browser.Navigation.Key -> ( Model, Cmd Msg )
 init _ _ _ =
     Tuple.pair
-        { username = UsernameIs "matheus23" }
+        { username = UsernameEditing "matheus23" }
         Cmd.none
 
 
@@ -69,7 +69,30 @@ view model =
         View.appShell
             { header = View.appHeader
             , main =
-                [ View.sectionUsername
+                [ View.settingSection
+                    [ View.sectionTitle [] "Username"
+                    , View.sectionParagraph
+                        [ View.infoText
+                            [ Html.text "Your username is unique among all fission users." ]
+                        , case model.username of
+                            UsernameIs username ->
+                                View.editableInput
+                                    { content = View.settingText [ Html.text username ]
+                                    , button = View.uppercaseButton [] "Update"
+                                    }
+
+                            UsernameEditing username ->
+                                View.editableInput
+                                    { content =
+                                        View.settingInput
+                                            { value = username
+                                            , placeholder = "my_account_name"
+                                            }
+                                    , button = View.uppercaseButton [] "Save"
+                                    }
+                        , View.warning [ Html.text "Sorry, this username was already taken." ]
+                        ]
+                    ]
                 , View.spacer
                 , View.sectionEmail
                 , View.spacer
