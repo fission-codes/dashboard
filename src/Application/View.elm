@@ -178,28 +178,34 @@ settingViewing element =
         , space_x_2
         ]
         [ settingText [ Html.text element.value ]
-        , uppercaseButton
-            [ Events.onClick element.onClickUpdate ]
-            "Update"
+        , button
+            (Events.onClick element.onClickUpdate
+                :: uppercaseButtonAttributes
+            )
+            [ text "Update" ]
         ]
 
 
-settingEditing : { value : String, onInput : String -> msg, onClickSave : msg } -> Html msg
+settingEditing : { value : String, onInput : String -> msg, onSave : msg } -> Html msg
 settingEditing element =
-    span
+    form
         [ flex
         , flex_row
         , items_center
         , space_x_2
+        , Events.onSubmit element.onSave
         ]
         [ settingInput
             { value = element.value
             , placeholder = "my_account_name"
             , onInput = element.onInput
             }
-        , uppercaseButton
-            [ Events.onClick element.onClickSave ]
-            "Save"
+        , input
+            (type_ "submit"
+                :: value "Save"
+                :: uppercaseButtonAttributes
+            )
+            []
         ]
 
 
@@ -222,7 +228,8 @@ sectionEmail element =
                             , space_x_2
                             ]
                             [ verificationStatus NotVerified
-                            , uppercaseButton [] "Resend Verification Email"
+                            , button uppercaseButtonAttributes
+                                [ text "Resend Verification Email" ]
                             ]
                       ]
                     ]
@@ -408,19 +415,15 @@ spacer =
         []
 
 
-uppercaseButton : List (Attribute msg) -> String -> Html msg
-uppercaseButton attributes buttonText =
-    button
-        (List.append attributes
-            [ uppercase
-            , text_purple
-            , font_display
-            , text_xs
-            , tracking_widest
-            , p_2
-            ]
-        )
-        [ text buttonText ]
+uppercaseButtonAttributes : List (Attribute msg)
+uppercaseButtonAttributes =
+    [ uppercase
+    , text_purple
+    , font_display
+    , text_xs
+    , tracking_widest
+    , p_2
+    ]
 
 
 logo : List (Attribute msg) -> Html msg
