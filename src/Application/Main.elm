@@ -35,7 +35,7 @@ main =
 init : Flags -> Url -> Browser.Navigation.Key -> ( Model, Cmd Msg )
 init _ _ _ =
     Tuple.pair
-        { username = UsernameIs "matheus23" }
+        { username = SettingIs "matheus23" }
         Cmd.none
 
 
@@ -46,40 +46,36 @@ init _ _ _ =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        UsernameEdit ->
-            case model.username of
-                UsernameIs username ->
-                    ( { model | username = UsernameEditing username }
-                    , Cmd.none
-                    )
-
-                _ ->
-                    ( model, Cmd.none )
-
-        UsernameSave ->
-            case model.username of
-                UsernameEditing username ->
-                    ( { model | username = UsernameIs username }
-                    , Cmd.none
-                    )
-
-                _ ->
-                    ( model, Cmd.none )
-
-        UsernameUpdate text ->
-            case model.username of
-                UsernameEditing username ->
-                    ( { model | username = UsernameEditing text }
-                    , Cmd.none
-                    )
-
-                _ ->
-                    ( model, Cmd.none )
+        Username settingMsg ->
+            ( { model
+                | username =
+                    updateSetting
+                        settingMsg
+                        model.username
+              }
+            , Cmd.none
+            )
 
         _ ->
             ( model
             , Cmd.none
             )
+
+
+updateSetting : SettingMsg -> SettingModel -> SettingModel
+updateSetting msg model =
+    case ( model, msg ) of
+        ( SettingIs value, SettingEdit ) ->
+            SettingEditing value
+
+        ( SettingEditing value, SettingSave ) ->
+            SettingIs value
+
+        ( SettingEditing _, SettingUpdate value ) ->
+            SettingEditing value
+
+        _ ->
+            model
 
 
 
@@ -108,29 +104,29 @@ view model =
                         (View.infoText
                             [ Html.text "Your username is unique among all fission users." ]
                             :: (case model.username of
-                                    UsernameIs username ->
+                                    SettingIs username ->
                                         [ View.editableInput
                                             { content = View.settingText [ Html.text username ]
                                             , button =
                                                 View.uppercaseButton
-                                                    [ Events.onClick UsernameEdit
+                                                    [ Events.onClick (Username SettingEdit)
                                                     ]
                                                     "Update"
                                             }
                                         ]
 
-                                    UsernameEditing username ->
+                                    SettingEditing username ->
                                         List.concat
                                             [ [ View.editableInput
                                                     { content =
                                                         View.settingInput
                                                             { value = username
                                                             , placeholder = "my_account_name"
-                                                            , onInput = UsernameUpdate
+                                                            , onInput = Username << SettingUpdate
                                                             }
                                                     , button =
                                                         View.uppercaseButton
-                                                            [ Events.onClick UsernameSave
+                                                            [ Events.onClick (Username SettingSave)
                                                             ]
                                                             "Save"
                                                     }
