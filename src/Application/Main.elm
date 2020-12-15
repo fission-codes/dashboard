@@ -38,6 +38,7 @@ init _ _ _ =
         { username = SettingIs "matheus23"
         , email = SettingIs "my-email@me.com"
         , productUpdates = False
+        , emailVerified = False
         }
         Cmd.none
 
@@ -74,10 +75,16 @@ update msg model =
             , Cmd.none
             )
 
-        _ ->
-            ( model
+        EmailResendVerification ->
+            ( { model | emailVerified = True }
             , Cmd.none
             )
+
+        UrlChanged _ ->
+            ( model, Cmd.none )
+
+        UrlRequested _ ->
+            ( model, Cmd.none )
 
 
 updateSetting : SettingMsg -> SettingModel -> SettingModel
@@ -124,6 +131,7 @@ view model =
                         { email = viewEmail model
                         , productUpdates = model.productUpdates
                         , onCheckProductUpdates = ProductUpdatesCheck
+                        , verificationStatus = viewVerificationStatus model
                         }
 
                     -- , View.sectionManageAccount
@@ -187,6 +195,21 @@ viewEmail model =
                         [ Html.text "You’ll have to verify your email address again, once changed." ]
                   ]
                 ]
+
+
+viewVerificationStatus : Model -> List (Html Msg)
+viewVerificationStatus model =
+    if model.emailVerified then
+        [ View.verificationStatus View.Verified ]
+
+    else
+        [ View.verificationStatus View.NotVerified
+        , Html.button
+            (Events.onClick EmailResendVerification
+                :: View.uppercaseButtonAttributes
+            )
+            [ Html.text "Resend Verification Email" ]
+        ]
 
 
 when : Bool -> List a -> List a

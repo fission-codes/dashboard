@@ -20,6 +20,7 @@ type alias Model =
     { username : SettingModel
     , email : SettingModel
     , productUpdates : Bool
+    , emailVerified : Bool
     }
 
 
@@ -37,6 +38,7 @@ type
     | Username SettingMsg
     | Email SettingMsg
     | ProductUpdatesCheck Bool
+    | EmailResendVerification
 
 
 
