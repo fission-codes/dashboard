@@ -209,7 +209,13 @@ settingEditing element =
         ]
 
 
-sectionEmail : { email : List (Html msg), productUpdates : Bool, onCheckProductUpdates : Bool -> msg } -> Html msg
+sectionEmail :
+    { email : List (Html msg)
+    , productUpdates : Bool
+    , onCheckProductUpdates : Bool -> msg
+    , verificationStatus : List (Html msg)
+    }
+    -> Html msg
 sectionEmail element =
     settingSection
         [ sectionTitle [] "Email"
@@ -227,10 +233,7 @@ sectionEmail element =
                             , items_center
                             , space_x_2
                             ]
-                            [ verificationStatus NotVerified
-                            , button uppercaseButtonAttributes
-                                [ text "Resend Verification Email" ]
-                            ]
+                            element.verificationStatus
                       ]
                     ]
                 )
