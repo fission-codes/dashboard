@@ -132,6 +132,7 @@ sectionUsername =
                     [ text "matheus23" ]
                 , uppercaseButton [] "Update"
                 ]
+            , warning [ text "Sorry, this username was already taken." ]
             ]
         ]
 
@@ -159,6 +160,16 @@ sectionEmail =
                         [ text "my-email@me.com" ]
                     , uppercaseButton [] "Update"
                     ]
+                , warning
+                    [ text "This doesn’t seem to be an Email address."
+                    , br [] []
+                    , text "Is there a typo?"
+                    ]
+                , span
+                    [ text_sm
+                    , text_gray_200
+                    ]
+                    [ text "You’ll have to verify your email address again, once changed." ]
                 , span
                     [ flex
                     , flex_row
@@ -292,6 +303,27 @@ verificationStatus status =
                 NotVerified ->
                     text "Not Verified"
             ]
+        ]
+
+
+warning : List (Html msg) -> Html msg
+warning content =
+    span
+        [ flex
+        , flex_row
+        , items_center
+        , text_red
+        , text_sm
+        , space_x_2
+        ]
+        [ FeatherIcons.alertTriangle
+            |> FeatherIcons.withSize 16
+            |> FeatherIcons.toHtml []
+            |> List.singleton
+            |> span []
+        , span
+            [ font_display ]
+            content
         ]
 
 
