@@ -131,7 +131,7 @@ view model =
                                     [ [ View.settingEditing
                                             { value = username
                                             , onInput = Username << SettingUpdate
-                                            , onClickSave = Username SettingSave
+                                            , onSave = Username SettingSave
                                             }
                                       ]
                                     , when (username == "matheus23")
@@ -154,7 +154,7 @@ view model =
                                     [ [ View.settingEditing
                                             { value = email
                                             , onInput = Email << SettingUpdate
-                                            , onClickSave = Email SettingSave
+                                            , onSave = Email SettingSave
                                             }
                                       ]
                                     , when (not (String.contains "@" email))
