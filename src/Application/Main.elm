@@ -73,6 +73,7 @@ view model =
                 , View.spacer
                 , View.sectionEmail
                 , View.spacer
+                , View.sectionManageAccount
                 ]
             , footer = View.appFooter
             }

@@ -3,7 +3,7 @@ module View exposing (..)
 import Css.Classes exposing (..)
 import FeatherIcons
 import Html exposing (..)
-import Html.Attributes exposing (checked, height, href, src, type_, value, width)
+import Html.Attributes exposing (checked, height, href, placeholder, src, type_, value, width)
 
 
 appShell :
@@ -115,14 +115,12 @@ sectionUsername =
         [ sectionTitle [] "Username"
         , sectionParagraph
             [ span
-                [ ml_5
-                , text_sm
+                [ text_sm
                 , text_gray_200
                 ]
                 [ text "Your username is unique among all fission users." ]
             , span
-                [ ml_5
-                , flex
+                [ flex
                 , flex_row
                 , items_center
                 , space_x_2
@@ -144,8 +142,7 @@ sectionEmail =
         [ sectionTitle [] "Email"
         , sectionParagraph
             [ div
-                [ ml_5
-                , flex
+                [ flex
                 , flex_col
                 , space_y_2
                 ]
@@ -173,8 +170,7 @@ sectionEmail =
                     ]
                 ]
             , div
-                [ ml_5
-                , flex
+                [ flex
                 , flex_col
                 , space_y_2
                 ]
@@ -200,6 +196,59 @@ sectionEmail =
                     , text_gray_200
                     ]
                     [ text "Check to recieve pretty fun emails" ]
+                ]
+            ]
+        ]
+
+
+sectionManageAccount : Html msg
+sectionManageAccount =
+    section [ my_8 ]
+        [ sectionTitle [] "Manage Account"
+        , sectionParagraph
+            [ span [ text_sm, text_gray_200 ]
+                [ text "Permanently delete your account and all associated data. "
+                , a [] [ text "Read more" ]
+                ]
+            , form
+                [ flex
+                , flex_row
+                , space_x_3
+                ]
+                [ input
+                    [ type_ "text"
+                    , placeholder "Your account name"
+
+                    --
+                    , flex_grow
+                    , flex_shrink
+                    , min_w_0
+                    , text_base
+                    , font_display
+                    , text_gray_200
+                    , placeholder_gray_400
+                    , px_3
+                    , py_1
+                    , border
+                    , border_gray_500
+                    , bg_gray_900
+                    , rounded
+                    ]
+                    []
+                , input
+                    [ type_ "submit"
+                    , value "Delete Account"
+
+                    --
+                    , rounded
+                    , bg_red
+                    , text_white
+                    , font_body
+                    , text_base
+                    , px_3
+                    , py_1
+                    ]
+                    []
                 ]
             ]
         ]
@@ -249,7 +298,8 @@ verificationStatus status =
 sectionParagraph : List (Html msg) -> Html msg
 sectionParagraph content =
     p
-        [ ml_5
+        [ pl_10
+        , pr_5
         , mt_5
         , flex
         , flex_col
