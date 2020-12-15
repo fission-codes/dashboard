@@ -203,7 +203,7 @@ settingEditing element =
         ]
 
 
-sectionEmail : { email : List (Html msg) } -> Html msg
+sectionEmail : { email : List (Html msg), productUpdates : Bool, onCheckProductUpdates : Bool -> msg } -> Html msg
 sectionEmail element =
     settingSection
         [ sectionTitle [] "Email"
@@ -239,7 +239,8 @@ sectionEmail element =
                     ]
                     [ input
                         [ type_ "checkbox"
-                        , checked True
+                        , checked element.productUpdates
+                        , Events.onCheck element.onCheckProductUpdates
                         ]
                         []
                     , span
