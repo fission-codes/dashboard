@@ -221,7 +221,7 @@ sectionEmail element =
         [ sectionTitle [] "Email"
         , sectionParagraph
             [ responsiveGroup
-                [ groupHeading "Your email"
+                [ groupHeading [ text "Your email" ]
                 , div
                     [ flex
                     , flex_col
@@ -230,7 +230,7 @@ sectionEmail element =
                     element.email
                 ]
             , responsiveGroup
-                [ groupHeading ""
+                [ groupHeading []
                 , span
                     [ flex
                     , flex_row
@@ -239,12 +239,28 @@ sectionEmail element =
                     ]
                     element.verificationStatus
                 ]
-            , responsiveGroup
-                [ groupHeading "Check to recieve pretty fun emails"
+            , let
+                checkboxInfo =
+                    [ text "Check to subscribe to occasional product updates. "
+                    , a
+                        [ href "https://5d04d668.sibforms.com/serve/MUIEAD0fi3_BJE-4eieeuK6_0_XZaOPiu1_nfh56jvP1pV9uWy9OLxWLrHtjC148osZF2vcRb0XAymSdzFxhVD7XgvvODjbrp5ClBvQLmY70hyvU1JKu7ucoOP5KFJVRcfNgYN-3qvVppxg72KGyYZlWAJr2IkO7Ae9CIhnjpufaP7npZGPrBFzpmyEaKKLGYyqu0dnQIobGLAMM"
+
+                        --
+                        , underline
+                        , text_decoration_purple
+                        , text_decoration_3over2
+                        ]
+                        [ text "Manage all your subscriptions here" ]
+                    ]
+              in
+              responsiveGroup
+                [ groupHeading checkboxInfo
                 , label
                     [ flex
                     , flex_row
                     , space_x_2
+                    , items_center
+                    , self_start
                     ]
                     [ input
                         [ type_ "checkbox"
@@ -260,7 +276,7 @@ sectionEmail element =
                         [ text "Product Updates" ]
                     ]
                 , span (md__hidden :: infoTextAttributes)
-                    [ text "Check to recieve pretty fun emails" ]
+                    checkboxInfo
                 ]
             ]
         ]
@@ -338,8 +354,8 @@ responsiveGroup content =
         content
 
 
-groupHeading : String -> Html msg
-groupHeading title =
+groupHeading : List (Html msg) -> Html msg
+groupHeading content =
     span
         (hidden
             --
@@ -347,7 +363,7 @@ groupHeading title =
             :: md__w_1over3
             :: infoTextAttributes
         )
-        [ text title ]
+        content
 
 
 type VerificationStatus
