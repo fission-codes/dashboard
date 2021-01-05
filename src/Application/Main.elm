@@ -153,6 +153,7 @@ viewUsername model =
             List.concat
                 [ [ View.settingEditing
                         { value = username
+                        , placeholder = "Your account name"
                         , onInput = Username << SettingUpdate
                         , onSave = Username SettingSave
                         }
@@ -176,6 +177,7 @@ viewEmail model =
             List.concat
                 [ [ View.settingEditing
                         { value = email
+                        , placeholder = "my-email@example.com"
                         , onInput = Email << SettingUpdate
                         , onSave = Email SettingSave
                         }
