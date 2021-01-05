@@ -123,7 +123,8 @@ view model =
             { header = View.appHeader
             , main =
                 List.intersperse View.spacer
-                    [ View.sectionUsername
+                    [ View.dashboardHeading "Your Account"
+                    , View.sectionUsername
                         { username = viewUsername model
                         }
                     , View.sectionEmail

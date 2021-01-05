@@ -83,6 +83,16 @@ appFooter =
                 , h_8
                 ]
                 []
+            , span
+                [ text_gray_200
+                , mr_auto
+                , flex_grow
+                , hidden
+
+                --
+                , md__inline
+                ]
+                [ text "Fission Internet Software" ]
             , div
                 [ flex_grow
                 , flex
@@ -91,9 +101,15 @@ appFooter =
                 , text_gray_200
                 , underline
                 , space_y_2
+
+                --
+                , md__flex_row
+                , md__space_y_0
+                , md__space_x_8
+                , md__flex_grow_0
                 ]
-                [ a [] [ text "Discord" ]
-                , a [] [ text "Forum" ]
+                [ footerLink [] { text = "Discord", url = "#" }
+                , footerLink [] { text = "Forum", url = "#" }
                 ]
             , div
                 [ flex_grow
@@ -103,13 +119,42 @@ appFooter =
                 , text_gray_200
                 , underline
                 , space_y_2
+
+                --
+                , md__flex_row
+                , md__space_y_0
+                , md__space_x_8
+                , md__flex_grow_0
                 ]
-                [ a [] [ text "Terms of Service" ]
-                , a [] [ text "Privacy Policy" ]
+                [ footerLink [] { text = "Terms of Service", url = "#" }
+                , footerLink [] { text = "Privacy Policy", url = "#" }
                 ]
             ]
         ]
     ]
+
+
+footerLink : List (Attribute msg) -> { text : String, url : String } -> Html msg
+footerLink attributes element =
+    a
+        (List.append attributes
+            [ text_gray_200
+            , underline
+            , href element.url
+            ]
+        )
+        [ text element.text ]
+
+
+dashboardHeading : String -> Html msg
+dashboardHeading headingText =
+    h1
+        [ px_16
+        , py_8
+        , font_display
+        , text_4xl
+        ]
+        [ text headingText ]
 
 
 settingSection : List (Html msg) -> Html msg
