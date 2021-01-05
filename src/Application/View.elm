@@ -149,10 +149,15 @@ footerLink attributes element =
 dashboardHeading : String -> Html msg
 dashboardHeading headingText =
     h1
-        [ px_16
-        , py_8
-        , font_display
-        , text_4xl
+        [ font_display
+        , px_8
+        , py_5
+        , text_2xl
+
+        --
+        , md__px_16
+        , md__py_8
+        , md__text_4xl
         ]
         [ text headingText ]
 
