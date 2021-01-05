@@ -186,7 +186,7 @@ settingViewing element =
         ]
 
 
-settingEditing : { value : String, onInput : String -> msg, onSave : msg } -> Html msg
+settingEditing : { value : String, placeholder : String, onInput : String -> msg, onSave : msg } -> Html msg
 settingEditing element =
     form
         [ flex
@@ -197,7 +197,7 @@ settingEditing element =
         ]
         [ settingInput
             { value = element.value
-            , placeholder = "my_account_name"
+            , placeholder = element.placeholder
             , onInput = element.onInput
             }
         , input
