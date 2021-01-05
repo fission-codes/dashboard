@@ -2,6 +2,7 @@ module Main exposing (main)
 
 import Browser
 import Browser.Navigation
+import Common
 import FeatherIcons
 import Html exposing (Html)
 import Html.Attributes as A
@@ -154,12 +155,13 @@ viewUsername model =
             List.concat
                 [ [ View.settingEditing
                         { value = username
-                        , placeholder = "Your account name"
                         , onInput = Username << SettingUpdate
+                        , placeholder = "Your account name"
+                        , inErrorState = username == "matheus23"
                         , onSave = Username SettingSave
                         }
                   ]
-                , when (username == "matheus23")
+                , Common.when (username == "matheus23")
                     [ View.warning [ Html.text "Sorry, this username was already taken." ] ]
                 ]
 
@@ -178,14 +180,15 @@ viewEmail model =
             List.concat
                 [ [ View.settingEditing
                         { value = email
-                        , placeholder = "my-email@example.com"
                         , onInput = Email << SettingUpdate
+                        , placeholder = "my-email@example.com"
+                        , inErrorState = not (String.contains "@" email)
                         , onSave = Email SettingSave
                         }
                   ]
 
                 -- TODO improve email verification
-                , when (not (String.contains "@" email))
+                , Common.when (not (String.contains "@" email))
                     [ View.warning
                         [ Html.text "This doesn’t seem to be an email address."
                         , Html.br [] []
@@ -211,12 +214,3 @@ viewVerificationStatus model =
             )
             [ Html.text "Resend Verification Email" ]
         ]
-
-
-when : Bool -> List a -> List a
-when predicate list =
-    if predicate then
-        list
-
-    else
-        []
