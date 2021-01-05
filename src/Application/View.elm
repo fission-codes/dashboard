@@ -1,5 +1,6 @@
 module View exposing (..)
 
+import Common
 import Css.Classes exposing (..)
 import FeatherIcons
 import Html exposing (..)
@@ -172,30 +173,43 @@ settingText content =
     span [ font_display, text_gray_200 ] content
 
 
-settingInput : { value : String, placeholder : String, onInput : String -> msg } -> Html msg
+settingInput :
+    { placeholder : String
+    , value : String
+    , onInput : String -> msg
+    , inErrorState : Bool
+    }
+    -> Html msg
 settingInput element =
     input
-        [ type_ "text"
-        , placeholder element.placeholder
-        , value element.value
-        , Events.onInput element.onInput
+        (List.concat
+            [ [ type_ "text"
+              , placeholder element.placeholder
+              , value element.value
+              , Events.onInput element.onInput
 
-        --
-        , flex_grow
-        , flex_shrink
-        , min_w_0
-        , max_w_xs
-        , text_base
-        , font_display
-        , text_gray_200
-        , placeholder_gray_400
-        , px_3
-        , py_1
-        , border
-        , border_gray_500
-        , bg_gray_900
-        , rounded
-        ]
+              --
+              , flex_grow
+              , flex_shrink
+              , min_w_0
+              , max_w_xs
+              , text_base
+              , font_display
+              , text_gray_200
+              , placeholder_gray_400
+              , px_3
+              , py_1
+              , border
+              , border_gray_500
+              , bg_gray_900
+              , rounded
+              ]
+            , Common.when (not element.inErrorState)
+                [ focus__border_purple ]
+            , Common.when element.inErrorState
+                [ border_red ]
+            ]
+        )
         []
 
 
@@ -236,7 +250,14 @@ settingViewing element =
         ]
 
 
-settingEditing : { value : String, placeholder : String, onInput : String -> msg, onSave : msg } -> Html msg
+settingEditing :
+    { value : String
+    , onInput : String -> msg
+    , placeholder : String
+    , inErrorState : Bool
+    , onSave : msg
+    }
+    -> Html msg
 settingEditing element =
     form
         [ flex
@@ -247,8 +268,9 @@ settingEditing element =
         ]
         [ settingInput
             { value = element.value
-            , placeholder = element.placeholder
             , onInput = element.onInput
+            , placeholder = element.placeholder
+            , inErrorState = element.inErrorState
             }
         , input
             (type_ "submit"
@@ -367,6 +389,9 @@ sectionManageAccount =
                         , border_gray_500
                         , bg_gray_900
                         , rounded
+
+                        --
+                        , focus__border_purple
                         ]
                         []
                     , input
