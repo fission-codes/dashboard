@@ -1,9 +1,24 @@
+# Variables
+# =========
+
 dist := "build"
 node_bin := "./node_modules/.bin"
 
 
+
+# Tasks
+# =====
+
 @default: dev-build
 	just dev-server & just watch
+
+
+@hot:
+	just dev-build
+	just hot-server & \
+	just watch-css & \
+	just watch-html & \
+	just watch-javascript
 
 
 
@@ -43,9 +58,17 @@ node_bin := "./node_modules/.bin"
 @html:
 	echo "📜  Compiling HTML"
 	mustache \
-		--layout src/Html/Layout.html \
-		config/default.yml src/Html/Application.html \
+		config/default.yml src/Html/Main.html \
 		> {{dist}}/index.html
+
+
+@javascript:
+	echo "⚙️  Bundling javascript"
+	{{node_bin}}/esbuild \
+		--bundle \
+		--minify \
+		--outfile={{dist}}/bundle.min.js \
+		src/Javascript/index.js
 
 
 
@@ -58,20 +81,13 @@ node_bin := "./node_modules/.bin"
 	mkdir -p {{dist}}
 
 
-@dev-build: clean html css-large elm-dev fonts images
+@dev-build: clean html css-large javascript elm-dev fonts images
 
 
 @dev-server:
 	echo "🧞  Putting up a server for ya"
 	echo "http://localhost:8004"
 	devd --quiet build --port=8004 --all
-
-
-@hot:
-	just dev-build
-	just hot-server & \
-	just watch-css & \
-	just watch-html
 
 
 @hot-server:
@@ -94,7 +110,8 @@ node_bin := "./node_modules/.bin"
 	echo "👀  Watching for changes"
 	just watch-css & \
 	just watch-elm & \
-	just watch-html
+	just watch-html & \
+	just watch-javascript
 
 
 @watch-css:
@@ -107,3 +124,7 @@ node_bin := "./node_modules/.bin"
 
 @watch-html:
 	watchexec -p -w src -e html -- just html
+
+
+@watch-javascript:
+	watchexec -p -w src -e js -- just javascript
