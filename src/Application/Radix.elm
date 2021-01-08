@@ -1,8 +1,10 @@
 module Radix exposing (..)
 
 import Browser exposing (UrlRequest)
+import Json.Decode as Json
 import Url exposing (Url)
 import Webnative
+import Webnative.Types as Webnative
 
 
 
@@ -46,6 +48,7 @@ type
       -----------------------------------------
       -- Webnative
       -----------------------------------------
+    | InitializedWebnative (Result Json.Error Webnative.State)
     | GotWnfsResponse Webnative.Response
 
 
