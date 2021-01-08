@@ -2,6 +2,7 @@ module Radix exposing (..)
 
 import Browser exposing (UrlRequest)
 import Url exposing (Url)
+import Webnative
 
 
 
@@ -35,10 +36,17 @@ type
     -----------------------------------------
     = UrlChanged Url
     | UrlRequested UrlRequest
+      -----------------------------------------
+      -- App
+      -----------------------------------------
     | Username SettingMsg
     | Email SettingMsg
     | ProductUpdatesCheck Bool
     | EmailResendVerification
+      -----------------------------------------
+      -- Webnative
+      -----------------------------------------
+    | GotWnfsResponse Webnative.Response
 
 
 

@@ -7,9 +7,12 @@ import FeatherIcons
 import Html exposing (Html)
 import Html.Attributes as A
 import Html.Events as Events
+import Ports
 import Radix exposing (..)
 import Url exposing (Url)
 import View
+import Webnative
+import Wnfs
 
 
 
@@ -25,6 +28,14 @@ main =
         , subscriptions = subscriptions
         , onUrlChange = UrlChanged
         , onUrlRequest = UrlRequested
+        }
+
+
+base : Wnfs.Base
+base =
+    Wnfs.AppData
+        { creator = "Fission"
+        , name = "Dashboard"
         }
 
 
@@ -50,6 +61,9 @@ init _ _ _ =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        -----------------------------------------
+        -- App
+        -----------------------------------------
         Username settingMsg ->
             ( { model
                 | username =
@@ -80,11 +94,26 @@ update msg model =
             , Cmd.none
             )
 
+        -----------------------------------------
+        -- URL
+        -----------------------------------------
         UrlChanged _ ->
             ( model, Cmd.none )
 
         UrlRequested _ ->
             ( model, Cmd.none )
+
+        -----------------------------------------
+        -- Webnative
+        -----------------------------------------
+        GotWnfsResponse response ->
+            case Wnfs.decodeResponse (\_ -> Err "No tags to pars") response of
+                Ok ( n, _ ) ->
+                    never n
+
+                _ ->
+                    -- TODO: Error handling
+                    ( model, Cmd.none )
 
 
 updateSetting : SettingMsg -> SettingModel -> SettingModel
@@ -109,7 +138,8 @@ updateSetting msg model =
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
-    Sub.none
+    Sub.batch
+        [ Ports.wnfsResponse GotWnfsResponse ]
 
 
 
