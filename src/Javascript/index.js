@@ -11,4 +11,5 @@ webnative
   })
   .then(state => {
     webnativeElm.setup(elmApp, state.fs)
+    elmApp.ports.webnativeInitialized.send(state)
   })

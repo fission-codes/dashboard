@@ -7,11 +7,13 @@ import FeatherIcons
 import Html exposing (Html)
 import Html.Attributes as A
 import Html.Events as Events
+import Json.Decode as Json
 import Ports
 import Radix exposing (..)
 import Url exposing (Url)
 import View
 import Webnative
+import Webnative.Types as Webnative
 import Wnfs
 
 
@@ -106,6 +108,16 @@ update msg model =
         -----------------------------------------
         -- Webnative
         -----------------------------------------
+        InitializedWebnative result ->
+            case result of
+                Ok webnativeState ->
+                    case webnativeState of
+                        _ ->
+                            ( model, Cmd.none )
+
+                Err _ ->
+                    ( model, Cmd.none )
+
         GotWnfsResponse response ->
             case Wnfs.decodeResponse (\_ -> Err "No tags to pars") response of
                 Ok ( n, _ ) ->
@@ -139,7 +151,9 @@ updateSetting msg model =
 subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.batch
-        [ Ports.wnfsResponse GotWnfsResponse ]
+        [ Ports.wnfsResponse GotWnfsResponse
+        , Ports.webnativeInitialized (Json.decodeValue Webnative.decoderState >> InitializedWebnative)
+        ]
 
 
 
