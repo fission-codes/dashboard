@@ -47,9 +47,9 @@ base =
 
 init : Flags -> Url -> Browser.Navigation.Key -> ( Model, Cmd Msg )
 init _ _ _ =
-    Tuple.pair
-        LoadingScreen
-        Cmd.none
+    ( LoadingScreen
+    , Cmd.none
+    )
 
 
 initDashboard : String -> DashboardModel
@@ -67,22 +67,22 @@ initDashboard username =
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    case model of
-        Dashboard dashboardModel ->
+    case ( model, msg ) of
+        ( Dashboard dashboardModel, DashboardMsg dashboardMsg ) ->
             let
                 ( newModel, cmds ) =
-                    updateDashboard msg dashboardModel
+                    updateDashboard dashboardMsg dashboardModel
             in
             ( Dashboard newModel
             , cmds
             )
 
         _ ->
-            updateSigninScreen msg model
+            updateUnauthenticated msg model
 
 
-updateSigninScreen : Msg -> Model -> ( Model, Cmd Msg )
-updateSigninScreen msg model =
+updateUnauthenticated : Msg -> Model -> ( Model, Cmd Msg )
+updateUnauthenticated msg model =
     case msg of
         -----------------------------------------
         -- Webnative
@@ -126,11 +126,23 @@ updateSigninScreen msg model =
         RedirectToLobby ->
             ( model, Ports.redirectToLobby () )
 
-        _ ->
+        -----------------------------------------
+        -- URL
+        -----------------------------------------
+        UrlChanged _ ->
+            ( model, Cmd.none )
+
+        UrlRequested _ ->
+            ( model, Cmd.none )
+
+        -----------------------------------------
+        -- Message/Model desync
+        -----------------------------------------
+        DashboardMsg _ ->
             ( model, Cmd.none )
 
 
-updateDashboard : Msg -> DashboardModel -> ( DashboardModel, Cmd Msg )
+updateDashboard : DashboardMsg -> DashboardModel -> ( DashboardModel, Cmd Msg )
 updateDashboard msg model =
     case msg of
         -----------------------------------------
@@ -165,18 +177,6 @@ updateDashboard msg model =
             ( { model | emailVerified = True }
             , Cmd.none
             )
-
-        -----------------------------------------
-        -- URL
-        -----------------------------------------
-        UrlChanged _ ->
-            ( model, Cmd.none )
-
-        UrlRequested _ ->
-            ( model, Cmd.none )
-
-        _ ->
-            ( model, Cmd.none )
 
 
 updateSetting : SettingMsg -> SettingModel -> SettingModel
@@ -228,7 +228,7 @@ view model =
                             , View.sectionEmail
                                 { email = viewEmail dashboard
                                 , productUpdates = dashboard.productUpdates
-                                , onCheckProductUpdates = ProductUpdatesCheck
+                                , onCheckProductUpdates = ProductUpdatesCheck >> DashboardMsg
                                 , verificationStatus = viewVerificationStatus dashboard
                                 }
                             , View.sectionManageAccount
@@ -254,7 +254,7 @@ viewUsername model =
         SettingIs username ->
             [ View.settingViewing
                 { value = username
-                , onClickUpdate = Username SettingEdit
+                , onClickUpdate = DashboardMsg (Username SettingEdit)
                 }
             ]
 
@@ -262,10 +262,10 @@ viewUsername model =
             List.concat
                 [ [ View.settingEditing
                         { value = username
-                        , onInput = Username << SettingUpdate
+                        , onInput = DashboardMsg << Username << SettingUpdate
                         , placeholder = "Your account name"
                         , inErrorState = username == "matheus23"
-                        , onSave = Username SettingSave
+                        , onSave = DashboardMsg (Username SettingSave)
                         }
                   ]
                 , Common.when (username == "matheus23")
@@ -279,7 +279,7 @@ viewEmail model =
         SettingIs email ->
             [ View.settingViewing
                 { value = email
-                , onClickUpdate = Email SettingEdit
+                , onClickUpdate = DashboardMsg (Email SettingEdit)
                 }
             ]
 
@@ -287,10 +287,10 @@ viewEmail model =
             List.concat
                 [ [ View.settingEditing
                         { value = email
-                        , onInput = Email << SettingUpdate
+                        , onInput = DashboardMsg << Email << SettingUpdate
                         , placeholder = "my-email@example.com"
                         , inErrorState = not (String.contains "@" email)
-                        , onSave = Email SettingSave
+                        , onSave = DashboardMsg (Email SettingSave)
                         }
                   ]
 
@@ -316,7 +316,7 @@ viewVerificationStatus model =
     else
         [ View.verificationStatus View.NotVerified
         , Html.button
-            (Events.onClick EmailResendVerification
+            (Events.onClick (DashboardMsg EmailResendVerification)
                 :: View.uppercaseButtonAttributes
             )
             [ Html.text "Resend Verification Email" ]
