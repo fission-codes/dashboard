@@ -35,6 +35,19 @@ node_bin := "./node_modules/.bin"
 		--output {{dist}}/application.css \
 		--post-plugin-before postcss-import
 
+@css-small:
+	echo "💄  Compiling Minified CSS"
+	mkdir -p src/Library/Css
+	NODE_ENV=production pnpx etc src/Css/Application.css \
+		--config src/Css/Tailwind.js \
+		--elm-module Css.Classes \
+		--elm-path src/Library/Css/Classes.elm \
+		--output {{dist}}/application.css \
+		--post-plugin-before postcss-import \
+		--purge-content {{dist}}/index.html \
+		--purge-content {{dist}}/bundle.min.js \
+		--purge-content {{dist}}/application.js \
+
 
 @elm-dev:
 	echo "🌳  Compiling Elm"
@@ -42,6 +55,12 @@ node_bin := "./node_modules/.bin"
 		--output {{dist}}/application.js \
 		src/Application/Main.elm
 
+@elm-production:
+	echo "🌳  Compiling Elm (optimised)"
+	elm make \
+		--output {{dist}}/application.js \
+		--optimize \
+		src/Application/Main.elm
 
 @fonts:
 	echo "🔤  Copying fonts"
@@ -82,6 +101,9 @@ node_bin := "./node_modules/.bin"
 
 
 @dev-build: clean html css-large javascript elm-dev fonts images
+
+
+@production-build: clean html elm-production javascript css-small fonts images
 
 
 @dev-server:
