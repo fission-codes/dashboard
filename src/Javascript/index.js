@@ -1,20 +1,26 @@
 import * as webnative from "webnative"
-import * as webnativeElm from "webnative-elm"
+// import * as webnativeElm from "webnative-elm"
 
 const elmApp = Elm.Main.init()
 
+const permissions = {
+  app: {
+    creator: "Fission",
+    name: "Dashboard",
+  },
+}
+
+
 webnative
   .initialise({
-    permissions: {
-      app: { creator: "Fission", name: "Dashboard" }
-    }
+    permissions
   })
   .then(state => {
+    // No need for filesystem operations at the moment
     // webnativeElm.setup(elmApp, state.fs)
-    console.log(state)
 
     elmApp.ports.redirectToLobby.subscribe(() => {
-      webnative.redirectToLobby(state.premissions);
-    });
+      webnative.redirectToLobby(state.premissions)
+    })
     elmApp.ports.webnativeInitialized.send(state)
   })
