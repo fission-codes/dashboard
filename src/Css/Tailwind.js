@@ -39,7 +39,11 @@ export default {
     // ==========
 
     extend: {
-  
+ 
+      maxWidth: {
+        "xxs": "16rem",
+      },
+      
       boxShadow: {
         "inner-outline": "inset 0 0 0 2px rgba(100, 70, 250, .2)", // purple 20%
         "outline": "0 0 0 2px rgba(100, 70, 250, 0.4)", // purple 40%
@@ -54,5 +58,9 @@ export default {
   // VARIANTS /////////////////////////////
   /////////////////////////////////////////
 
-  variants: { extend: {}}
+  variants: {
+    extend: {
+      maxWidth: [ 'responsive' ],
+    }
+  }
 }

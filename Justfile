@@ -94,6 +94,7 @@ node_bin := "./node_modules/.bin"
 	echo "🔥  Start a hot-reloading elm-live server at http://localhost:8004"
 	{{node_bin}}/elm-live src/Application/Main.elm \
 		--hot \
+		--host 0.0.0.0 \
 		--port=8004 \
 		--pushstate \
 		--dir={{dist}} \

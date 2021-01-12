@@ -96,13 +96,20 @@ updateSigninScreen msg model =
                             , Cmd.none
                             )
 
+                        Webnative.AuthCancelled _ ->
+                            ( SigninScreen
+                            , Cmd.none
+                            )
+
                         Webnative.AuthSucceeded { username } ->
                             ( Dashboard (initDashboard username)
                             , Cmd.none
                             )
 
-                        _ ->
-                            ( model, Cmd.none )
+                        Webnative.Continuation { username } ->
+                            ( Dashboard (initDashboard username)
+                            , Cmd.none
+                            )
 
                 Err _ ->
                     ( model, Cmd.none )
@@ -235,7 +242,9 @@ view model =
                 ]
 
             LoadingScreen ->
-                [ View.loadingScreen ]
+                [ View.loadingScreen
+                    { message = "Trying to authorize..." }
+                ]
     }
 
 
