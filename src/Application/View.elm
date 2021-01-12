@@ -616,7 +616,10 @@ splashscreenShell attributes content =
         )
         (logo
             { attributes = [ style "margin-top" "35vh" ]
-            , fissionAttributes = [ w_80 ]
+            , fissionAttributes =
+                [ max_w_xxs
+                , sm__max_w_xs
+                ]
             }
             :: content
         )
@@ -627,7 +630,8 @@ signinScreen { onSignIn } =
     splashscreenShell
         [ space_y_8 ]
         [ p
-            [ max_w_xs
+            [ max_w_sm
+            , px_5
             , font_body
             , text_base
             , text_center
@@ -639,8 +643,8 @@ signinScreen { onSignIn } =
         ]
 
 
-loadingScreen : Html msg
-loadingScreen =
+loadingScreen : { message : String } -> Html msg
+loadingScreen { message } =
     splashscreenShell
         []
         [ span
@@ -654,7 +658,7 @@ loadingScreen =
             , text_base
             , mt_8
             ]
-            [ text "Authenticating..." ]
+            [ text message ]
         ]
 
 
