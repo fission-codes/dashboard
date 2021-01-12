@@ -37,26 +37,23 @@ type alias DashboardModel =
 -- 📣
 
 
-type
-    Msg
-    -----------------------------------------
-    -- URL
-    -----------------------------------------
+type Msg
     = UrlChanged Url
     | UrlRequested UrlRequest
-      -----------------------------------------
-      -- App
-      -----------------------------------------
-    | Username SettingMsg
-    | Email SettingMsg
-    | ProductUpdatesCheck Bool
-    | EmailResendVerification
+    | DashboardMsg DashboardMsg
       -----------------------------------------
       -- Webnative
       -----------------------------------------
     | InitializedWebnative (Result Json.Error Webnative.State)
     | GotWnfsResponse Webnative.Response
     | RedirectToLobby
+
+
+type DashboardMsg
+    = Username SettingMsg
+    | Email SettingMsg
+    | ProductUpdatesCheck Bool
+    | EmailResendVerification
 
 
 
