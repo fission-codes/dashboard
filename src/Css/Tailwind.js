@@ -32,7 +32,20 @@ export default {
       body: [ kit.fonts.body, ...defaultTheme.fontFamily.sans ],
       display: [ kit.fonts.display, ...defaultTheme.fontFamily.serif ],
       mono: [ kit.fonts.mono, ...defaultTheme.fontFamily.mono ],
-    }
+    },
+
+
+    // Extensions
+    // ==========
+
+    extend: {
+  
+      boxShadow: {
+        "inner-outline": "inset 0 0 0 2px rgba(100, 70, 250, .2)", // purple 20%
+        "outline": "0 0 0 2px rgba(100, 70, 250, 0.4)", // purple 40%
+      },
+  
+    },
 
   },
 

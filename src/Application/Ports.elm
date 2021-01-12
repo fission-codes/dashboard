@@ -23,3 +23,6 @@ port wnfsResponse : (Webnative.Response -> msg) -> Sub msg
 
 
 port webnativeInitialized : (Json.Value -> msg) -> Sub msg
+
+
+port redirectToLobby : () -> Cmd msg

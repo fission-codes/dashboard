@@ -19,7 +19,13 @@ type alias Flags =
 -- 🌳
 
 
-type alias Model =
+type Model
+    = Dashboard DashboardModel
+    | SigninScreen
+    | LoadingScreen
+
+
+type alias DashboardModel =
     { username : SettingModel
     , email : SettingModel
     , productUpdates : Bool
@@ -50,6 +56,7 @@ type
       -----------------------------------------
     | InitializedWebnative (Result Json.Error Webnative.State)
     | GotWnfsResponse Webnative.Response
+    | RedirectToLobby
 
 
 

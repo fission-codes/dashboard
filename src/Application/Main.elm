@@ -48,12 +48,17 @@ base =
 init : Flags -> Url -> Browser.Navigation.Key -> ( Model, Cmd Msg )
 init _ _ _ =
     Tuple.pair
-        { username = SettingIs "matheus23"
-        , email = SettingIs "my-email@me.com"
-        , productUpdates = False
-        , emailVerified = False
-        }
+        LoadingScreen
         Cmd.none
+
+
+initDashboard : String -> DashboardModel
+initDashboard username =
+    { username = SettingIs username
+    , email = SettingIs "my-email@me.com"
+    , productUpdates = False
+    , emailVerified = False
+    }
 
 
 
@@ -62,6 +67,64 @@ init _ _ _ =
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
+    case model of
+        Dashboard dashboardModel ->
+            let
+                ( newModel, cmds ) =
+                    updateDashboard msg dashboardModel
+            in
+            ( Dashboard newModel
+            , cmds
+            )
+
+        _ ->
+            updateSigninScreen msg model
+
+
+updateSigninScreen : Msg -> Model -> ( Model, Cmd Msg )
+updateSigninScreen msg model =
+    case msg of
+        -----------------------------------------
+        -- Webnative
+        -----------------------------------------
+        InitializedWebnative result ->
+            case result of
+                Ok webnativeState ->
+                    case webnativeState of
+                        Webnative.NotAuthorised _ ->
+                            ( SigninScreen
+                            , Cmd.none
+                            )
+
+                        Webnative.AuthSucceeded { username } ->
+                            ( Dashboard (initDashboard username)
+                            , Cmd.none
+                            )
+
+                        _ ->
+                            ( model, Cmd.none )
+
+                Err _ ->
+                    ( model, Cmd.none )
+
+        GotWnfsResponse response ->
+            case Wnfs.decodeResponse (\_ -> Err "No tags to parse") response of
+                Ok ( n, _ ) ->
+                    never n
+
+                _ ->
+                    -- TODO: Error handling
+                    ( model, Cmd.none )
+
+        RedirectToLobby ->
+            ( model, Ports.redirectToLobby () )
+
+        _ ->
+            ( model, Cmd.none )
+
+
+updateDashboard : Msg -> DashboardModel -> ( DashboardModel, Cmd Msg )
+updateDashboard msg model =
     case msg of
         -----------------------------------------
         -- App
@@ -105,27 +168,8 @@ update msg model =
         UrlRequested _ ->
             ( model, Cmd.none )
 
-        -----------------------------------------
-        -- Webnative
-        -----------------------------------------
-        InitializedWebnative result ->
-            case result of
-                Ok webnativeState ->
-                    case webnativeState of
-                        _ ->
-                            ( model, Cmd.none )
-
-                Err _ ->
-                    ( model, Cmd.none )
-
-        GotWnfsResponse response ->
-            case Wnfs.decodeResponse (\_ -> Err "No tags to pars") response of
-                Ok ( n, _ ) ->
-                    never n
-
-                _ ->
-                    -- TODO: Error handling
-                    ( model, Cmd.none )
+        _ ->
+            ( model, Cmd.none )
 
 
 updateSetting : SettingMsg -> SettingModel -> SettingModel
@@ -164,28 +208,38 @@ view : Model -> Browser.Document Msg
 view model =
     { title = "Fission Dashboard"
     , body =
-        View.appShell
-            { header = View.appHeader
-            , main =
-                List.intersperse View.spacer
-                    [ View.dashboardHeading "Your Account"
-                    , View.sectionUsername
-                        { username = viewUsername model
-                        }
-                    , View.sectionEmail
-                        { email = viewEmail model
-                        , productUpdates = model.productUpdates
-                        , onCheckProductUpdates = ProductUpdatesCheck
-                        , verificationStatus = viewVerificationStatus model
-                        }
-                    , View.sectionManageAccount
-                    ]
-            , footer = View.appFooter
-            }
+        case model of
+            Dashboard dashboard ->
+                View.appShell
+                    { header = View.appHeader
+                    , main =
+                        List.intersperse View.spacer
+                            [ View.dashboardHeading "Your Account"
+                            , View.sectionUsername
+                                { username = viewUsername dashboard
+                                }
+                            , View.sectionEmail
+                                { email = viewEmail dashboard
+                                , productUpdates = dashboard.productUpdates
+                                , onCheckProductUpdates = ProductUpdatesCheck
+                                , verificationStatus = viewVerificationStatus dashboard
+                                }
+                            , View.sectionManageAccount
+                            ]
+                    , footer = View.appFooter
+                    }
+
+            SigninScreen ->
+                [ View.signinScreen
+                    { onSignIn = RedirectToLobby }
+                ]
+
+            LoadingScreen ->
+                [ View.loadingScreen ]
     }
 
 
-viewUsername : Model -> List (Html Msg)
+viewUsername : DashboardModel -> List (Html Msg)
 viewUsername model =
     case model.username of
         SettingIs username ->
@@ -210,7 +264,7 @@ viewUsername model =
                 ]
 
 
-viewEmail : Model -> List (Html Msg)
+viewEmail : DashboardModel -> List (Html Msg)
 viewEmail model =
     case model.email of
         SettingIs email ->
@@ -245,7 +299,7 @@ viewEmail model =
                 ]
 
 
-viewVerificationStatus : Model -> List (Html Msg)
+viewVerificationStatus : DashboardModel -> List (Html Msg)
 viewVerificationStatus model =
     if model.emailVerified then
         [ View.verificationStatus View.Verified ]

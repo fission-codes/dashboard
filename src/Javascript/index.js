@@ -10,6 +10,11 @@ webnative
     }
   })
   .then(state => {
-    webnativeElm.setup(elmApp, state.fs)
+    // webnativeElm.setup(elmApp, state.fs)
+    console.log(state)
+
+    elmApp.ports.redirectToLobby.subscribe(() => {
+      webnative.redirectToLobby(state.premissions);
+    });
     elmApp.ports.webnativeInitialized.send(state)
   })
