@@ -86,6 +86,7 @@ node_bin := "./node_modules/.bin"
 	{{node_bin}}/esbuild \
 		--bundle \
 		--minify \
+		--sourcemap \
 		--outfile={{dist}}/bundle.min.js \
 		src/Javascript/index.js
 
