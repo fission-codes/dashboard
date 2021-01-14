@@ -63,7 +63,6 @@ view model =
                     , onCheckProductUpdates = ProductUpdatesCheck >> DashboardMsg
                     , verificationStatus = viewVerificationStatus model
                     }
-                , View.sectionManageAccount
                 ]
         , footer = View.appFooter
         }

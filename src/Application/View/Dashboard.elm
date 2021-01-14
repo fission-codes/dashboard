@@ -312,66 +312,6 @@ sectionEmail element =
         ]
 
 
-sectionManageAccount : Html msg
-sectionManageAccount =
-    settingSection
-        [ sectionTitle [] "Manage Account"
-        , sectionParagraph
-            [ responsiveGroup
-                [ span
-                    (md__w_1over3 :: infoTextAttributes)
-                    [ text "Permanently delete your account and all associated data. "
-                    , a [] [ text "Read more" ]
-                    ]
-                , form
-                    [ flex
-                    , flex_row
-                    , space_x_3
-                    ]
-                    [ input
-                        [ type_ "text"
-                        , placeholder "Your account name"
-
-                        --
-                        , flex_grow
-                        , flex_shrink
-                        , min_w_0
-                        , max_w_xs
-                        , text_base
-                        , font_display
-                        , text_gray_200
-                        , placeholder_gray_400
-                        , px_3
-                        , py_1
-                        , border
-                        , border_gray_500
-                        , bg_gray_900
-                        , rounded
-
-                        --
-                        , focus__border_purple
-                        ]
-                        []
-                    , input
-                        [ type_ "submit"
-                        , value "Delete Account"
-
-                        --
-                        , rounded
-                        , bg_red
-                        , text_white
-                        , font_body
-                        , text_base
-                        , px_3
-                        , py_1
-                        ]
-                        []
-                    ]
-                ]
-            ]
-        ]
-
-
 responsiveGroup : List (Html msg) -> Html msg
 responsiveGroup content =
     div
