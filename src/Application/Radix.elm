@@ -33,8 +33,8 @@ type State
 
 
 type alias DashboardModel =
-    { username : SettingModel
-    , email : SettingModel
+    { username : String
+    , email : String
     , productUpdates : Bool
     , emailVerified : Bool
     }
@@ -57,22 +57,5 @@ type Msg
 
 
 type DashboardMsg
-    = Username SettingMsg
-    | Email SettingMsg
-    | ProductUpdatesCheck Bool
+    = ProductUpdatesCheck Bool
     | EmailResendVerification
-
-
-
--- Settings
-
-
-type SettingModel
-    = SettingIs String
-    | SettingEditing String
-
-
-type SettingMsg
-    = SettingEdit
-    | SettingUpdate String
-    | SettingSave

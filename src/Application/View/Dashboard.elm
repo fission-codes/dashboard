@@ -239,54 +239,6 @@ sectionUsername element =
         ]
 
 
-settingViewing : { value : String, onClickUpdate : msg } -> Html msg
-settingViewing element =
-    span
-        [ flex
-        , flex_row
-        , items_center
-        , space_x_2
-        ]
-        [ settingText [ Html.text element.value ]
-        , button
-            (Events.onClick element.onClickUpdate
-                :: uppercaseButtonAttributes
-            )
-            [ text "Update" ]
-        ]
-
-
-settingEditing :
-    { value : String
-    , onInput : String -> msg
-    , placeholder : String
-    , inErrorState : Bool
-    , onSave : msg
-    }
-    -> Html msg
-settingEditing element =
-    form
-        [ flex
-        , flex_row
-        , items_center
-        , space_x_2
-        , Events.onSubmit element.onSave
-        ]
-        [ settingInput
-            { value = element.value
-            , onInput = element.onInput
-            , placeholder = element.placeholder
-            , inErrorState = element.inErrorState
-            }
-        , input
-            (type_ "submit"
-                :: value "Save"
-                :: uppercaseButtonAttributes
-            )
-            []
-        ]
-
-
 sectionEmail :
     { email : List (Html msg)
     , productUpdates : Bool
