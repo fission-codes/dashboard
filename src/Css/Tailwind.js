@@ -52,6 +52,7 @@ export default {
       boxShadow: {
         "inner-outline": "inset 0 0 0 2px rgba(100, 70, 250, .2)", // purple 20%
         "outline": "0 0 0 2px rgba(100, 70, 250, 0.4)", // purple 40%
+        "outline-light": "0 0 0 2px rgba(255, 255, 255, 0.8)",
       },
       
     },
@@ -68,6 +69,7 @@ export default {
       maxWidth: [ 'responsive' ],
       display: [ 'dark' ],
       textDecoration: [ 'dark' ],
+      boxShadow: [ 'dark' ],
     }
   }
 }
