@@ -3,6 +3,7 @@ module Main exposing (main)
 import Browser
 import Browser.Navigation
 import Common
+import Dashboard
 import FeatherIcons
 import Html exposing (Html)
 import Html.Attributes as A
@@ -65,15 +66,6 @@ init _ _ navKey =
     )
 
 
-initDashboard : String -> DashboardModel
-initDashboard username =
-    { username = SettingIs username
-    , email = SettingIs "my-email@me.com"
-    , productUpdates = False
-    , emailVerified = False
-    }
-
-
 
 -- 📣
 
@@ -84,7 +76,7 @@ update msg model =
         ( Authenticated dashboardModel, DashboardMsg dashboardMsg ) ->
             let
                 ( newModel, cmds ) =
-                    updateDashboard dashboardMsg dashboardModel
+                    Dashboard.update dashboardMsg dashboardModel
             in
             ( { model | state = Authenticated newModel }
             , cmds
@@ -115,12 +107,12 @@ updateOther msg model =
                             )
 
                         Webnative.AuthSucceeded { username } ->
-                            ( { model | state = Authenticated (initDashboard username) }
+                            ( { model | state = Authenticated (Dashboard.init username) }
                             , Cmd.none
                             )
 
                         Webnative.Continuation { username } ->
-                            ( { model | state = Authenticated (initDashboard username) }
+                            ( { model | state = Authenticated (Dashboard.init username) }
                             , Cmd.none
                             )
 
@@ -163,59 +155,6 @@ updateOther msg model =
             ( model, Cmd.none )
 
 
-updateDashboard : DashboardMsg -> DashboardModel -> ( DashboardModel, Cmd Msg )
-updateDashboard msg model =
-    case msg of
-        -----------------------------------------
-        -- App
-        -----------------------------------------
-        Username settingMsg ->
-            ( { model
-                | username =
-                    updateSetting
-                        settingMsg
-                        model.username
-              }
-            , Cmd.none
-            )
-
-        Email settingMsg ->
-            ( { model
-                | email =
-                    updateSetting
-                        settingMsg
-                        model.email
-              }
-            , Cmd.none
-            )
-
-        ProductUpdatesCheck checked ->
-            ( { model | productUpdates = checked }
-            , Cmd.none
-            )
-
-        EmailResendVerification ->
-            ( { model | emailVerified = True }
-            , Cmd.none
-            )
-
-
-updateSetting : SettingMsg -> SettingModel -> SettingModel
-updateSetting msg model =
-    case ( model, msg ) of
-        ( SettingIs value, SettingEdit ) ->
-            SettingEditing value
-
-        ( SettingEditing value, SettingSave ) ->
-            SettingIs value
-
-        ( SettingEditing _, SettingUpdate value ) ->
-            SettingEditing value
-
-        _ ->
-            model
-
-
 
 -- 📰
 
@@ -238,24 +177,7 @@ view model =
     , body =
         case model.state of
             Authenticated dashboard ->
-                View.Dashboard.appShell
-                    { header = View.Dashboard.appHeader
-                    , main =
-                        List.intersperse View.Dashboard.spacer
-                            [ View.Dashboard.dashboardHeading "Your Account"
-                            , View.Dashboard.sectionUsername
-                                { username = viewUsername dashboard
-                                }
-                            , View.Dashboard.sectionEmail
-                                { email = viewEmail dashboard
-                                , productUpdates = dashboard.productUpdates
-                                , onCheckProductUpdates = ProductUpdatesCheck >> DashboardMsg
-                                , verificationStatus = viewVerificationStatus dashboard
-                                }
-                            , View.Dashboard.sectionManageAccount
-                            ]
-                    , footer = View.Dashboard.appFooter
-                    }
+                Dashboard.view dashboard
 
             SigninScreen ->
                 [ View.AuthFlow.signinScreen
@@ -267,78 +189,3 @@ view model =
                     { message = "Trying to authenticate..." }
                 ]
     }
-
-
-viewUsername : DashboardModel -> List (Html Msg)
-viewUsername model =
-    case model.username of
-        SettingIs username ->
-            [ View.Dashboard.settingViewing
-                { value = username
-                , onClickUpdate = DashboardMsg (Username SettingEdit)
-                }
-            ]
-
-        SettingEditing username ->
-            List.concat
-                [ [ View.Dashboard.settingEditing
-                        { value = username
-                        , onInput = DashboardMsg << Username << SettingUpdate
-                        , placeholder = "Your account name"
-                        , inErrorState = username == "matheus23"
-                        , onSave = DashboardMsg (Username SettingSave)
-                        }
-                  ]
-                , Common.when (username == "matheus23")
-                    [ View.Dashboard.warning [ Html.text "Sorry, this username was already taken." ] ]
-                ]
-
-
-viewEmail : DashboardModel -> List (Html Msg)
-viewEmail model =
-    case model.email of
-        SettingIs email ->
-            [ View.Dashboard.settingViewing
-                { value = email
-                , onClickUpdate = DashboardMsg (Email SettingEdit)
-                }
-            ]
-
-        SettingEditing email ->
-            List.concat
-                [ [ View.Dashboard.settingEditing
-                        { value = email
-                        , onInput = DashboardMsg << Email << SettingUpdate
-                        , placeholder = "my-email@example.com"
-                        , inErrorState = not (String.contains "@" email)
-                        , onSave = DashboardMsg (Email SettingSave)
-                        }
-                  ]
-
-                -- TODO improve email verification
-                , Common.when (not (String.contains "@" email))
-                    [ View.Dashboard.warning
-                        [ Html.text "This doesn’t seem to be an email address."
-                        , Html.br [] []
-                        , Html.text "Is there a typo?"
-                        ]
-                    ]
-                , [ Html.span View.Dashboard.infoTextAttributes
-                        [ Html.text "You’ll have to verify your email address again, once changed." ]
-                  ]
-                ]
-
-
-viewVerificationStatus : DashboardModel -> List (Html Msg)
-viewVerificationStatus model =
-    if model.emailVerified then
-        [ View.Dashboard.verificationStatus View.Dashboard.Verified ]
-
-    else
-        [ View.Dashboard.verificationStatus View.Dashboard.NotVerified
-        , Html.button
-            (Events.onClick (DashboardMsg EmailResendVerification)
-                :: View.Dashboard.uppercaseButtonAttributes
-            )
-            [ Html.text "Resend Verification Email" ]
-        ]
