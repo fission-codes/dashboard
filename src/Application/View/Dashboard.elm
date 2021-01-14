@@ -148,6 +148,8 @@ footerLink attributes element =
         (List.append attributes
             [ text_gray_200
             , underline
+            , rounded
+            , with_focus_indicator
 
             --
             , dark__text_gray_400
@@ -304,6 +306,8 @@ sectionEmail element =
                         , underline
                         , text_decoration_purple
                         , text_decoration_3over2
+                        , with_focus_indicator
+                        , rounded
                         ]
                         [ text "Manage all your subscriptions here" ]
                     ]
@@ -488,6 +492,8 @@ uppercaseButtonAttributes =
     , text_xs
     , tracking_widest
     , p_2
+    , rounded
+    , with_focus_indicator
 
     --
     , dark__text_darkmode_purple

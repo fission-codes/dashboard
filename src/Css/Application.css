@@ -2,11 +2,11 @@
 @import "fission-kit/fonts/display/fontface.css";
 @import "fission-kit/fonts/mono/fontface.css";
 
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+@import "./fission-checkbox.css";
 
 body {
   @apply bg-gray-900 font-body font-normal text-gray-100;
@@ -20,7 +20,7 @@ html {
 }
 
 .text-decoration-purple {
-  text-decoration-color: rgb(100, 70, 250);
+  text-decoration-color: theme('colors.purple');
 }
 
 .text-decoration-px {
@@ -29,4 +29,66 @@ html {
 
 .text-decoration-3\/2 {
   text-decoration-thickness: 1.5px;
+}
+
+.with-focus-indicator {
+  outline: none;
+  outline-offset: none;
+  @apply focus:shadow-outline;
+  @apply dark:focus:shadow-outline-light;
+}
+
+/*
+    This adjusts the checkbox styling to something non-browserspecific.
+
+    It is slightly modified form tailwind's forms plugin.
+    See https://github.com/tailwindlabs/tailwindcss-forms/blob/98f761963928dc59ea71e9f4804c2544f1a2ce6f/src/index.js
+
+    We're not using the plugin itself, as it comes with a lot more definitions.
+*/
+
+[type="checkbox"] {
+  appearance: none;
+  padding: 0;
+  color-adjust: exact;
+  display: inline-block;
+  vertical-align: middle;
+  background-origin: border-box;
+  user-select: none;
+  flex-shrink: 0;
+  @apply h-5 w-5;
+  @apply text-purple;
+  @apply dark:text-darkmode-purple;
+  @apply bg-gray-900;
+  @apply border-gray-500;
+  @apply dark:bg-gray-400;
+  @apply dark:border-gray-400; /* no need for a border in dark mode, it has nice contrast with the background anyway */
+  @apply border;
+  @apply rounded;
+}
+
+[type="checkbox"]:focus {
+  @apply border-gray-500;
+  @apply dark:border-gray-400;
+
+  /* same as with-focus-indicator */
+  outline: none;
+  outline-offset: none;
+  @apply shadow-outline;
+  @apply dark:shadow-outline-light;
+}
+
+[type="checkbox"]:checked {
+  border-color: transparent;
+  background-color: currentColor;
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-image: url("data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMTYgMTYiIGZpbGw9IndoaXRlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGQ9Ik0xMi4yMDcgNC43OTNhMSAxIDAgMDEwIDEuNDE0bC01IDVhMSAxIDAgMDEtMS40MTQgMGwtMi0yYTEgMSAwIDAxMS40MTQtMS40MTRMNi41IDkuMDg2bDQuMjkzLTQuMjkzYTEgMSAwIDAxMS40MTQgMHoiLz48L3N2Zz4=");
+}
+
+[type="checkbox"]:checked:hover,
+[type="checkbox"]:checked:focus {
+  border-color: transparent;
+  background-color: currentColor;
 }
