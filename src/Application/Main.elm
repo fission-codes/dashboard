@@ -11,7 +11,8 @@ import Json.Decode as Json
 import Ports
 import Radix exposing (..)
 import Url exposing (Url)
-import View
+import View.AuthFlow
+import View.Dashboard
 import Webnative
 import Webnative.Types as Webnative
 import Wnfs
@@ -235,32 +236,32 @@ view model =
     , body =
         case model of
             Dashboard dashboard ->
-                View.appShell
-                    { header = View.appHeader
+                View.Dashboard.appShell
+                    { header = View.Dashboard.appHeader
                     , main =
-                        List.intersperse View.spacer
-                            [ View.dashboardHeading "Your Account"
-                            , View.sectionUsername
+                        List.intersperse View.Dashboard.spacer
+                            [ View.Dashboard.dashboardHeading "Your Account"
+                            , View.Dashboard.sectionUsername
                                 { username = viewUsername dashboard
                                 }
-                            , View.sectionEmail
+                            , View.Dashboard.sectionEmail
                                 { email = viewEmail dashboard
                                 , productUpdates = dashboard.productUpdates
                                 , onCheckProductUpdates = ProductUpdatesCheck >> DashboardMsg
                                 , verificationStatus = viewVerificationStatus dashboard
                                 }
-                            , View.sectionManageAccount
+                            , View.Dashboard.sectionManageAccount
                             ]
-                    , footer = View.appFooter
+                    , footer = View.Dashboard.appFooter
                     }
 
             SigninScreen ->
-                [ View.signinScreen
+                [ View.AuthFlow.signinScreen
                     { onSignIn = RedirectToLobby }
                 ]
 
             LoadingScreen ->
-                [ View.loadingScreen
+                [ View.AuthFlow.loadingScreen
                     { message = "Trying to authorize..." }
                 ]
     }
@@ -270,7 +271,7 @@ viewUsername : DashboardModel -> List (Html Msg)
 viewUsername model =
     case model.username of
         SettingIs username ->
-            [ View.settingViewing
+            [ View.Dashboard.settingViewing
                 { value = username
                 , onClickUpdate = DashboardMsg (Username SettingEdit)
                 }
@@ -278,7 +279,7 @@ viewUsername model =
 
         SettingEditing username ->
             List.concat
-                [ [ View.settingEditing
+                [ [ View.Dashboard.settingEditing
                         { value = username
                         , onInput = DashboardMsg << Username << SettingUpdate
                         , placeholder = "Your account name"
@@ -287,7 +288,7 @@ viewUsername model =
                         }
                   ]
                 , Common.when (username == "matheus23")
-                    [ View.warning [ Html.text "Sorry, this username was already taken." ] ]
+                    [ View.Dashboard.warning [ Html.text "Sorry, this username was already taken." ] ]
                 ]
 
 
@@ -295,7 +296,7 @@ viewEmail : DashboardModel -> List (Html Msg)
 viewEmail model =
     case model.email of
         SettingIs email ->
-            [ View.settingViewing
+            [ View.Dashboard.settingViewing
                 { value = email
                 , onClickUpdate = DashboardMsg (Email SettingEdit)
                 }
@@ -303,7 +304,7 @@ viewEmail model =
 
         SettingEditing email ->
             List.concat
-                [ [ View.settingEditing
+                [ [ View.Dashboard.settingEditing
                         { value = email
                         , onInput = DashboardMsg << Email << SettingUpdate
                         , placeholder = "my-email@example.com"
@@ -314,13 +315,13 @@ viewEmail model =
 
                 -- TODO improve email verification
                 , Common.when (not (String.contains "@" email))
-                    [ View.warning
+                    [ View.Dashboard.warning
                         [ Html.text "This doesn’t seem to be an email address."
                         , Html.br [] []
                         , Html.text "Is there a typo?"
                         ]
                     ]
-                , [ Html.span View.infoTextAttributes
+                , [ Html.span View.Dashboard.infoTextAttributes
                         [ Html.text "You’ll have to verify your email address again, once changed." ]
                   ]
                 ]
@@ -329,13 +330,13 @@ viewEmail model =
 viewVerificationStatus : DashboardModel -> List (Html Msg)
 viewVerificationStatus model =
     if model.emailVerified then
-        [ View.verificationStatus View.Verified ]
+        [ View.Dashboard.verificationStatus View.Dashboard.Verified ]
 
     else
-        [ View.verificationStatus View.NotVerified
+        [ View.Dashboard.verificationStatus View.Dashboard.NotVerified
         , Html.button
             (Events.onClick (DashboardMsg EmailResendVerification)
-                :: View.uppercaseButtonAttributes
+                :: View.Dashboard.uppercaseButtonAttributes
             )
             [ Html.text "Resend Verification Email" ]
         ]
