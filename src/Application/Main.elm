@@ -51,8 +51,10 @@ appPermissions =
 
 
 init : Flags -> Url -> Browser.Navigation.Key -> ( Model, Cmd Msg )
-init _ _ _ =
-    ( LoadingScreen
+init _ _ navKey =
+    ( { navKey = navKey
+      , state = LoadingScreen
+      }
     , -- Workaround for the port not existing in compiled output
       case Err "" of
         Err _ ->
@@ -78,22 +80,22 @@ initDashboard username =
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    case ( model, msg ) of
-        ( Dashboard dashboardModel, DashboardMsg dashboardMsg ) ->
+    case ( model.state, msg ) of
+        ( Authenticated dashboardModel, DashboardMsg dashboardMsg ) ->
             let
                 ( newModel, cmds ) =
                     updateDashboard dashboardMsg dashboardModel
             in
-            ( Dashboard newModel
+            ( { model | state = Authenticated newModel }
             , cmds
             )
 
         _ ->
-            updateUnauthenticated msg model
+            updateOther msg model
 
 
-updateUnauthenticated : Msg -> Model -> ( Model, Cmd Msg )
-updateUnauthenticated msg model =
+updateOther : Msg -> Model -> ( Model, Cmd Msg )
+updateOther msg model =
     case msg of
         -----------------------------------------
         -- Webnative
@@ -103,22 +105,22 @@ updateUnauthenticated msg model =
                 Ok webnativeState ->
                     case webnativeState of
                         Webnative.NotAuthorised _ ->
-                            ( SigninScreen
+                            ( { model | state = SigninScreen }
                             , Cmd.none
                             )
 
                         Webnative.AuthCancelled _ ->
-                            ( SigninScreen
+                            ( { model | state = SigninScreen }
                             , Cmd.none
                             )
 
                         Webnative.AuthSucceeded { username } ->
-                            ( Dashboard (initDashboard username)
+                            ( { model | state = Authenticated (initDashboard username) }
                             , Cmd.none
                             )
 
                         Webnative.Continuation { username } ->
-                            ( Dashboard (initDashboard username)
+                            ( { model | state = Authenticated (initDashboard username) }
                             , Cmd.none
                             )
 
@@ -234,8 +236,8 @@ view : Model -> Browser.Document Msg
 view model =
     { title = "Fission Dashboard"
     , body =
-        case model of
-            Dashboard dashboard ->
+        case model.state of
+            Authenticated dashboard ->
                 View.Dashboard.appShell
                     { header = View.Dashboard.appHeader
                     , main =
