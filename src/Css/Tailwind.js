@@ -54,10 +54,6 @@ export default {
         "outline": "0 0 0 2px rgba(100, 70, 250, 0.4)", // purple 40%
       },
       
-      screens: {
-        dark: { raw: "(prefers-color-scheme: dark)" }
-      },
-  
     },
 
   },
@@ -70,8 +66,8 @@ export default {
   variants: {
     extend: {
       maxWidth: [ 'responsive' ],
-      display: [ 'responsive' ],
-      textDecoration: [ 'responsive' ],
+      display: [ 'dark' ],
+      textDecoration: [ 'dark' ],
     }
   }
 }
