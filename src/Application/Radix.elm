@@ -1,6 +1,7 @@
 module Radix exposing (..)
 
 import Browser exposing (UrlRequest)
+import Browser.Navigation
 import Json.Decode as Json
 import Url exposing (Url)
 import Webnative
@@ -19,8 +20,14 @@ type alias Flags =
 -- 🌳
 
 
-type Model
-    = Dashboard DashboardModel
+type alias Model =
+    { navKey : Browser.Navigation.Key
+    , state : State
+    }
+
+
+type State
+    = Authenticated DashboardModel
     | SigninScreen
     | LoadingScreen
 
