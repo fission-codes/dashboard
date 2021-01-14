@@ -264,7 +264,7 @@ view model =
 
             LoadingScreen ->
                 [ View.AuthFlow.loadingScreen
-                    { message = "Trying to authorize..." }
+                    { message = "Trying to authenticate..." }
                 ]
     }
 
