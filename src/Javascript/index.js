@@ -1,5 +1,5 @@
 import * as webnative from "webnative"
-// import * as webnativeElm from "webnative-elm"
+import * as webnativeElm from "webnative-elm"
 
 const elmApp = Elm.Main.init()
 
@@ -17,10 +17,9 @@ webnative
   })
   .then(state => {
     // No need for filesystem operations at the moment
-    // webnativeElm.setup(elmApp, state.fs)
+    webnativeElm.setup(elmApp, state.fs)
 
-    elmApp.ports.redirectToLobby.subscribe(() => {
-      webnative.redirectToLobby(state.premissions)
-    })
     elmApp.ports.webnativeInitialized.send(state)
   })
+
+window.webnative = webnative

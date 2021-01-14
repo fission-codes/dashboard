@@ -35,10 +35,14 @@ main =
 
 base : Wnfs.Base
 base =
-    Wnfs.AppData
-        { creator = "Fission"
-        , name = "Dashboard"
-        }
+    Wnfs.AppData appPermissions
+
+
+appPermissions : Webnative.AppPermissions
+appPermissions =
+    { creator = "Fission"
+    , name = "Dashboard"
+    }
 
 
 
@@ -48,7 +52,13 @@ base =
 init : Flags -> Url -> Browser.Navigation.Key -> ( Model, Cmd Msg )
 init _ _ _ =
     ( LoadingScreen
-    , Cmd.none
+    , -- Workaround for the port not existing in compiled output
+      case Err "" of
+        Err _ ->
+            Cmd.none
+
+        Ok n ->
+            Ports.wnfsRequest (never n)
     )
 
 
@@ -124,7 +134,15 @@ updateUnauthenticated msg model =
                     ( model, Cmd.none )
 
         RedirectToLobby ->
-            ( model, Ports.redirectToLobby () )
+            ( model
+            , Webnative.redirectToLobby Webnative.CurrentUrl
+                (Just
+                    { app = Nothing
+                    , fs = Nothing
+                    }
+                )
+                |> Ports.webnativeRequest
+            )
 
         -----------------------------------------
         -- URL
