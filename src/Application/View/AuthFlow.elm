@@ -22,6 +22,7 @@ signinScreen { onSignIn } =
             , text_base
             , text_center
             , text_gray_300
+            , dark__text_gray_400
             ]
             [ text "The Fission Dashboard lets you manage your Fission account and apps." ]
         , signinButton []
@@ -43,6 +44,9 @@ loadingScreen { message } =
             , text_gray_400
             , text_base
             , mt_8
+
+            --
+            , dark__text_gray_500
             ]
             [ text message ]
         ]
@@ -83,6 +87,9 @@ loadingAnimation attributes =
                 [ animate_spin
                 , block
                 , text_gray_300
+
+                --
+                , dark__text_gray_500
                 ]
             )
 

@@ -26,6 +26,14 @@ logo { attributes, fissionAttributes } =
         )
         [ img
             (src "images/logo-dark-textonly.svg"
+                :: dark__hidden
+                :: fissionAttributes
+            )
+            []
+        , img
+            (src "images/logo-light-textonly.svg"
+                :: hidden
+                :: dark__block
                 :: fissionAttributes
             )
             []

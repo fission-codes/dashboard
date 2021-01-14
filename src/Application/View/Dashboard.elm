@@ -24,6 +24,9 @@ appShell content =
         , sticky
         , inset_x_0
         , top_0
+
+        --
+        , dark__bg_darkness_above
         ]
         content.header
     , main_
@@ -37,6 +40,9 @@ appShell content =
     , footer
         [ flex
         , bg_gray_600
+
+        --
+        , dark__bg_darkness_above
         ]
         content.footer
     ]
@@ -50,9 +56,7 @@ appHeader =
         , mx_auto
         ]
         [ div
-            [ border_b
-            , border_gray_500
-            , h_20
+            [ h_20
             , flex
             , flex_row
             , items_center
@@ -79,8 +83,6 @@ appFooter =
         [ div
             [ flex
             , flex_row
-            , border_t
-            , border_gray_500
             , py_6
             , space_x_8
             , items_center
@@ -98,6 +100,9 @@ appFooter =
 
                 --
                 , md__inline
+
+                --
+                , dark__text_gray_400
                 ]
                 [ text "Fission Internet Software" ]
             , div
@@ -105,8 +110,6 @@ appFooter =
                 , flex
                 , flex_col
                 , items_start
-                , text_gray_200
-                , underline
                 , space_y_2
 
                 --
@@ -123,8 +126,6 @@ appFooter =
                 , flex
                 , flex_col
                 , items_start
-                , text_gray_200
-                , underline
                 , space_y_2
 
                 --
@@ -147,6 +148,11 @@ footerLink attributes element =
         (List.append attributes
             [ text_gray_200
             , underline
+
+            --
+            , dark__text_gray_400
+
+            --
             , href element.url
             ]
         )
@@ -176,7 +182,14 @@ settingSection content =
 
 settingText : List (Html msg) -> Html msg
 settingText content =
-    span [ font_display, text_gray_200 ] content
+    span
+        [ font_display
+        , text_gray_200
+
+        --
+        , dark__text_gray_400
+        ]
+        content
 
 
 settingInput :
@@ -209,11 +222,18 @@ settingInput element =
               , border_gray_500
               , bg_gray_900
               , rounded
+
+              --
+              , dark__text_gray_500
               ]
             , Common.when (not element.inErrorState)
-                [ focus__border_purple ]
+                [ focus__border_purple
+                , dark__focus__border_darkmode_purple
+                ]
             , Common.when element.inErrorState
-                [ border_red ]
+                [ border_red
+                , dark__border_darkmode_red
+                ]
             ]
         )
         []
@@ -221,7 +241,12 @@ settingInput element =
 
 infoTextAttributes : List (Attribute msg)
 infoTextAttributes =
-    [ text_sm, text_gray_200 ]
+    [ text_sm
+    , text_gray_200
+
+    --
+    , dark__text_gray_400
+    ]
 
 
 sectionUsername : { username : List (Html msg) } -> Html msg
@@ -302,6 +327,9 @@ sectionEmail element =
                         [ font_display
                         , text_gray_200
                         , select_none
+
+                        --
+                        , dark__text_gray_400
                         ]
                         [ text "Product Updates" ]
                     ]
@@ -347,17 +375,24 @@ type VerificationStatus
 verificationStatus : VerificationStatus -> Html msg
 verificationStatus status =
     span
-        [ case status of
-            Verified ->
-                text_purple
+        (List.append
+            [ flex
+            , flex_row
+            , items_center
+            , space_x_2
+            ]
+            (case status of
+                Verified ->
+                    [ text_purple
+                    , dark__text_darkmode_purple
+                    ]
 
-            NotVerified ->
-                text_red
-        , flex
-        , flex_row
-        , items_center
-        , space_x_2
-        ]
+                NotVerified ->
+                    [ text_red
+                    , dark__text_darkmode_red
+                    ]
+            )
+        )
         [ (case status of
             Verified ->
                 FeatherIcons.check
@@ -389,6 +424,9 @@ warning content =
         , text_red
         , text_sm
         , space_x_2
+
+        --
+        , dark__text_darkmode_red
         ]
         [ FeatherIcons.alertTriangle
             |> FeatherIcons.withSize 16
@@ -421,6 +459,9 @@ sectionTitle attributes title =
         , font_body
         , text_lg
         , ml_5
+
+        --
+        , dark__text_gray_600
         ]
         [ text title ]
 
@@ -432,6 +473,9 @@ spacer =
         , bg_purple_tint
         , border_0
         , mx_5
+
+        --
+        , dark__bg_gray_100
         ]
         []
 
@@ -444,6 +488,9 @@ uppercaseButtonAttributes =
     , text_xs
     , tracking_widest
     , p_2
+
+    --
+    , dark__text_darkmode_purple
     ]
 
 
@@ -453,6 +500,9 @@ menuButton attributes =
         (List.append attributes
             [ ml_auto
             , text_gray_300
+
+            --
+            , dark__text_gray_400
             ]
         )
         [ FeatherIcons.menu
