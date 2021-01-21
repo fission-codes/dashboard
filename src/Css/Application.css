@@ -31,6 +31,11 @@ html {
   text-decoration-thickness: 1.5px;
 }
 
+/*
+  TODO: There's a builtin focus indicator in tailwind.
+  It can be styled. We should use that instead.
+*/
+
 .with-focus-indicator {
   outline: none;
   outline-offset: none;
@@ -63,7 +68,7 @@ html {
   @apply border-gray-500;
   @apply dark:bg-gray-400;
   @apply dark:border-gray-400; /* no need for a border in dark mode, it has nice contrast with the background anyway */
-  @apply border;
+  @apply border-2;
   @apply rounded;
 }
 
@@ -84,7 +89,7 @@ html {
   background-size: 100% 100%;
   background-position: center;
   background-repeat: no-repeat;
-  background-image: url("data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMTYgMTYiIGZpbGw9IndoaXRlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGQ9Ik0xMi4yMDcgNC43OTNhMSAxIDAgMDEwIDEuNDE0bC01IDVhMSAxIDAgMDEtMS40MTQgMGwtMi0yYTEgMSAwIDAxMS40MTQtMS40MTRMNi41IDkuMDg2bDQuMjkzLTQuMjkzYTEgMSAwIDAxMS40MTQgMHoiLz48L3N2Zz4=");
+  background-image: url("data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjAgMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTE1LjMzMzQgNkw4LjAwMDAyIDEzLjMzMzNMNC42NjY2OSAxMCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIxLjY2NyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PC9zdmc+");
 }
 
 [type="checkbox"]:checked:hover,
