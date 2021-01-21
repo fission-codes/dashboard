@@ -1,20 +1,12 @@
 module Dashboard exposing (..)
 
-import Browser
-import Browser.Navigation
-import Common
-import FeatherIcons
 import Html exposing (Html)
-import Html.Attributes as A
 import Html.Events as Events
 import Json.Decode as Json
-import Ports
 import Radix exposing (..)
-import Url exposing (Url)
 import View.Dashboard as View
 import Webnative
 import Webnative.Types as Webnative
-import Wnfs
 
 
 init : String -> DashboardModel

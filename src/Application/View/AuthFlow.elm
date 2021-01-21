@@ -1,6 +1,5 @@
 module View.AuthFlow exposing (..)
 
-import Common
 import Css.Classes exposing (..)
 import FeatherIcons
 import Html exposing (..)

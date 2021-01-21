@@ -6,8 +6,6 @@ import FeatherIcons
 import Html exposing (..)
 import Html.Attributes exposing (checked, height, href, placeholder, src, style, type_, value, width)
 import Html.Events as Events
-import Svg exposing (Svg, svg)
-import Svg.Attributes as SvgA
 import View.Common
 
 
@@ -460,14 +458,16 @@ sectionParagraph content =
 sectionTitle : List (Attribute msg) -> String -> Html msg
 sectionTitle attributes title =
     h2
-        [ text_gray_300
-        , font_body
-        , text_lg
-        , ml_5
+        (List.append attributes
+            [ text_gray_300
+            , font_body
+            , text_lg
+            , ml_5
 
-        --
-        , dark__text_gray_600
-        ]
+            --
+            , dark__text_gray_600
+            ]
+        )
         [ text title ]
 
 

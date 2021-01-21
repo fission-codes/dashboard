@@ -1,13 +1,8 @@
 module View.Common exposing (..)
 
-import Common
 import Css.Classes exposing (..)
-import FeatherIcons
 import Html exposing (..)
 import Html.Attributes exposing (checked, height, href, placeholder, src, style, type_, value, width)
-import Html.Events as Events
-import Svg exposing (Svg, svg)
-import Svg.Attributes as SvgA
 
 
 logo :
