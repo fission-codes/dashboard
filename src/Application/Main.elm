@@ -3,9 +3,6 @@ module Main exposing (main)
 import Browser
 import Browser.Navigation as Navigation
 import Dashboard
-import Html exposing (Html)
-import Html.Attributes as A
-import Html.Events as Events
 import Json.Decode as Json
 import Ports
 import Radix exposing (..)
