@@ -404,7 +404,7 @@ verificationStatus status =
             NotVerified ->
                 FeatherIcons.alertTriangle
           )
-            |> FeatherIcons.withSize 16
+            |> FeatherIcons.withSize 20
             |> FeatherIcons.toHtml []
             |> List.singleton
             |> span []
