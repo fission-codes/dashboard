@@ -55,6 +55,7 @@ node_bin := "./node_modules/.bin"
 		--output {{dist}}/application.js \
 		src/Application/Main.elm
 
+
 @elm-production:
 	echo "🌳  Compiling Elm (optimised)"
 	elm make \
@@ -62,16 +63,16 @@ node_bin := "./node_modules/.bin"
 		--optimize \
 		src/Application/Main.elm
 
+
+@favicons:
+	echo "📎  Copying favicons"
+	cp -RT src/Favicons/ {{dist}}
+
+
 @fonts:
 	echo "🔤  Copying fonts"
 	mkdir -p {{dist}}/fonts/
 	cp node_modules/fission-kit/fonts/**/*.woff2 {{dist}}/fonts/
-
-
-@images:
-	echo "🌄  Copying images"
-	cp -RT node_modules/fission-kit/images/ {{dist}}/images/
-	cp -RT src/Images/ {{dist}}/images/
 
 
 @html:
@@ -79,6 +80,12 @@ node_bin := "./node_modules/.bin"
 	mustache \
 		config/default.yml src/Html/Main.html \
 		> {{dist}}/index.html
+
+
+@images:
+	echo "🌄  Copying images"
+	cp -RT node_modules/fission-kit/images/ {{dist}}/images/
+	cp -RT src/Images/ {{dist}}/images/
 
 
 @javascript:
@@ -101,10 +108,10 @@ node_bin := "./node_modules/.bin"
 	mkdir -p {{dist}}
 
 
-@dev-build: clean html css-large javascript elm-dev fonts images
+@dev-build: clean html css-large javascript elm-dev fonts favicons images
 
 
-@production-build: clean html elm-production javascript css-small fonts images
+@production-build: clean html elm-production javascript css-small fonts favicons images
 
 
 @dev-server:
