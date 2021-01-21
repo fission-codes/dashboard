@@ -1,10 +1,8 @@
 module Main exposing (main)
 
 import Browser
-import Browser.Navigation
-import Common
+import Browser.Navigation as Navigation
 import Dashboard
-import FeatherIcons
 import Html exposing (Html)
 import Html.Attributes as A
 import Html.Events as Events
@@ -13,7 +11,6 @@ import Ports
 import Radix exposing (..)
 import Url exposing (Url)
 import View.AuthFlow
-import View.Dashboard
 import Webnative
 import Webnative.Types as Webnative
 import Wnfs
@@ -51,7 +48,7 @@ appPermissions =
 -- 🌳
 
 
-init : Flags -> Url -> Browser.Navigation.Key -> ( Model, Cmd Msg )
+init : Flags -> Url -> Navigation.Key -> ( Model, Cmd Msg )
 init _ _ navKey =
     ( { navKey = navKey
       , state = LoadingScreen
@@ -145,8 +142,15 @@ updateOther msg model =
         UrlChanged _ ->
             ( model, Cmd.none )
 
-        UrlRequested _ ->
-            ( model, Cmd.none )
+        UrlRequested request ->
+            ( model
+            , case request of
+                Browser.Internal _ ->
+                    Cmd.none
+
+                Browser.External url ->
+                    Navigation.load url
+            )
 
         -----------------------------------------
         -- Message/Model desync
