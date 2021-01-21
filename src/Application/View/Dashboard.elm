@@ -118,25 +118,26 @@ appFooter =
                 , md__space_x_8
                 , md__flex_grow_0
                 ]
-                [ footerLink [] { text = "Discord", url = "#" }
-                , footerLink [] { text = "Forum", url = "#" }
+                [ footerLink [] { text = "Discord", url = "https://discord.gg/daDMAjE" }
+                , footerLink [] { text = "Forum", url = "https://talk.fission.codes/" }
                 ]
-            , div
-                [ flex_grow
-                , flex
-                , flex_col
-                , items_start
-                , space_y_2
 
-                --
-                , md__flex_row
-                , md__space_y_0
-                , md__space_x_8
-                , md__flex_grow_0
-                ]
-                [ footerLink [] { text = "Terms of Service", url = "#" }
-                , footerLink [] { text = "Privacy Policy", url = "#" }
-                ]
+            -- TODO
+            -- , div
+            --     [ flex_grow
+            --     , flex
+            --     , flex_col
+            --     , items_start
+            --     , space_y_2
+            --     --
+            --     , md__flex_row
+            --     , md__space_y_0
+            --     , md__space_x_8
+            --     , md__flex_grow_0
+            --     ]
+            --     [ footerLink [] { text = "Terms of Service", url = "#" }
+            --     , footerLink [] { text = "Privacy Policy", url = "#" }
+            --     ]
             ]
         ]
     ]
