@@ -10,6 +10,9 @@ const permissions = {
   },
 }
 
+if (window.location.hostname === "localhost") {
+  setupInStaging()
+}
 
 webnative
   .initialise({
@@ -23,3 +26,16 @@ webnative
   })
 
 window.webnative = webnative
+
+
+// Utilities
+
+function setupInStaging() {
+  console.log("Running in staging environment")
+  webnative.setup.debug({ enabled: true })
+  webnative.setup.endpoints({
+    api: "https://runfission.net",
+    lobby: "https://auth.runfission.net",
+    user: "fissionuser.net"
+  })
+}
