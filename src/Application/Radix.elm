@@ -34,9 +34,7 @@ type State
 
 type alias DashboardModel =
     { username : String
-    , email : String
-    , productUpdates : Bool
-    , emailVerified : Bool
+    , resendingVerificationEmail : Bool
     }
 
 
@@ -57,5 +55,5 @@ type Msg
 
 
 type DashboardMsg
-    = ProductUpdatesCheck Bool
-    | EmailResendVerification
+    = EmailResendVerification
+    | VerificationEmailSent

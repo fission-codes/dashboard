@@ -1,9 +1,14 @@
 module Dashboard exposing (..)
 
+import Common
+import Css.Classes
 import Html exposing (Html)
+import Html.Attributes as Html
 import Html.Events as Events
 import Json.Decode as Json
+import Ports
 import Radix exposing (..)
+import View.Common
 import View.Dashboard as View
 import Webnative
 import Webnative.Types as Webnative
@@ -12,9 +17,7 @@ import Webnative.Types as Webnative
 init : String -> DashboardModel
 init username =
     { username = username
-    , email = "my-email@me.com"
-    , productUpdates = False
-    , emailVerified = False
+    , resendingVerificationEmail = False
     }
 
 
@@ -24,13 +27,13 @@ update msg model =
         -----------------------------------------
         -- App
         -----------------------------------------
-        ProductUpdatesCheck checked ->
-            ( { model | productUpdates = checked }
-            , Cmd.none
+        EmailResendVerification ->
+            ( { model | resendingVerificationEmail = True }
+            , Ports.webnativeResendVerificationEmail {}
             )
 
-        EmailResendVerification ->
-            ( { model | emailVerified = True }
+        VerificationEmailSent ->
+            ( { model | resendingVerificationEmail = False }
             , Cmd.none
             )
 
@@ -50,20 +53,36 @@ view model =
                     { username = [ View.settingText [ Html.text model.username ] ]
                     }
                 , View.sectionEmail
-                    { email = [ View.settingText [ Html.text model.email ] ]
-                    , productUpdates = model.productUpdates
-                    , onCheckProductUpdates = ProductUpdatesCheck >> DashboardMsg
-                    , verificationStatus = [ resendVerificationEmailButton ]
+                    { verificationStatus = [ resendVerificationEmailButton model ]
                     }
                 ]
         , footer = View.appFooter
         }
 
 
-resendVerificationEmailButton : Html Msg
-resendVerificationEmailButton =
+resendVerificationEmailButton : DashboardModel -> Html Msg
+resendVerificationEmailButton model =
     Html.button
-        (Events.onClick (DashboardMsg EmailResendVerification)
-            :: View.uppercaseButtonAttributes
+        (List.concat
+            [ [ Events.onClick (DashboardMsg EmailResendVerification)
+              , Html.disabled model.resendingVerificationEmail
+              ]
+            , View.uppercaseButtonAttributes
+            ]
         )
-        [ Html.text "Resend Verification Email" ]
+        (List.concat
+            [ [ Html.text "Resend Verification Email" ]
+            , Common.when model.resendingVerificationEmail
+                [ View.Common.loadingAnimation View.Common.Small [ Css.Classes.ml_4 ] ]
+            ]
+        )
+
+
+subscriptions : DashboardModel -> Sub Msg
+subscriptions model =
+    if model.resendingVerificationEmail then
+        Ports.webnativeVerificationEmailSent
+            (\_ -> DashboardMsg VerificationEmailSent)
+
+    else
+        Sub.none

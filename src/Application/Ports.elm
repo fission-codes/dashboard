@@ -23,3 +23,9 @@ port wnfsResponse : (Webnative.Response -> msg) -> Sub msg
 
 
 port webnativeInitialized : (Json.Value -> msg) -> Sub msg
+
+
+port webnativeResendVerificationEmail : {} -> Cmd msg
+
+
+port webnativeVerificationEmailSent : ({} -> msg) -> Sub msg

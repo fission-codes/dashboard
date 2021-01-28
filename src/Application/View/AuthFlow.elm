@@ -1,7 +1,6 @@
 module View.AuthFlow exposing (..)
 
 import Css.Classes exposing (..)
-import FeatherIcons
 import Html exposing (..)
 import Html.Attributes exposing (checked, height, href, placeholder, src, style, type_, value, width)
 import Html.Events as Events
@@ -33,9 +32,7 @@ loadingScreen : { message : String } -> Html msg
 loadingScreen { message } =
     splashscreenShell
         []
-        [ span
-            [ mt_16 ]
-            [ loadingAnimation [] ]
+        [ View.Common.loadingAnimation View.Common.Normal [ mt_16 ]
         , p
             [ max_w_xs
             , font_display
@@ -73,24 +70,6 @@ splashscreenShell attributes content =
             }
             :: content
         )
-
-
-loadingAnimation : List (Attribute msg) -> Html msg
-loadingAnimation attributes =
-    FeatherIcons.loader
-        |> FeatherIcons.withSize 24
-        |> FeatherIcons.toHtml []
-        |> List.singleton
-        |> span
-            (List.append attributes
-                [ animate_spin
-                , block
-                , text_gray_300
-
-                --
-                , dark__text_gray_500
-                ]
-            )
 
 
 {-| This is basically copied together from the drive codebase.

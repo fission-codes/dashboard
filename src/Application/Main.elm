@@ -161,10 +161,16 @@ updateOther msg model =
 
 
 subscriptions : Model -> Sub Msg
-subscriptions _ =
+subscriptions model =
     Sub.batch
         [ Ports.wnfsResponse GotWnfsResponse
         , Ports.webnativeInitialized (Json.decodeValue Webnative.decoderState >> InitializedWebnative)
+        , case model.state of
+            Authenticated dashboard ->
+                Dashboard.subscriptions dashboard
+
+            _ ->
+                Sub.none
         ]
 
 

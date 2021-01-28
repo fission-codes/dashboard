@@ -266,10 +266,7 @@ sectionUsername element =
 
 
 sectionEmail :
-    { email : List (Html msg)
-    , productUpdates : Bool
-    , onCheckProductUpdates : Bool -> msg
-    , verificationStatus : List (Html msg)
+    { verificationStatus : List (Html msg)
     }
     -> Html msg
 sectionEmail element =
@@ -277,7 +274,8 @@ sectionEmail element =
         [ sectionTitle [] "Email"
         , sectionParagraph
             [ responsiveGroup
-                [ groupHeading
+                [ span
+                    (md__w_1over3 :: infoTextAttributes)
                     [ text "In case something got wrong while sending you a verification email on signup, click this button to request another one:" ]
                 , span
                     [ flex
@@ -443,9 +441,20 @@ uppercaseButtonAttributes =
     , p_2
     , rounded
     , with_focus_indicator
+    , flex
+    , flex_row
+    , items_center
+
+    --
+    , active__bg_purple_tint
+    , active__bg_opacity_30
+    , disabled__text_gray_300
+    , disabled__bg_opacity_30
+    , disabled__bg_gray_500
 
     --
     , dark__text_darkmode_purple
+    , dark__disabled__text_gray_500
     ]
 
 
