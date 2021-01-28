@@ -53,23 +53,17 @@ view model =
                     { email = [ View.settingText [ Html.text model.email ] ]
                     , productUpdates = model.productUpdates
                     , onCheckProductUpdates = ProductUpdatesCheck >> DashboardMsg
-                    , verificationStatus = viewVerificationStatus model
+                    , verificationStatus = [ resendVerificationEmailButton ]
                     }
                 ]
         , footer = View.appFooter
         }
 
 
-viewVerificationStatus : DashboardModel -> List (Html Msg)
-viewVerificationStatus model =
-    if model.emailVerified then
-        [ View.verificationStatus View.Verified ]
-
-    else
-        [ View.verificationStatus View.NotVerified
-        , Html.button
-            (Events.onClick (DashboardMsg EmailResendVerification)
-                :: View.uppercaseButtonAttributes
-            )
-            [ Html.text "Resend Verification Email" ]
-        ]
+resendVerificationEmailButton : Html Msg
+resendVerificationEmailButton =
+    Html.button
+        (Events.onClick (DashboardMsg EmailResendVerification)
+            :: View.uppercaseButtonAttributes
+        )
+        [ Html.text "Resend Verification Email" ]
