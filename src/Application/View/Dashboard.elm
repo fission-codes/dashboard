@@ -277,7 +277,8 @@ sectionEmail element =
         [ sectionTitle [] "Email"
         , sectionParagraph
             [ responsiveGroup
-                [ groupHeading []
+                [ groupHeading
+                    [ text "In case something got wrong while sending you a verification email on signup, click this button to request another one:" ]
                 , span
                     [ flex
                     , flex_row
