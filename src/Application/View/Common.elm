@@ -1,6 +1,7 @@
 module View.Common exposing (..)
 
 import Css.Classes exposing (..)
+import FeatherIcons
 import Html exposing (..)
 import Html.Attributes exposing (checked, height, href, placeholder, src, style, type_, value, width)
 
@@ -44,3 +45,33 @@ logo { attributes, fissionAttributes } =
             ]
             [ text "Dashboard" ]
         ]
+
+
+type LoadingAnimationType
+    = Normal
+    | Small
+
+
+loadingAnimation : LoadingAnimationType -> List (Attribute msg) -> Html msg
+loadingAnimation typ attributes =
+    FeatherIcons.loader
+        |> FeatherIcons.withSize
+            (case typ of
+                Normal ->
+                    24
+
+                Small ->
+                    16
+            )
+        |> FeatherIcons.toHtml []
+        |> List.singleton
+        |> span
+            (List.append attributes
+                [ animate_spin
+                , block
+                , text_gray_300
+
+                --
+                , dark__text_gray_500
+                ]
+            )

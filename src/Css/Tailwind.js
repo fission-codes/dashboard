@@ -66,10 +66,13 @@ export default {
 
   variants: {
     extend: {
-      maxWidth: [ 'responsive' ],
-      display: [ 'dark' ],
-      textDecoration: [ 'dark' ],
+      backgroundColor: [ 'active', 'disabled' ],
+      backgroundOpacity: [ 'active', 'disabled' ],
       boxShadow: [ 'dark' ],
+      display: [ 'dark' ],
+      maxWidth: [ 'responsive' ],
+      textDecoration: [ 'dark' ],
+      textColor: [ 'disabled' ],
     }
   }
 }

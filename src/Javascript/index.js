@@ -23,6 +23,10 @@ webnative
     webnativeElm.setup(elmApp, state.fs)
 
     elmApp.ports.webnativeInitialized.send(state)
+    elmApp.ports.webnativeResendVerificationEmail.subscribe(async () => {
+      await webnative.resendVerificationEmail()
+      elmApp.ports.webnativeVerificationEmailSent.send({})
+    })
   })
 
 window.webnative = webnative
