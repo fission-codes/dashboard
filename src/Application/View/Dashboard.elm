@@ -277,15 +277,6 @@ sectionEmail element =
         [ sectionTitle [] "Email"
         , sectionParagraph
             [ responsiveGroup
-                [ groupHeading [ text "Your email" ]
-                , div
-                    [ flex
-                    , flex_col
-                    , space_y_2
-                    ]
-                    element.email
-                ]
-            , responsiveGroup
                 [ groupHeading []
                 , span
                     [ flex
@@ -294,50 +285,6 @@ sectionEmail element =
                     , space_x_2
                     ]
                     element.verificationStatus
-                ]
-            , let
-                checkboxInfo =
-                    [ text "Check to subscribe to occasional product updates. "
-                    , a
-                        [ href "https://5d04d668.sibforms.com/serve/MUIEAD0fi3_BJE-4eieeuK6_0_XZaOPiu1_nfh56jvP1pV9uWy9OLxWLrHtjC148osZF2vcRb0XAymSdzFxhVD7XgvvODjbrp5ClBvQLmY70hyvU1JKu7ucoOP5KFJVRcfNgYN-3qvVppxg72KGyYZlWAJr2IkO7Ae9CIhnjpufaP7npZGPrBFzpmyEaKKLGYyqu0dnQIobGLAMM"
-
-                        --
-                        , underline
-                        , text_decoration_purple
-                        , text_decoration_3over2
-                        , with_focus_indicator
-                        , rounded
-                        ]
-                        [ text "Manage all your subscriptions here" ]
-                    ]
-              in
-              responsiveGroup
-                [ groupHeading checkboxInfo
-                , label
-                    [ flex
-                    , flex_row
-                    , space_x_2
-                    , items_center
-                    , self_start
-                    ]
-                    [ input
-                        [ type_ "checkbox"
-                        , checked element.productUpdates
-                        , Events.onCheck element.onCheckProductUpdates
-                        ]
-                        []
-                    , span
-                        [ font_display
-                        , text_gray_200
-                        , select_none
-
-                        --
-                        , dark__text_gray_400
-                        ]
-                        [ text "Product Updates" ]
-                    ]
-                , span (md__hidden :: infoTextAttributes)
-                    checkboxInfo
                 ]
             ]
         ]
