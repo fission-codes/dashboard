@@ -14,7 +14,7 @@
   "dependencies": {
     "fission-kit": "fission-suite/kit#aed7844ccd76f6ca7feeca95981b47d4b1114a7c",
     "tailwindcss": "^2.0.1",
-    "webnative": "^0.21.1",
+    "webnative": "link:../webnative",
     "webnative-elm": "^1.0.0"
   }
 }
