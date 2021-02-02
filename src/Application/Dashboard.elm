@@ -47,15 +47,16 @@ view model =
     View.appShell
         { header = View.appHeader
         , main =
-            List.intersperse View.spacer
-                [ View.dashboardHeading "Your Account"
-                , View.sectionUsername
-                    { username = [ View.settingText [ Html.text model.username ] ]
-                    }
-                , View.sectionEmail
-                    { verificationStatus = [ resendVerificationEmailButton model ]
-                    }
-                ]
+            View.workInProgressBanner
+                :: List.intersperse View.spacer
+                    [ View.dashboardHeading "Your Account"
+                    , View.sectionUsername
+                        { username = [ View.settingText [ Html.text model.username ] ]
+                        }
+                    , View.sectionEmail
+                        { verificationStatus = [ resendVerificationEmailButton model ]
+                        }
+                    ]
         , footer = View.appFooter
         }
 
@@ -73,7 +74,7 @@ resendVerificationEmailButton model =
         (List.concat
             [ [ Html.text "Resend Verification Email" ]
             , Common.when model.resendingVerificationEmail
-                [ View.Common.loadingAnimation View.Common.Small [ Css.Classes.ml_4 ] ]
+                [ View.Common.loadingAnimation View.Common.Small [ Css.Classes.ml_3 ] ]
             ]
         )
 

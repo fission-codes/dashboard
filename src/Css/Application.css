@@ -19,10 +19,6 @@ html {
   @apply h-full;
 }
 
-.text-decoration-purple {
-  text-decoration-color: theme('colors.purple');
-}
-
 .text-decoration-px {
   text-decoration-thickness: 1px;
 }
