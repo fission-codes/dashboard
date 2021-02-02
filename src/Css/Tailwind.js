@@ -74,5 +74,20 @@ export default {
       textDecoration: [ 'dark' ],
       textColor: [ 'disabled' ],
     }
-  }
+  },
+
+  plugins: [
+    function({ addUtilities, e, theme, variants }) {
+      const colors = theme('colors', {})
+      const decorationVariants = variants('textDecoration', [])
+
+      const textDecorationColorUtility = Object.entries(colors).map(([name, color]) => ({
+        [`.decoration-color-${e(name)}`]: {
+          textDecorationColor: `${color}`
+        }
+      }))
+
+      addUtilities(textDecorationColorUtility, decorationVariants)
+    },
+  ],
 }

@@ -64,7 +64,7 @@ appHeader =
                 , fissionAttributes = [ h_8 ]
                 }
 
-            -- reintroduce, once there are more than 1 page
+            -- reintroduce, once there is more than 1 page
             -- , menuButton []
             ]
         ]
@@ -276,7 +276,10 @@ sectionEmail element =
             [ responsiveGroup
                 [ span
                     (md__w_1over3 :: infoTextAttributes)
-                    [ text "In case something got wrong while sending you a verification email on signup, click this button to request another one:" ]
+                    [ text "Did something go wrong while sending you a verification email on signup?"
+                    , br [] []
+                    , text "Click this button to request another one:"
+                    ]
                 , span
                     [ flex
                     , flex_row
@@ -472,4 +475,51 @@ menuButton attributes =
         [ FeatherIcons.menu
             |> FeatherIcons.withSize 32
             |> FeatherIcons.toHtml []
+        ]
+
+
+workInProgressBanner : Html msg
+workInProgressBanner =
+    let
+        infoIcon =
+            FeatherIcons.info
+                |> FeatherIcons.withSize 24
+                |> FeatherIcons.toHtml []
+                |> List.singleton
+                |> span
+                    [ text_purple
+                    , flex_shrink_0
+
+                    --
+                    , dark__text_gray_800
+                    ]
+    in
+    div [ p_5 ]
+        [ div
+            [ p_3
+            , rounded_lg
+            , flex
+            , flex_row
+            , items_center
+            , space_x_3
+            , bg_purple_tint
+
+            --
+            , dark__bg_purple
+            ]
+            [ infoIcon
+            , span [ text_sm ]
+                [ text "Looking empty? This dashboard app is a work in progress! Are you interested in planned features or discussing them? Then please take a look at "
+                , a
+                    [ href "#"
+                    , underline
+                    , decoration_color_purple
+
+                    --
+                    , dark__decoration_color_gray_800
+                    ]
+                    [ text "this forum post" ]
+                , text "."
+                ]
+            ]
         ]
