@@ -19,11 +19,11 @@ html {
   @apply h-full;
 }
 
-.text-decoration-px {
+.decoration-px {
   text-decoration-thickness: 1px;
 }
 
-.text-decoration-3\/2 {
+.decoration-3\/2 {
   text-decoration-thickness: 1.5px;
 }
 

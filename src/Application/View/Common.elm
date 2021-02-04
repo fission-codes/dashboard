@@ -42,6 +42,9 @@ logo { attributes, fissionAttributes } =
             , rounded
             , p_1
             , text_xs
+
+            --
+            , dark__bg_darkmode_purple
             ]
             [ text "Dashboard" ]
         ]
