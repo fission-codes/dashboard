@@ -10,9 +10,7 @@ import View.Common
 
 
 appShell :
-    { header : List (Html msg)
-    , main : List (Html msg)
-    , footer : List (Html msg)
+    { main : List (Html msg)
     }
     -> List (Html msg)
 appShell content =
@@ -26,7 +24,7 @@ appShell content =
         --
         , dark__bg_darkness_above
         ]
-        content.header
+        appHeader
     , main_
         [ mx_auto
         , container
@@ -42,7 +40,7 @@ appShell content =
         --
         , dark__bg_darkness_above
         ]
-        content.footer
+        appFooter
     ]
 
 
@@ -63,9 +61,7 @@ appHeader =
                 { attributes = []
                 , fissionAttributes = [ h_8 ]
                 }
-
-            -- reintroduce, once there is more than 1 page
-            -- , menuButton []
+            , menuButton []
             ]
         ]
     ]
@@ -148,7 +144,7 @@ footerLink attributes element =
             [ text_gray_200
             , underline
             , rounded
-            , with_focus_indicator
+            , fission_focus_ring
 
             --
             , dark__text_gray_400
@@ -443,7 +439,7 @@ uppercaseButtonAttributes =
     , tracking_widest
     , p_2
     , rounded
-    , with_focus_indicator
+    , fission_focus_ring
     , flex
     , flex_row
     , items_center
@@ -467,6 +463,8 @@ menuButton attributes =
         (List.append attributes
             [ ml_auto
             , text_gray_300
+            , rounded
+            , fission_focus_ring
 
             --
             , dark__text_gray_400
@@ -509,11 +507,12 @@ workInProgressBanner =
             ]
             [ infoIcon
             , span [ text_sm ]
-                [ text "Looking empty? This dashboard app is a work in progress! Are you interested in planned features or discussing them? Then please take a look at "
+                [ text "Looking empty? This dashboard app is work in progress! Are you interested in planned features or discussing them? Then please take a look at "
                 , a
                     [ href "#"
                     , underline
                     , decoration_color_purple
+                    , fission_focus_ring
 
                     --
                     , dark__decoration_color_gray_800

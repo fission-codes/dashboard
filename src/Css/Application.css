@@ -27,69 +27,10 @@ html {
   text-decoration-thickness: 1.5px;
 }
 
-/*
-  TODO: There's a builtin focus indicator in tailwind.
-  It can be styled. We should use that instead.
-*/
-
-.with-focus-indicator {
-  outline: none;
-  outline-offset: none;
-  @apply focus:shadow-outline;
-  @apply dark:focus:shadow-outline-light;
-}
-
-/*
-    This adjusts the checkbox styling to something non-browserspecific.
-
-    It is slightly modified form tailwind's forms plugin.
-    See https://github.com/tailwindlabs/tailwindcss-forms/blob/98f761963928dc59ea71e9f4804c2544f1a2ce6f/src/index.js
-
-    We're not using the plugin itself, as it comes with a lot more definitions.
-*/
-
-[type="checkbox"] {
-  appearance: none;
-  padding: 0;
-  color-adjust: exact;
-  display: inline-block;
-  vertical-align: middle;
-  background-origin: border-box;
-  user-select: none;
-  flex-shrink: 0;
-  @apply h-5 w-5;
-  @apply text-purple;
-  @apply dark:text-darkmode-purple;
-  @apply bg-gray-900;
-  @apply border-gray-500;
-  @apply dark:bg-gray-400;
-  @apply dark:border-gray-400; /* no need for a border in dark mode, it has nice contrast with the background anyway */
-  @apply border-2;
-  @apply rounded;
-}
-
-[type="checkbox"]:focus {
-  @apply border-gray-500;
-  @apply dark:border-gray-400;
-
-  /* same as with-focus-indicator */
-  outline: none;
-  outline-offset: none;
-  @apply shadow-outline;
-  @apply dark:shadow-outline-light;
-}
-
-[type="checkbox"]:checked {
-  border-color: transparent;
-  background-color: currentColor;
-  background-size: 100% 100%;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-image: url("data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjAgMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTE1LjMzMzQgNkw4LjAwMDAyIDEzLjMzMzNMNC42NjY2OSAxMCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIxLjY2NyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PC9zdmc+");
-}
-
-[type="checkbox"]:checked:hover,
-[type="checkbox"]:checked:focus {
-  border-color: transparent;
-  background-color: currentColor;
+.fission-focus-ring {
+  @apply focus:ring-2;
+  @apply focus:ring-purple;
+  @apply focus:ring-opacity-80;
+  @apply dark:focus:ring-white;
+  @apply dark:focus:ring-opacity-40;
 }
