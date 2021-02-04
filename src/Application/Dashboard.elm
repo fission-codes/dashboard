@@ -45,8 +45,7 @@ update msg model =
 view : DashboardModel -> List (Html Msg)
 view model =
     View.appShell
-        { header = View.appHeader
-        , main =
+        { main =
             View.workInProgressBanner
                 :: List.intersperse View.spacer
                     [ View.dashboardHeading "Your Account"
@@ -57,7 +56,6 @@ view model =
                         { verificationStatus = [ resendVerificationEmailButton model ]
                         }
                     ]
-        , footer = View.appFooter
         }
 
 

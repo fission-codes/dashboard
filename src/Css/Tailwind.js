@@ -71,6 +71,7 @@ export default {
       boxShadow: [ 'dark' ],
       display: [ 'dark' ],
       maxWidth: [ 'responsive' ],
+      ringOpacity: [ 'dark' ],
       textDecoration: [ 'dark' ],
       textColor: [ 'disabled' ],
     }
