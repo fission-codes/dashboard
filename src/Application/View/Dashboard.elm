@@ -16,31 +16,38 @@ appShell :
 appShell content =
     [ div
         [ flex
-        , bg_gray_600
-        , sticky
-        , inset_x_0
-        , top_0
-
-        --
-        , dark__bg_darkness_above
-        ]
-        appHeader
-    , main_
-        [ mx_auto
-        , container
-        , flex
         , flex_col
         , flex_grow
         ]
-        content.main
-    , footer
-        [ flex
-        , bg_gray_600
+        [ div
+            [ flex
+            , flex_shrink_0
+            , bg_gray_600
+            , sticky
+            , inset_x_0
+            , top_0
 
-        --
-        , dark__bg_darkness_above
+            --
+            , dark__bg_darkness_above
+            ]
+            appHeader
+        , main_
+            [ mx_auto
+            , container
+            , flex
+            , flex_col
+            , flex_grow
+            ]
+            content.main
+        , footer
+            [ flex
+            , bg_gray_600
+
+            --
+            , dark__bg_darkness_above
+            ]
+            appFooter
         ]
-        appFooter
     ]
 
 
@@ -503,7 +510,8 @@ workInProgressBanner =
             , bg_purple_tint
 
             --
-            , dark__bg_purple
+            , dark__bg_darkmode_purple
+            , dark__text_gray_800
             ]
             [ infoIcon
             , span [ text_sm ]
@@ -512,6 +520,7 @@ workInProgressBanner =
                     [ href "#"
                     , underline
                     , decoration_color_purple
+                    , decoration_3over2
                     , fission_focus_ring
 
                     --

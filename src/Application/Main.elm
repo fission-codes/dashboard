@@ -168,19 +168,22 @@ subscriptions model =
 
 view : Model -> Browser.Document Msg
 view model =
-    { title = "Fission Dashboard"
-    , body =
-        case model.state of
-            Authenticated dashboard ->
-                Dashboard.view dashboard
+    case model.state of
+        Authenticated dashboard ->
+            Dashboard.view dashboard
 
-            SigninScreen ->
+        SigninScreen ->
+            { title = "Fission Dashboard"
+            , body =
                 [ View.AuthFlow.signinScreen
                     { onSignIn = RedirectToLobby }
                 ]
+            }
 
-            LoadingScreen ->
+        LoadingScreen ->
+            { title = "Fission Dashboard"
+            , body =
                 [ View.AuthFlow.loadingScreen
                     { message = "Trying to authenticate..." }
                 ]
-    }
+            }

@@ -1,5 +1,6 @@
 module Dashboard exposing (..)
 
+import Browser
 import Common
 import Css.Classes
 import Html exposing (Html)
@@ -42,21 +43,24 @@ update msg model =
 -- view
 
 
-view : DashboardModel -> List (Html Msg)
+view : DashboardModel -> Browser.Document Msg
 view model =
-    View.appShell
-        { main =
-            View.workInProgressBanner
-                :: List.intersperse View.spacer
-                    [ View.dashboardHeading "Your Account"
-                    , View.sectionUsername
-                        { username = [ View.settingText [ Html.text model.username ] ]
-                        }
-                    , View.sectionEmail
-                        { verificationStatus = [ resendVerificationEmailButton model ]
-                        }
-                    ]
-        }
+    { title = "Fission Dashboard"
+    , body =
+        View.appShell
+            { main =
+                View.workInProgressBanner
+                    :: List.intersperse View.spacer
+                        [ View.dashboardHeading "Your Account"
+                        , View.sectionUsername
+                            { username = [ View.settingText [ Html.text model.username ] ]
+                            }
+                        , View.sectionEmail
+                            { verificationStatus = [ resendVerificationEmailButton model ]
+                            }
+                        ]
+            }
+    }
 
 
 resendVerificationEmailButton : DashboardModel -> Html Msg
