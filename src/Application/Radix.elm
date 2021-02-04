@@ -5,7 +5,7 @@ import Browser.Navigation
 import Json.Decode as Json
 import Url exposing (Url)
 import Webnative
-import Webnative.Types as Webnative
+import Webnative.Types
 
 
 
@@ -49,8 +49,8 @@ type Msg
       -----------------------------------------
       -- Webnative
       -----------------------------------------
-    | InitializedWebnative (Result Json.Error Webnative.State)
-    | GotWnfsResponse Webnative.Response
+    | InitializedWebnative (Result Json.Error Webnative.Types.State)
+    | GotWebnativeResponse Webnative.Response
     | RedirectToLobby
 
 

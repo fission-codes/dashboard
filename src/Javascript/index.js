@@ -22,7 +22,7 @@ webnative
   })
   .then(state => {
     // No need for filesystem operations at the moment
-    webnativeElm.setup(elmApp, state.fs)
+    webnativeElm.setup(elmApp, () => state.fs)
 
     elmApp.ports.webnativeInitialized.send(state)
     elmApp.ports.webnativeResendVerificationEmail.subscribe(async () => {

@@ -7,14 +7,14 @@
   "devDependencies": {
     "elm-live": "^4.0.2",
     "elm-tailwind-css": "^1.1.1",
-    "esbuild": "^0.8.31",
+    "esbuild": "^0.8.40",
     "postcss": "^8.2.4",
-    "postcss-import": "^12.0.1"
+    "postcss-import": "^14.0.0"
   },
   "dependencies": {
     "fission-kit": "fission-suite/kit#aed7844ccd76f6ca7feeca95981b47d4b1114a7c",
-    "tailwindcss": "^2.0.1",
+    "tailwindcss": "^2.0.2",
     "webnative": "link:../webnative",
-    "webnative-elm": "^1.0.0"
+    "webnative-elm": "^4.0.0-3"
   }
 }
