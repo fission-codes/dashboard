@@ -9,7 +9,7 @@ import Radix exposing (..)
 import Url exposing (Url)
 import View.AuthFlow
 import Webnative
-import Webnative.Types as Webnative
+import Webnative.Types
 import Wnfs
 
 
@@ -34,6 +34,11 @@ base =
     Wnfs.AppData appPermissions
 
 
+permissions : Webnative.Permissions
+permissions =
+    { app = Just appPermissions, fs = Nothing }
+
+
 appPermissions : Webnative.AppPermissions
 appPermissions =
     { creator = "Fission"
@@ -50,13 +55,7 @@ init _ _ navKey =
     ( { navKey = navKey
       , state = LoadingScreen
       }
-    , -- Workaround for the port not existing in compiled output
-      case Err "" of
-        Err _ ->
-            Cmd.none
-
-        Ok n ->
-            Ports.wnfsRequest (never n)
+    , Cmd.none
     )
 
 
@@ -90,22 +89,22 @@ updateOther msg model =
             case result of
                 Ok webnativeState ->
                     case webnativeState of
-                        Webnative.NotAuthorised _ ->
+                        Webnative.Types.NotAuthorised _ ->
                             ( { model | state = SigninScreen }
                             , Cmd.none
                             )
 
-                        Webnative.AuthCancelled _ ->
+                        Webnative.Types.AuthCancelled _ ->
                             ( { model | state = SigninScreen }
                             , Cmd.none
                             )
 
-                        Webnative.AuthSucceeded { username } ->
+                        Webnative.Types.AuthSucceeded { username } ->
                             ( { model | state = Authenticated (Dashboard.init username) }
                             , Cmd.none
                             )
 
-                        Webnative.Continuation { username } ->
+                        Webnative.Types.Continuation { username } ->
                             ( { model | state = Authenticated (Dashboard.init username) }
                             , Cmd.none
                             )
@@ -113,23 +112,12 @@ updateOther msg model =
                 Err _ ->
                     ( model, Cmd.none )
 
-        GotWnfsResponse response ->
-            case Wnfs.decodeResponse (\_ -> Err "No tags to parse") response of
-                Ok ( n, _ ) ->
-                    never n
-
-                _ ->
-                    -- TODO: Error handling
-                    ( model, Cmd.none )
+        GotWebnativeResponse _ ->
+            ( model, Cmd.none )
 
         RedirectToLobby ->
             ( model
-            , Webnative.redirectToLobby Webnative.CurrentUrl
-                (Just
-                    { app = Nothing
-                    , fs = Nothing
-                    }
-                )
+            , Webnative.redirectToLobby Webnative.CurrentUrl permissions
                 |> Ports.webnativeRequest
             )
 
@@ -163,8 +151,8 @@ updateOther msg model =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
-        [ Ports.wnfsResponse GotWnfsResponse
-        , Ports.webnativeInitialized (Json.decodeValue Webnative.decoderState >> InitializedWebnative)
+        [ Ports.webnativeResponse GotWebnativeResponse
+        , Ports.webnativeInitialized (Json.decodeValue Webnative.Types.decoderState >> InitializedWebnative)
         , case model.state of
             Authenticated dashboard ->
                 Dashboard.subscriptions dashboard
