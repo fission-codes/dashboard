@@ -4,7 +4,7 @@ import Common
 import Css.Classes exposing (..)
 import FeatherIcons
 import Html exposing (..)
-import Html.Attributes exposing (checked, height, href, placeholder, src, style, type_, value, width)
+import Html.Attributes exposing (checked, height, href, name, placeholder, src, style, type_, value, width)
 import Html.Events as Events
 import View.Common
 
@@ -18,19 +18,48 @@ appShell content =
         [ flex
         , flex_col
         , flex_grow
+
+        --
+        , lg__flex_row
         ]
         [ div
             [ flex
+            , flex_col
             , flex_shrink_0
             , bg_gray_600
             , sticky
             , inset_x_0
             , top_0
+            , border_gray_500
+
+            --
+            , lg__border_r_2
+            , lg__w_80
 
             --
             , dark__bg_darkness_above
+            , dark__border_gray_200
             ]
-            appHeader
+            [ appHeader
+            , nav
+                [ hidden
+
+                --
+                , lg__block
+                ]
+                [ navigationHeader "Users"
+                , navigationItem []
+                    { active = True
+                    , icon = FeatherIcons.user
+                    , label = "Account"
+                    }
+                , navigationItem []
+                    { active = False
+                    , icon = FeatherIcons.lock
+                    , label = "App Permissions"
+                    }
+                ]
+            ]
         , main_
             [ mx_auto
             , container
@@ -44,6 +73,9 @@ appShell content =
             , bg_gray_600
 
             --
+            , lg__hidden
+
+            --
             , dark__bg_darkness_above
             ]
             appFooter
@@ -51,9 +83,137 @@ appShell content =
     ]
 
 
-appHeader : List (Html msg)
+navigationHeader : String -> Html msg
+navigationHeader label =
+    h4
+        [ pt_4
+        , px_3
+        , pb_2
+        , font_display
+        , text_xs
+        , tracking_wider
+        , uppercase
+        , text_gray_300
+
+        --
+        , dark__text_gray_400
+        ]
+        [ text label ]
+
+
+navigationItem : List (Attribute msg) -> { active : Bool, icon : FeatherIcons.Icon, label : String } -> Html msg
+navigationItem attributes { active, icon, label } =
+    Html.label
+        (List.concat
+            [ attributes
+
+            --
+            , Common.when active
+                [ bg_purple_tint
+                , border_purple
+
+                --
+                , dark__bg_gray_200
+                , dark__border_darkmode_purple
+                ]
+            , Common.when (not active)
+                [ bg_transparent
+                , border_transparent
+                ]
+            , [ border_l_2
+              , flex
+              , flex_row
+              , items_center
+              , cursor_pointer
+              ]
+            ]
+        )
+        [ input
+            [ type_ "radio"
+            , name "navigation"
+            , checked active
+
+            --
+            , fixed
+            , opacity_0
+            , pointer_events_none
+            ]
+            []
+        , icon
+            |> FeatherIcons.withSize 16
+            |> FeatherIcons.toHtml []
+            |> List.singleton
+            |> span
+                (List.concat
+                    [ [ flex_shrink_0
+                      , pl_5
+                      , pr_3
+                      ]
+                    , if active then
+                        [ text_purple
+
+                        --
+                        , dark__text_gray_600
+                        ]
+
+                      else
+                        [ text_gray_300
+
+                        --
+                        , dark__text_gray_400
+                        ]
+                    ]
+                )
+        , span
+            (List.concat
+                [ [ py_2
+                  , flex_grow
+                  , font_body
+                  , text_base
+                  ]
+                , if active then
+                    [ text_purple
+
+                    --
+                    , dark__text_gray_800
+                    ]
+
+                  else
+                    [ text_gray_300
+
+                    --
+                    , dark__text_gray_400
+                    ]
+                ]
+            )
+            [ text label ]
+        , FeatherIcons.chevronRight
+            |> FeatherIcons.withSize 16
+            |> FeatherIcons.toHtml []
+            |> List.singleton
+            |> span
+                (List.concat
+                    [ [ flex_shrink_0
+                      , ml_auto
+                      , pr_2
+                      ]
+                    , if active then
+                        [ text_purple
+
+                        --
+                        , dark__text_gray_600
+                        ]
+
+                      else
+                        [ hidden ]
+                    ]
+                )
+        ]
+
+
+appHeader : Html msg
 appHeader =
-    [ header
+    header
         [ container
         , px_5
         , mx_auto
@@ -68,10 +228,11 @@ appHeader =
                 { attributes = []
                 , fissionAttributes = [ h_8 ]
                 }
-            , menuButton []
+            , menuButton
+                [ lg__hidden
+                ]
             ]
         ]
-    ]
 
 
 appFooter : List (Html msg)
