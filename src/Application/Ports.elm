@@ -25,3 +25,6 @@ port webnativeResendVerificationEmail : {} -> Cmd msg
 
 
 port webnativeVerificationEmailSent : ({} -> msg) -> Sub msg
+
+
+port webnativeError : (String -> msg) -> Sub msg

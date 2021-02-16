@@ -30,6 +30,13 @@ type State
     = Authenticated DashboardModel
     | SigninScreen
     | LoadingScreen
+    | ErrorScreen WebnativeError
+
+
+type WebnativeError
+    = InsecureContext
+    | UnsupportedBrowser
+    | UnknownError String
 
 
 type alias DashboardModel =
@@ -51,6 +58,7 @@ type Msg
       -----------------------------------------
     | InitializedWebnative (Result Json.Error Webnative.Types.State)
     | GotWebnativeResponse Webnative.Response
+    | GotWebnativeError String
     | RedirectToLobby
 
 

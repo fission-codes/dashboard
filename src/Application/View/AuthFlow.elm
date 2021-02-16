@@ -1,6 +1,7 @@
 module View.AuthFlow exposing (..)
 
 import Css.Classes exposing (..)
+import FeatherIcons
 import Html exposing (..)
 import Html.Attributes exposing (checked, height, href, placeholder, src, style, type_, value, width)
 import Html.Events as Events
@@ -45,6 +46,38 @@ loadingScreen { message } =
             , dark__text_gray_500
             ]
             [ text message ]
+        ]
+
+
+errorScreen : { message : List (Html msg) } -> Html msg
+errorScreen { message } =
+    splashscreenShell
+        []
+        [ span
+            [ block
+            , mt_16
+            , text_red
+
+            --
+            , dark__text_darkmode_red
+            ]
+            [ FeatherIcons.alertTriangle
+                |> FeatherIcons.withSize 32
+                |> FeatherIcons.toHtml []
+            ]
+        , p
+            [ max_w_xs
+            , font_display
+            , italic
+            , text_gray_400
+            , text_base
+            , text_center
+            , mt_8
+
+            --
+            , dark__text_gray_500
+            ]
+            message
         ]
 
 

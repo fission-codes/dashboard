@@ -516,16 +516,8 @@ workInProgressBanner =
             [ infoIcon
             , span [ text_sm ]
                 [ text "Looking empty? This dashboard app is work in progress! Are you interested in planned features or discussing them? Then please take a look at "
-                , a
-                    [ href "#"
-                    , underline
-                    , decoration_color_purple
-                    , decoration_3over2
-                    , fission_focus_ring
-
-                    --
-                    , dark__decoration_color_gray_800
-                    ]
+                , View.Common.underlinedLink
+                    { location = "#" }
                     [ text "this forum post" ]
                 , text "."
                 ]
