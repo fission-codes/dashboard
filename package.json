@@ -9,7 +9,9 @@
     "elm-tailwind-css": "^1.1.1",
     "esbuild": "^0.8.40",
     "postcss": "^8.2.4",
-    "postcss-import": "^14.0.0"
+    "postcss-import": "^14.0.0",
+    "workbox-cli": "^6.1.0",
+    "workbox-strategies": "^6.1.0"
   },
   "dependencies": {
     "fission-kit": "fission-suite/kit#aed7844ccd76f6ca7feeca95981b47d4b1114a7c",

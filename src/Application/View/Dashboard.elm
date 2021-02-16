@@ -68,7 +68,8 @@ appHeader =
                 { attributes = []
                 , fissionAttributes = [ h_8 ]
                 }
-            , menuButton []
+
+            -- , menuButton []
             ]
         ]
     ]

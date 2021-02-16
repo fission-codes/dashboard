@@ -3,6 +3,7 @@
 
 dist := "build"
 node_bin := "./node_modules/.bin"
+workbox_config := "./src/Javascript/workbox.config.cjs"
 
 
 
@@ -98,6 +99,11 @@ node_bin := "./node_modules/.bin"
 		src/Javascript/index.js
 
 
+@manifests:
+	echo "🅰️  Copying manifest files"
+	cp -RT src/Manifests/ {{dist}}
+
+
 
 # Development
 # ===========
@@ -108,10 +114,15 @@ node_bin := "./node_modules/.bin"
 	mkdir -p {{dist}}
 
 
-@dev-build: clean html css-large javascript elm-dev fonts favicons images
+@dev-build: clean html css-large javascript elm-dev fonts favicons manifests images
 
 
-@production-build: clean html elm-production javascript css-small fonts favicons images
+@production-build: clean html elm-production javascript css-small fonts favicons manifests images production-service-worker
+
+
+@production-service-worker:
+	echo "⚙️  Generating service worker"
+	NODE_ENV=production pnpx workbox generateSW {{workbox_config}}
 
 
 @dev-server:
