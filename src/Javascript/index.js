@@ -16,6 +16,8 @@ if (window.location.hostname === "localhost") {
   setupInStaging()
 }
 
+window.webnative = webnative
+
 webnative
   .initialise({
     permissions
@@ -30,8 +32,9 @@ webnative
       elmApp.ports.webnativeVerificationEmailSent.send({})
     })
   })
-
-window.webnative = webnative
+  .catch(error => {
+    elmApp.ports.webnativeError.send(error);
+  });
 
 
 // Utilities

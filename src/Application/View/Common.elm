@@ -78,3 +78,17 @@ loadingAnimation typ attributes =
                 , dark__text_gray_500
                 ]
             )
+
+
+underlinedLink : { location : String } -> List (Html msg) -> Html msg
+underlinedLink { location } =
+    a
+        [ href location
+        , underline
+        , decoration_color_purple
+        , decoration_3over2
+        , fission_focus_ring
+
+        --
+        , dark__decoration_color_gray_800
+        ]

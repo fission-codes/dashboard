@@ -3,11 +3,13 @@ module Main exposing (main)
 import Browser
 import Browser.Navigation as Navigation
 import Dashboard
+import Html
 import Json.Decode as Json
 import Ports
 import Radix exposing (..)
 import Url exposing (Url)
 import View.AuthFlow
+import View.Common
 import Webnative
 import Webnative.Types
 import Wnfs
@@ -115,6 +117,23 @@ updateOther msg model =
         GotWebnativeResponse _ ->
             ( model, Cmd.none )
 
+        GotWebnativeError error ->
+            case error of
+                "INSECURE_CONTEXT" ->
+                    ( { model | state = ErrorScreen InsecureContext }
+                    , Cmd.none
+                    )
+
+                "UNSUPPORTED_BROWSER" ->
+                    ( { model | state = ErrorScreen UnsupportedBrowser }
+                    , Cmd.none
+                    )
+
+                _ ->
+                    ( { model | state = ErrorScreen (UnknownError error) }
+                    , Cmd.none
+                    )
+
         RedirectToLobby ->
             ( model
             , Webnative.redirectToLobby Webnative.CurrentUrl permissions
@@ -153,6 +172,7 @@ subscriptions model =
     Sub.batch
         [ Ports.webnativeResponse GotWebnativeResponse
         , Ports.webnativeInitialized (Json.decodeValue Webnative.Types.decoderState >> InitializedWebnative)
+        , Ports.webnativeError GotWebnativeError
         , case model.state of
             Authenticated dashboard ->
                 Dashboard.subscriptions dashboard
@@ -185,5 +205,57 @@ view model =
             , body =
                 [ View.AuthFlow.loadingScreen
                     { message = "Trying to authenticate..." }
+                ]
+            }
+
+        ErrorScreen error ->
+            { title = "Fission Dashboard"
+            , body =
+                [ View.AuthFlow.errorScreen
+                    { message =
+                        case error of
+                            InsecureContext ->
+                                [ Html.text "Something went wrong. "
+                                , Html.br [] []
+                                , Html.text "This webpage runs in a context not deemed secure enough by your browser to run cryptographic stuff. "
+                                , Html.text "That means the website loaded with \"http\" instead of \"https\" or something similar. "
+                                , Html.br [] []
+                                , Html.text "If you don't know what's up, feel free to "
+                                , View.Common.underlinedLink
+                                    { location = "https://fission.codes/support" }
+                                    [ Html.text "contact us" ]
+                                , Html.text "."
+                                ]
+
+                            UnsupportedBrowser ->
+                                [ Html.text "Something went wrong. "
+                                , Html.br [] []
+                                , Html.text "The browser you are using doesn't seem to support the Web APIs we need. "
+                                , Html.text "Make sure your browser is up-to-date. "
+                                , Html.br [] []
+                                , Html.text "This can also happen when you're trying to use fission in private browsing windows. "
+                                , Html.br [] []
+                                , Html.text "If you've got any questions, please "
+                                , View.Common.underlinedLink
+                                    { location = "https://fission.codes/support" }
+                                    [ Html.text "contact us" ]
+                                , Html.text "."
+                                ]
+
+                            UnknownError errorCode ->
+                                [ Html.text "Something went wrong."
+                                , Html.br [] []
+                                , Html.text "Unfortunately, we couldn't figure out what it was. "
+                                , Html.text "The error code is \""
+                                , Html.text errorCode
+                                , Html.text "\"."
+                                , Html.br [] []
+                                , Html.text "Please contact "
+                                , View.Common.underlinedLink
+                                    { location = "https://fission.codes/support" }
+                                    [ Html.text "our support" ]
+                                , Html.text " and tell us about this issue."
+                                ]
+                    }
                 ]
             }
