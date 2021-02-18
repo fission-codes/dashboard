@@ -117,7 +117,7 @@ workbox_config := "./src/Javascript/workbox.config.cjs"
 @dev-build: clean html css-large javascript elm-dev fonts favicons manifests images
 
 
-@production-build: clean html elm-production javascript css-small fonts favicons manifests images production-service-worker
+@production-build: clean html css-large elm-production javascript css-small fonts favicons manifests images production-service-worker
 
 
 @production-service-worker:
