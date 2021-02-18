@@ -518,7 +518,7 @@ workInProgressBanner =
             , span [ text_sm ]
                 [ text "Looking empty? This dashboard app is work in progress! Are you interested in planned features or discussing them? Then please take a look at "
                 , View.Common.underlinedLink
-                    { location = "#" }
+                    { location = "https://talk.fission.codes/t/plans-for-the-account-dashboard/1586" }
                     [ text "this forum post" ]
                 , text "."
                 ]
