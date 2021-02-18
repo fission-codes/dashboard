@@ -18,29 +18,32 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - name: Checking out repository
+      - name: Check out repository
         uses: actions/checkout@v2
 
-      - name: Setting up Node
-        uses: actions/setup-node@v1
-
-      - name: Setting up Just
+      - name: Set up Just
         uses: extractions/setup-just@v1
 
-      - name: Caching node_modules
-        id: cache-modules
-        uses: actions/cache@v1
+      - name: Cache pnpm modules
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-pnpm-modules
         with:
-          path: node_modules
-          key: ${{ runner.OS }}-build-${{ hashFiles('pnpm-lock.yaml') }}
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
 
-      - name: Installing Dependencies
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v1.2.1
+
+      - name: Install Dependencies
         run: just install-deps
 
-      - name: Building
+      - name: Build
         run: just production-build
 
-      - name: Publishing to Fission
+      - name: Publish to Fission
         uses: fission-suite/publish-action@v1
         with:
           machine_key: ${{ secrets.FISSION_KEY }}
