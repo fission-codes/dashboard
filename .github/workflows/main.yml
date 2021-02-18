@@ -35,6 +35,14 @@ jobs:
           key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package.json') }}
           restore-keys: |
             ${{ runner.os }}-build-${{ env.cache-name }}-
+      
+      - name: Cache elm home
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-elm-home
+        with:
+          path: ~/.elm
+          key: ${{ runner.os }}-elm-home-${{ hashFiles('**/elm.json') }}
 
       - name: Install Dependencies
         run: nix-shell --run "just install-deps"
