@@ -28,8 +28,11 @@ webnative
 
     elmApp.ports.webnativeInitialized.send(state)
     elmApp.ports.webnativeResendVerificationEmail.subscribe(async () => {
-      await webnative.resendVerificationEmail()
-      elmApp.ports.webnativeVerificationEmailSent.send({})
+      try {
+        await webnative.lobby.resendVerificationEmail()
+      } finally {
+        elmApp.ports.webnativeVerificationEmailSent.send({})
+      }
     })
   })
   .catch(error => {
