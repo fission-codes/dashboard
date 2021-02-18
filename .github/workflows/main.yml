@@ -21,8 +21,10 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v2
 
-      - name: Set up Just
-        uses: extractions/setup-just@v1
+      - name: Install nix
+        uses: cachix/install-nix-action@v12
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
 
       - name: Cache pnpm modules
         uses: actions/cache@v2
@@ -34,14 +36,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-build-${{ env.cache-name }}-
 
-      - name: Set up pnpm
-        uses: pnpm/action-setup@v1.2.1
-
       - name: Install Dependencies
-        run: just install-deps
+        run: nix-shell --run "just install-deps"
 
       - name: Build
-        run: just production-build
+        run: nix-shell --run "just production-build"
 
       - name: Publish to Fission
         uses: fission-suite/publish-action@v1
