@@ -2,7 +2,7 @@
   "name": "fission-dashboard",
   "description": "",
   "version": "0.1.0",
-  "author": "Steven Vandevelde <icid.asset@gmail.com>",
+  "author": "Steven Vandevelde <icid.asset@gmail.com>, Philipp Krüger <philipp.krueger1@gmail.com>",
   "type": "module",
   "devDependencies": {
     "elm-live": "^4.0.2",
