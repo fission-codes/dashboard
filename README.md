@@ -1,6 +1,6 @@
 # Dashboard
 
-![Build Status](https://github.com/fission-suite/dashboard/actions/workflows/develop.yml/badge.svg)
+[![Main Build](https://github.com/fission-suite/dashboard/actions/workflows/main.yml/badge.svg)](https://fission-dashboard.fission.app)
 [![Built by FISSION](https://img.shields.io/badge/⌘-Built_by_FISSION-purple.svg)](https://fission.codes)
 [![Discord](https://img.shields.io/discord/478735028319158273.svg)](https://discord.gg/zAQBDEq)
 [![Discourse](https://img.shields.io/discourse/https/talk.fission.codes/topics)](https://talk.fission.codes)
