@@ -2,8 +2,7 @@
     "type": "application",
     "source-directories": [
         "src/Application",
-        "src/Generated",
-        "src/Library"
+        "src/Generated"
     ],
     "elm-version": "0.19.1",
     "dependencies": {
