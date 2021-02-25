@@ -9,7 +9,6 @@ import { promises as fs } from "fs"
 const etmConfig = {
     directory: "src/Generated",
     moduleName: "Tailwind",
-    tailwindConfig: { ...tailwindConfig, variants: [] },
     generateDocumentation: true,
     // custom stuff
     inputCssFile: "src/Css/Application.css",
@@ -21,7 +20,7 @@ const logFunction = message => console.log(message.split("\n").map(addLogPrefix)
 
 const elmTailwindModulesPlugin = elmTailwindModules.asPostcssPlugin({
     moduleName: etmConfig.moduleName,
-    tailwindConfig: etmConfig.tailwindConfig,
+    tailwindConfig: tailwindConfig,
     generateDocumentation: etmConfig.generateDocumentation,
     logFunction,
     modulesGeneratedHook: async generated => elmTailwindModules.writeGeneratedFiles({
@@ -37,7 +36,7 @@ const elmTailwindModulesPlugin = elmTailwindModules.asPostcssPlugin({
 
     const result = await postcss.default([
         postcssImport,
-        tailwindcss(etmConfig.tailwindConfig),
+        tailwindcss(tailwindConfig),
         autoprefixer,
         elmTailwindModulesPlugin
     ]).process(inputCss, {

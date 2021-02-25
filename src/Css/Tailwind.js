@@ -60,23 +60,7 @@ export default {
 
   },
 
-
-  /////////////////////////////////////////
-  // VARIANTS /////////////////////////////
-  /////////////////////////////////////////
-
-  variants: {
-    extend: {
-      backgroundColor: [ 'active', 'disabled' ],
-      backgroundOpacity: [ 'active', 'disabled' ],
-      boxShadow: [ 'dark' ],
-      display: [ 'dark' ],
-      maxWidth: [ 'responsive' ],
-      ringOpacity: [ 'dark' ],
-      textDecoration: [ 'dark' ],
-      textColor: [ 'disabled' ],
-    }
-  },
+  variants: [], // We use variants like focus, hover, breakpoints etc. via elm-css
 
   plugins: [
     textDecorationPlugin
