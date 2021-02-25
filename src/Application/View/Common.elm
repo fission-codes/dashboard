@@ -1,50 +1,58 @@
 module View.Common exposing (..)
 
-import Css.Classes exposing (..)
+import Css
+import Css.Media
 import FeatherIcons
-import Html exposing (..)
-import Html.Attributes exposing (checked, height, href, placeholder, src, style, type_, value, width)
+import Html.Styled as Html exposing (..)
+import Html.Styled.Attributes exposing (css, href, src)
+import Tailwind.Breakpoints exposing (..)
+import Tailwind.Utilities exposing (..)
 
 
 logo :
-    { attributes : List (Attribute msg)
-    , fissionAttributes : List (Attribute msg)
+    { styles : List Css.Style
+    , imageStyles : List Css.Style
     }
     -> Html msg
-logo { attributes, fissionAttributes } =
+logo { styles, imageStyles } =
     span
-        (List.append attributes
-            [ flex
+        [ css
+            [ Css.batch styles
+            , flex
             , flex_row
             , items_start
             , space_x_2
             ]
-        )
+        ]
         [ img
-            (src "images/logo-dark-textonly.svg"
-                :: dark__hidden
-                :: fissionAttributes
-            )
+            [ src "images/logo-dark-textonly.svg"
+            , css
+                [ Css.batch imageStyles
+                , dark [ hidden ]
+                ]
+            ]
             []
         , img
-            (src "images/logo-light-textonly.svg"
-                :: hidden
-                :: dark__block
-                :: fissionAttributes
-            )
+            [ src "images/logo-light-textonly.svg"
+            , css
+                [ Css.batch imageStyles
+                , dark [ block ]
+                , hidden
+                ]
+            ]
             []
         , span
-            [ bg_purple
-            , uppercase
-            , text_white
-            , font_display
-            , tracking_widest
-            , rounded
-            , p_1
-            , text_xs
-
-            --
-            , dark__bg_darkmode_purple
+            [ css
+                [ dark [ bg_darkmode_purple ]
+                , bg_purple
+                , font_display
+                , p_1
+                , rounded
+                , text_white
+                , text_xs
+                , tracking_widest
+                , uppercase
+                ]
             ]
             [ text "Dashboard" ]
         ]
@@ -67,16 +75,16 @@ loadingAnimation typ attributes =
                     16
             )
         |> FeatherIcons.toHtml []
+        |> fromUnstyled
         |> List.singleton
         |> span
-            (List.append attributes
-                [ animate_spin
+            (css
+                [ dark [ text_gray_500 ]
+                , animate_spin
                 , block
                 , text_gray_300
-
-                --
-                , dark__text_gray_500
                 ]
+                :: attributes
             )
 
 
@@ -84,11 +92,33 @@ underlinedLink : { location : String } -> List (Html msg) -> Html msg
 underlinedLink { location } =
     a
         [ href location
-        , underline
-        , decoration_color_purple
-        , decoration_3over2
-        , fission_focus_ring
+        , css
+            [ dark [ decoration_color_gray_800 ]
+            , decoration_color_purple
+            , decoration_thickness_1_dot_5
+            , underline
+            , fissionFocusRing
+            ]
+        ]
 
-        --
-        , dark__decoration_color_gray_800
+
+dark : List Css.Style -> Css.Style
+dark =
+    Css.Media.withMediaQuery [ "(prefers-color-scheme: dark)" ]
+
+
+fissionFocusRing : Css.Style
+fissionFocusRing =
+    Css.batch
+        [ dark
+            [ Css.focus
+                [ ring_opacity_40
+                , ring_white
+                ]
+            ]
+        , Css.focus
+            [ ring_2
+            , ring_opacity_80
+            , ring_purple
+            ]
         ]

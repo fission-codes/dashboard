@@ -26,7 +26,12 @@ workbox_config := "./src/Javascript/workbox.config.cjs"
 # Parts
 # =====
 
-@css-large:
+@css:
+	echo "💄  Compiling CSS"
+	pnpx node src/Javascript/generate-css-modules.js
+
+
+@css-old:
 	echo "💄  Compiling CSS"
 	mkdir -p src/Library/Css
 	pnpx etc src/Css/Application.css \
@@ -35,20 +40,6 @@ workbox_config := "./src/Javascript/workbox.config.cjs"
 		--elm-path src/Library/Css/Classes.elm \
 		--output {{dist}}/application.css \
 		--post-plugin-before postcss-import
-
-@css-small:
-	echo "💄  Compiling Minified CSS"
-	mkdir -p src/Library/Css
-	NODE_ENV=production pnpx etc src/Css/Application.css \
-		--config src/Css/Tailwind.js \
-		--elm-module Css.Classes \
-		--elm-path src/Library/Css/Classes.elm \
-		--output {{dist}}/application.css \
-		--post-plugin-before postcss-import \
-		--purge-content {{dist}}/index.html \
-		--purge-content {{dist}}/bundle.min.js \
-		--purge-content {{dist}}/application.js \
-
 
 @elm-dev:
 	echo "🌳  Compiling Elm"
@@ -114,10 +105,10 @@ workbox_config := "./src/Javascript/workbox.config.cjs"
 	mkdir -p {{dist}}
 
 
-@dev-build: clean html css-large javascript elm-dev fonts favicons manifests images
+@dev-build: clean html css javascript elm-dev fonts favicons manifests images
 
 
-@production-build: clean html css-large elm-production javascript css-small fonts favicons manifests images production-service-worker
+@production-build: clean html css elm-production javascript fonts favicons manifests images production-service-worker
 
 
 @production-service-worker:
@@ -157,7 +148,7 @@ workbox_config := "./src/Javascript/workbox.config.cjs"
 
 
 @watch-css:
-	watchexec -p -w src -f "*/Css/**/*.*" -i build -- just css-large
+	watchexec -p -w src -f "*/Css/**/*.*" -i build -- just css
 
 
 @watch-elm:

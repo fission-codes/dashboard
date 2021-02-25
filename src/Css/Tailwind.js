@@ -1,5 +1,6 @@
 import * as kit from "fission-kit"
 import defaultTheme from "tailwindcss/defaultTheme.js"
+import textDecorationPlugin from "./text-decoration-plugin.js"
 
 
 export default {
@@ -78,17 +79,6 @@ export default {
   },
 
   plugins: [
-    function({ addUtilities, e, theme, variants }) {
-      const colors = theme('colors', {})
-      const decorationVariants = variants('textDecoration', [])
-
-      const textDecorationColorUtility = Object.entries(colors).map(([name, color]) => ({
-        [`.decoration-color-${e(name)}`]: {
-          textDecorationColor: `${color}`
-        }
-      }))
-
-      addUtilities(textDecorationColorUtility, decorationVariants)
-    },
+    textDecorationPlugin
   ],
 }

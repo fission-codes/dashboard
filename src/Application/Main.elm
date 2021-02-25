@@ -4,6 +4,7 @@ import Browser
 import Browser.Navigation as Navigation
 import Dashboard
 import Html
+import Html.Styled
 import Json.Decode as Json
 import Ports
 import Radix exposing (..)
@@ -195,67 +196,70 @@ view model =
         SigninScreen ->
             { title = "Fission Dashboard"
             , body =
-                [ View.AuthFlow.signinScreen
-                    { onSignIn = RedirectToLobby }
+                [ Html.Styled.toUnstyled <|
+                    View.AuthFlow.signinScreen
+                        { onSignIn = RedirectToLobby }
                 ]
             }
 
         LoadingScreen ->
             { title = "Fission Dashboard"
             , body =
-                [ View.AuthFlow.loadingScreen
-                    { message = "Trying to authenticate..." }
+                [ Html.Styled.toUnstyled <|
+                    View.AuthFlow.loadingScreen
+                        { message = "Trying to authenticate..." }
                 ]
             }
 
         ErrorScreen error ->
             { title = "Fission Dashboard"
             , body =
-                [ View.AuthFlow.errorScreen
-                    { message =
-                        case error of
-                            InsecureContext ->
-                                [ Html.text "Something went wrong. "
-                                , Html.br [] []
-                                , Html.text "This webpage runs in a context not deemed secure enough by your browser to run cryptographic stuff. "
-                                , Html.text "That means the website loaded with \"http\" instead of \"https\" or something similar. "
-                                , Html.br [] []
-                                , Html.text "If you don't know what's up, feel free to "
-                                , View.Common.underlinedLink
-                                    { location = "https://fission.codes/support" }
-                                    [ Html.text "contact us" ]
-                                , Html.text "."
-                                ]
+                [ Html.Styled.toUnstyled <|
+                    View.AuthFlow.errorScreen
+                        { message =
+                            case error of
+                                InsecureContext ->
+                                    [ Html.Styled.text "Something went wrong. "
+                                    , Html.Styled.br [] []
+                                    , Html.Styled.text "This webpage runs in a context not deemed secure enough by your browser to run cryptographic stuff. "
+                                    , Html.Styled.text "That means the website loaded with \"http\" instead of \"https\" or something similar. "
+                                    , Html.Styled.br [] []
+                                    , Html.Styled.text "If you don't know what's up, feel free to "
+                                    , View.Common.underlinedLink
+                                        { location = "https://fission.codes/support" }
+                                        [ Html.Styled.text "contact us" ]
+                                    , Html.Styled.text "."
+                                    ]
 
-                            UnsupportedBrowser ->
-                                [ Html.text "Something went wrong. "
-                                , Html.br [] []
-                                , Html.text "The browser you are using doesn't seem to support the Web APIs we need. "
-                                , Html.text "Make sure your browser is up-to-date. "
-                                , Html.br [] []
-                                , Html.text "This can also happen when you're trying to use fission in private browsing windows. "
-                                , Html.br [] []
-                                , Html.text "If you've got any questions, please "
-                                , View.Common.underlinedLink
-                                    { location = "https://fission.codes/support" }
-                                    [ Html.text "contact us" ]
-                                , Html.text "."
-                                ]
+                                UnsupportedBrowser ->
+                                    [ Html.Styled.text "Something went wrong. "
+                                    , Html.Styled.br [] []
+                                    , Html.Styled.text "The browser you are using doesn't seem to support the Web APIs we need. "
+                                    , Html.Styled.text "Make sure your browser is up-to-date. "
+                                    , Html.Styled.br [] []
+                                    , Html.Styled.text "This can also happen when you're trying to use fission in private browsing windows. "
+                                    , Html.Styled.br [] []
+                                    , Html.Styled.text "If you've got any questions, please "
+                                    , View.Common.underlinedLink
+                                        { location = "https://fission.codes/support" }
+                                        [ Html.Styled.text "contact us" ]
+                                    , Html.Styled.text "."
+                                    ]
 
-                            UnknownError errorCode ->
-                                [ Html.text "Something went wrong."
-                                , Html.br [] []
-                                , Html.text "Unfortunately, we couldn't figure out what it was. "
-                                , Html.text "The error code is \""
-                                , Html.text errorCode
-                                , Html.text "\"."
-                                , Html.br [] []
-                                , Html.text "Please contact "
-                                , View.Common.underlinedLink
-                                    { location = "https://fission.codes/support" }
-                                    [ Html.text "our support" ]
-                                , Html.text " and tell us about this issue."
-                                ]
-                    }
+                                UnknownError errorCode ->
+                                    [ Html.Styled.text "Something went wrong."
+                                    , Html.Styled.br [] []
+                                    , Html.Styled.text "Unfortunately, we couldn't figure out what it was. "
+                                    , Html.Styled.text "The error code is \""
+                                    , Html.Styled.text errorCode
+                                    , Html.Styled.text "\"."
+                                    , Html.Styled.br [] []
+                                    , Html.Styled.text "Please contact "
+                                    , View.Common.underlinedLink
+                                        { location = "https://fission.codes/support" }
+                                        [ Html.Styled.text "our support" ]
+                                    , Html.Styled.text " and tell us about this issue."
+                                    ]
+                        }
                 ]
             }

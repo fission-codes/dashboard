@@ -5,17 +5,19 @@
   "author": "Steven Vandevelde <icid.asset@gmail.com>, Philipp Krüger <philipp.krueger1@gmail.com>",
   "type": "module",
   "devDependencies": {
+    "autoprefixer": "^10.2.4",
     "elm-live": "^4.0.2",
     "elm-tailwind-css": "^1.1.1",
+    "elm-tailwind-modules": "0.3.0",
     "esbuild": "^0.8.40",
-    "postcss": "^8.2.4",
+    "postcss": "^8.2.6",
     "postcss-import": "^14.0.0",
     "workbox-cli": "^6.1.0",
     "workbox-strategies": "^6.1.0"
   },
   "dependencies": {
     "fission-kit": "fission-suite/kit#aed7844ccd76f6ca7feeca95981b47d4b1114a7c",
-    "tailwindcss": "^2.0.2",
+    "tailwindcss": "^2.0.3",
     "webnative": "https://ipfs.runfission.com/ipfs/bafybeidvsdxftaihq34p55xoap6ghvbi2tbl6aqf2o4qrtppxqkc2ghz2m/webnative-0.21.4.tgz",
     "webnative-elm": "^4.0.0-3"
   }

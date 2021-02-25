@@ -6,31 +6,18 @@
 @tailwind components;
 @tailwind utilities;
 
-@import "./fission-checkbox.css";
-
 body {
   @apply bg-gray-900 font-body font-normal text-gray-100;
-  @apply dark:bg-darkness dark:text-gray-500;
   @apply min-h-full;
   @apply flex flex-col;
 }
 
+@media (prefers-color-scheme: dark) {
+  body {
+    @apply bg-darkness text-gray-500;
+  }
+}
+
 html {
   @apply h-full;
-}
-
-.decoration-px {
-  text-decoration-thickness: 1px;
-}
-
-.decoration-3\/2 {
-  text-decoration-thickness: 1.5px;
-}
-
-.fission-focus-ring {
-  @apply focus:ring-2;
-  @apply focus:ring-purple;
-  @apply focus:ring-opacity-80;
-  @apply dark:focus:ring-white;
-  @apply dark:focus:ring-opacity-40;
 }

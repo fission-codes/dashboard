@@ -1,15 +1,10 @@
 module Dashboard exposing (..)
 
 import Browser
-import Common
-import Css.Classes
-import Html exposing (Html)
-import Html.Attributes as Html
-import Html.Events as Events
+import Html.Styled as Html exposing (Html)
 import Json.Decode as Json
 import Ports
 import Radix exposing (..)
-import View.Common
 import View.Dashboard as View
 import Webnative
 import Webnative.Types as Webnative
@@ -60,25 +55,18 @@ view model =
                             }
                         ]
             }
+            |> Html.toUnstyled
+            |> List.singleton
     }
 
 
 resendVerificationEmailButton : DashboardModel -> Html Msg
 resendVerificationEmailButton model =
-    Html.button
-        (List.concat
-            [ [ Events.onClick (DashboardMsg EmailResendVerification)
-              , Html.disabled model.resendingVerificationEmail
-              ]
-            , View.uppercaseButtonAttributes
-            ]
-        )
-        (List.concat
-            [ [ Html.text "Resend Verification Email" ]
-            , Common.when model.resendingVerificationEmail
-                [ View.Common.loadingAnimation View.Common.Small [ Css.Classes.ml_3 ] ]
-            ]
-        )
+    View.uppercaseButton
+        { label = "Resend Verification Email"
+        , onClick = DashboardMsg EmailResendVerification
+        , isLoading = model.resendingVerificationEmail
+        }
 
 
 subscriptions : DashboardModel -> Sub Msg
