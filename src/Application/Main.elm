@@ -3,7 +3,7 @@ module Main exposing (main)
 import Browser
 import Browser.Navigation as Navigation
 import Dashboard
-import Html
+import Html.Styled as Html
 import Json.Decode as Json
 import Ports
 import Radix exposing (..)
@@ -197,6 +197,7 @@ view model =
             , body =
                 [ View.AuthFlow.signinScreen
                     { onSignIn = RedirectToLobby }
+                    |> Html.toUnstyled
                 ]
             }
 
@@ -205,6 +206,7 @@ view model =
             , body =
                 [ View.AuthFlow.loadingScreen
                     { message = "Trying to authenticate..." }
+                    |> Html.toUnstyled
                 ]
             }
 
@@ -257,5 +259,6 @@ view model =
                                 , Html.text " and tell us about this issue."
                                 ]
                     }
+                    |> Html.toUnstyled
                 ]
             }

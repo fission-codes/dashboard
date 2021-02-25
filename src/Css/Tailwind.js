@@ -1,5 +1,6 @@
 import * as kit from "fission-kit"
 import defaultTheme from "tailwindcss/defaultTheme.js"
+import textDecorationPlugin from "./text-decoration-plugin.js"
 
 
 export default {
@@ -59,36 +60,9 @@ export default {
 
   },
 
-
-  /////////////////////////////////////////
-  // VARIANTS /////////////////////////////
-  /////////////////////////////////////////
-
-  variants: {
-    extend: {
-      backgroundColor: [ 'active', 'disabled' ],
-      backgroundOpacity: [ 'active', 'disabled' ],
-      boxShadow: [ 'dark' ],
-      display: [ 'dark' ],
-      maxWidth: [ 'responsive' ],
-      ringOpacity: [ 'dark' ],
-      textDecoration: [ 'dark' ],
-      textColor: [ 'disabled' ],
-    }
-  },
+  variants: [], // We use variants like focus, hover, breakpoints etc. via elm-css
 
   plugins: [
-    function({ addUtilities, e, theme, variants }) {
-      const colors = theme('colors', {})
-      const decorationVariants = variants('textDecoration', [])
-
-      const textDecorationColorUtility = Object.entries(colors).map(([name, color]) => ({
-        [`.decoration-color-${e(name)}`]: {
-          textDecorationColor: `${color}`
-        }
-      }))
-
-      addUtilities(textDecorationColorUtility, decorationVariants)
-    },
+    textDecorationPlugin
   ],
 }

@@ -1,72 +1,82 @@
 module View.Dashboard exposing (..)
 
 import Common
-import Css.Classes exposing (..)
+import Css
+import Css.Global
 import FeatherIcons
-import Html exposing (..)
-import Html.Attributes exposing (checked, height, href, placeholder, src, style, type_, value, width)
-import Html.Events as Events
-import View.Common
+import Html.Styled exposing (..)
+import Html.Styled.Attributes exposing (class, css, disabled, href, placeholder, src, type_, value)
+import Html.Styled.Events as Events
+import Tailwind.Breakpoints exposing (..)
+import Tailwind.Utilities exposing (..)
+import View.Common exposing (dark, fissionFocusRing)
 
 
 appShell :
     { main : List (Html msg)
     }
-    -> List (Html msg)
+    -> Html msg
 appShell content =
-    [ div
-        [ flex
-        , flex_col
-        , flex_grow
-        ]
-        [ div
+    div
+        [ css
             [ flex
-            , flex_shrink_0
-            , bg_gray_600
-            , sticky
-            , inset_x_0
-            , top_0
-
-            --
-            , dark__bg_darkness_above
-            ]
-            appHeader
-        , main_
-            [ mx_auto
-            , container
-            , flex
             , flex_col
             , flex_grow
             ]
+        ]
+        [ div
+            [ css
+                [ dark [ bg_darkness_above ]
+                , bg_gray_600
+                , flex
+                , flex_shrink_0
+                , inset_x_0
+                , sticky
+                , top_0
+                ]
+            ]
+            appHeader
+        , main_
+            [ css
+                [ container
+                , flex
+                , flex_col
+                , flex_grow
+                , mx_auto
+                ]
+            ]
             content.main
         , footer
-            [ flex
-            , bg_gray_600
-
-            --
-            , dark__bg_darkness_above
+            [ css
+                [ dark [ bg_darkness_above ]
+                , bg_gray_600
+                , flex
+                ]
             ]
             appFooter
         ]
-    ]
 
 
 appHeader : List (Html msg)
 appHeader =
     [ header
-        [ container
-        , px_5
-        , mx_auto
+        [ css
+            [ container
+            , mx_auto
+            , px_5
+            ]
         ]
         [ div
-            [ h_20
-            , flex
-            , flex_row
-            , items_center
+            [ css
+                [ flex
+                , flex_row
+                , h_20
+                , items_center
+                ]
             ]
             [ View.Common.logo
-                { attributes = []
-                , fissionAttributes = [ h_8 ]
+                { styles = []
+                , imageStyles = [ Tailwind.Utilities.h_8 ]
                 }
 
             -- , menuButton []
@@ -78,64 +88,73 @@ appHeader =
 appFooter : List (Html msg)
 appFooter =
     [ footer
-        [ mx_auto
-        , container
-        , px_6
+        [ css
+            [ container
+            , mx_auto
+            , px_6
+            ]
         ]
         [ div
-            [ flex
-            , flex_row
-            , py_6
-            , space_x_8
-            , items_center
+            [ css
+                [ flex
+                , flex_row
+                , items_center
+                , py_6
+                , space_x_8
+                ]
             ]
             [ img
                 [ src "images/badge-solid-faded.svg"
-                , h_8
+                , css [ h_8 ]
                 ]
                 []
             , span
-                [ text_gray_200
-                , mr_auto
-                , flex_grow
-                , hidden
-
-                --
-                , md__inline
-
-                --
-                , dark__text_gray_400
+                [ css
+                    [ dark
+                        [ text_gray_400 ]
+                    , md
+                        [ inline ]
+                    , flex_grow
+                    , hidden
+                    , mr_auto
+                    , text_gray_200
+                    ]
                 ]
                 [ text "Fission Internet Software" ]
             , div
-                [ flex_grow
-                , flex
-                , flex_col
-                , items_start
-                , space_y_2
-
-                --
-                , md__flex_row
-                , md__space_y_0
-                , md__space_x_8
-                , md__flex_grow_0
+                [ css
+                    [ md
+                        [ flex_row
+                        , space_y_0
+                        , space_x_8
+                        , flex_grow_0
+                        ]
+                    , flex
+                    , flex_col
+                    , flex_grow
+                    , items_start
+                    , space_y_2
+                    ]
                 ]
-                [ footerLink [] { text = "Discord", url = "https://discord.gg/daDMAjE" }
-                , footerLink [] { text = "Forum", url = "https://talk.fission.codes/" }
+                [ footerLink { styles = [], text = "Discord", url = "https://discord.gg/daDMAjE" }
+                , footerLink { styles = [], text = "Forum", url = "https://talk.fission.codes/" }
                 ]
 
             -- TODO
             -- , div
-            --     [ flex_grow
-            --     , flex
-            --     , flex_col
-            --     , items_start
-            --     , space_y_2
-            --     --
-            --     , md__flex_row
-            --     , md__space_y_0
-            --     , md__space_x_8
-            --     , md__flex_grow_0
+            --     [ css
+            --         [ md
+            --             [ flex_row
+            --             , space_y_0
+            --             , space_x_8
+            --             , flex_grow_0
+            --             ]
+            --         , flex
+            --         , flex_col
+            --         , flex_grow
+            --         , items_start
+            --         , space_y_2
+            --         ]
             --     ]
             --     [ footerLink [] { text = "Terms of Service", url = "#" }
             --     , footerLink [] { text = "Privacy Policy", url = "#" }
@@ -145,54 +164,53 @@ appFooter =
     ]
 
 
-footerLink : List (Attribute msg) -> { text : String, url : String } -> Html msg
-footerLink attributes element =
+footerLink : { styles : List Css.Style, text : String, url : String } -> Html msg
+footerLink element =
     a
-        (List.append attributes
-            [ text_gray_200
-            , underline
+        [ css
+            [ Css.batch element.styles
+            , dark [ text_gray_400 ]
+            , fissionFocusRing
             , rounded
-            , fission_focus_ring
-
-            --
-            , dark__text_gray_400
-
-            --
-            , href element.url
+            , text_gray_200
+            , underline
             ]
-        )
+        , href element.url
+        ]
         [ text element.text ]
 
 
 dashboardHeading : String -> Html msg
 dashboardHeading headingText =
     h1
-        [ font_display
-        , px_8
-        , py_5
-        , text_2xl
-
-        --
-        , md__px_16
-        , md__py_8
-        , md__text_4xl
+        [ css
+            [ md
+                [ px_16
+                , py_8
+                , text_4xl
+                ]
+            , font_display
+            , px_8
+            , py_5
+            , text_2xl
+            ]
         ]
         [ text headingText ]
 
 
 settingSection : List (Html msg) -> Html msg
 settingSection content =
-    section [ my_8 ] content
+    section [ css [ my_8 ] ] content
 
 
 settingText : List (Html msg) -> Html msg
 settingText content =
     span
-        [ font_display
-        , text_gray_200
-
-        --
-        , dark__text_gray_400
+        [ css
+            [ dark [ text_gray_400 ]
+            , font_display
+            , text_gray_200
+            ]
         ]
         content
 
@@ -213,45 +231,48 @@ settingInput element =
               , Events.onInput element.onInput
 
               --
-              , flex_grow
-              , flex_shrink
-              , min_w_0
-              , max_w_xs
-              , text_base
-              , font_display
-              , text_gray_200
-              , placeholder_gray_400
-              , px_3
-              , py_1
-              , border
-              , border_gray_500
-              , bg_gray_900
-              , rounded
+              , css
+                    [ dark [ text_gray_500 ]
+                    , bg_gray_900
+                    , border
+                    , border_gray_500
+                    , flex_grow
+                    , flex_shrink
+                    , font_display
+                    , max_w_xs
+                    , min_w_0
+                    , placeholder_gray_400
+                    , px_3
+                    , py_1
+                    , rounded
+                    , text_base
+                    , text_gray_200
 
-              --
-              , dark__text_gray_500
+                    --
+                    , Css.Global.withClass "error"
+                        [ dark [ border_darkmode_red ]
+                        , border_red
+                        ]
+                    , Css.focus
+                        [ dark [ border_darkmode_purple ]
+                        , border_purple
+                        ]
+                    ]
               ]
-            , Common.when (not element.inErrorState)
-                [ focus__border_purple
-                , dark__focus__border_darkmode_purple
-                ]
             , Common.when element.inErrorState
-                [ border_red
-                , dark__border_darkmode_red
-                ]
+                [ class "error" ]
             ]
         )
         []
 
 
-infoTextAttributes : List (Attribute msg)
-infoTextAttributes =
-    [ text_sm
-    , text_gray_200
-
-    --
-    , dark__text_gray_400
-    ]
+infoTextStyle : Css.Style
+infoTextStyle =
+    Css.batch
+        [ dark [ text_gray_400 ]
+        , text_sm
+        , text_gray_200
+        ]
 
 
 sectionUsername : { username : List (Html msg) } -> Html msg
@@ -261,9 +282,20 @@ sectionUsername element =
         , sectionParagraph
             [ responsiveGroup
                 [ span
-                    (md__w_1over3 :: infoTextAttributes)
+                    [ css
+                        [ md [ w_1over3 ]
+                        , infoTextStyle
+                        ]
+                    ]
                     [ text "Your username is unique among all fission users." ]
-                , div [ flex, flex_col, space_y_5 ] element.username
+                , div
+                    [ css
+                        [ flex
+                        , flex_col
+                        , space_y_5
+                        ]
+                    ]
+                    element.username
                 ]
             ]
         ]
@@ -279,16 +311,22 @@ sectionEmail element =
         , sectionParagraph
             [ responsiveGroup
                 [ span
-                    (md__w_1over3 :: infoTextAttributes)
+                    [ css
+                        [ md [ w_1over3 ]
+                        , infoTextStyle
+                        ]
+                    ]
                     [ text "Did something go wrong while sending you a verification email on signup?"
                     , br [] []
                     , text "Click this button to request another one:"
                     ]
                 , span
-                    [ flex
-                    , flex_row
-                    , items_center
-                    , space_x_2
+                    [ css
+                        [ flex
+                        , flex_row
+                        , items_center
+                        , space_x_2
+                        ]
                     ]
                     element.verificationStatus
                 ]
@@ -299,14 +337,16 @@ sectionEmail element =
 responsiveGroup : List (Html msg) -> Html msg
 responsiveGroup content =
     div
-        [ flex
-        , flex_col
-        , space_y_2
-
-        --
-        , md__flex_row
-        , md__space_y_0
-        , md__space_x_5
+        [ css
+            [ md
+                [ flex_row
+                , space_y_0
+                , space_x_5
+                ]
+            , flex
+            , flex_col
+            , space_y_2
+            ]
         ]
         content
 
@@ -314,12 +354,15 @@ responsiveGroup content =
 groupHeading : List (Html msg) -> Html msg
 groupHeading content =
     span
-        (hidden
-            --
-            :: md__inline
-            :: md__w_1over3
-            :: infoTextAttributes
-        )
+        [ css
+            [ md
+                [ inline
+                , w_1over3
+                ]
+            , hidden
+            , infoTextStyle
+            ]
+        ]
         content
 
 
@@ -331,24 +374,27 @@ type VerificationStatus
 verificationStatus : VerificationStatus -> Html msg
 verificationStatus status =
     span
-        (List.append
+        [ css
             [ flex
             , flex_row
             , items_center
             , space_x_2
+            , Css.Global.withClass "verified"
+                [ dark [ text_darkmode_purple ]
+                , text_purple
+                ]
+            , Css.Global.withClass "not-verified"
+                [ dark [ text_darkmode_red ]
+                , text_red
+                ]
             ]
-            (case status of
-                Verified ->
-                    [ text_purple
-                    , dark__text_darkmode_purple
-                    ]
+        , case status of
+            Verified ->
+                class "verified"
 
-                NotVerified ->
-                    [ text_red
-                    , dark__text_darkmode_red
-                    ]
-            )
-        )
+            NotVerified ->
+                class "not-verified"
+        ]
         [ (case status of
             Verified ->
                 FeatherIcons.check
@@ -358,9 +404,10 @@ verificationStatus status =
           )
             |> FeatherIcons.withSize 20
             |> FeatherIcons.toHtml []
+            |> fromUnstyled
             |> List.singleton
             |> span []
-        , span [ font_display ]
+        , span [ css [ font_display ] ]
             [ case status of
                 Verified ->
                     text "Verified"
@@ -374,23 +421,24 @@ verificationStatus status =
 warning : List (Html msg) -> Html msg
 warning content =
     span
-        [ flex
-        , flex_row
-        , items_center
-        , text_red
-        , text_sm
-        , space_x_2
-
-        --
-        , dark__text_darkmode_red
+        [ css
+            [ dark [ text_darkmode_red ]
+            , flex
+            , flex_row
+            , items_center
+            , space_x_2
+            , text_red
+            , text_sm
+            ]
         ]
         [ FeatherIcons.alertTriangle
             |> FeatherIcons.withSize 16
             |> FeatherIcons.toHtml []
+            |> fromUnstyled
             |> List.singleton
             |> span []
         , span
-            [ font_display ]
+            [ css [ font_display ] ]
             content
         ]
 
@@ -398,89 +446,108 @@ warning content =
 sectionParagraph : List (Html msg) -> Html msg
 sectionParagraph content =
     p
-        [ pl_10
-        , pr_5
-        , mt_5
-        , flex
-        , flex_col
-        , space_y_5
+        [ css
+            [ flex
+            , flex_col
+            , mt_5
+            , pl_10
+            , pr_5
+            , space_y_5
+            ]
         ]
         content
 
 
-sectionTitle : List (Attribute msg) -> String -> Html msg
-sectionTitle attributes title =
+sectionTitle : List Css.Style -> String -> Html msg
+sectionTitle styles title =
     h2
-        (List.append attributes
-            [ text_gray_300
+        [ css
+            [ Css.batch styles
+            , dark [ text_gray_600 ]
             , font_body
-            , text_lg
             , ml_5
-
-            --
-            , dark__text_gray_600
+            , text_gray_300
+            , text_lg
             ]
-        )
+        ]
         [ text title ]
 
 
 spacer : Html msg
 spacer =
     hr
-        [ h_px
-        , bg_purple_tint
-        , border_0
-        , mx_5
-
-        --
-        , dark__bg_gray_100
+        [ css
+            [ dark [ bg_gray_100 ]
+            , bg_purple_tint
+            , border_0
+            , h_px
+            , mx_5
+            ]
         ]
         []
 
 
-uppercaseButtonAttributes : List (Attribute msg)
-uppercaseButtonAttributes =
-    [ uppercase
-    , text_purple
-    , font_display
-    , text_xs
-    , tracking_widest
-    , p_2
-    , rounded
-    , fission_focus_ring
-    , flex
-    , flex_row
-    , items_center
+uppercaseButtonStyle : Css.Style
+uppercaseButtonStyle =
+    Css.batch
+        [ dark [ text_darkmode_purple ]
+        , fissionFocusRing
+        , flex
+        , flex_row
+        , font_display
+        , items_center
+        , p_2
+        , rounded
+        , text_purple
+        , text_xs
+        , tracking_widest
+        , uppercase
 
-    --
-    , active__bg_purple_tint
-    , active__bg_opacity_30
-    , disabled__text_gray_300
-    , disabled__bg_opacity_30
-    , disabled__bg_gray_500
-
-    --
-    , dark__text_darkmode_purple
-    , dark__disabled__text_gray_500
-    ]
-
-
-menuButton : List (Attribute msg) -> Html msg
-menuButton attributes =
-    button
-        (List.append attributes
-            [ ml_auto
+        --
+        , Css.active
+            [ bg_purple_tint
+            , bg_opacity_30
+            ]
+        , Css.disabled
+            [ dark [ text_gray_500 ]
             , text_gray_300
-            , rounded
-            , fission_focus_ring
+            , bg_opacity_30
+            , bg_gray_500
+            ]
+        ]
 
-            --
-            , dark__text_gray_400
+
+uppercaseButton : { isLoading : Bool, label : String, onClick : msg } -> Html msg
+uppercaseButton { isLoading, label, onClick } =
+    button
+        [ Events.onClick onClick
+        , disabled isLoading
+        , css [ uppercaseButtonStyle ]
+        ]
+        (List.concat
+            [ [ text label ]
+            , Common.when isLoading
+                [ View.Common.loadingAnimation View.Common.Small [ css [ ml_3 ] ] ]
             ]
         )
+
+
+menuButton : List Css.Style -> Html msg
+menuButton styles =
+    button
+        [ css
+            [ Css.batch styles
+            , dark [ text_gray_400 ]
+            , fissionFocusRing
+            , ml_auto
+            , rounded
+            , text_gray_300
+            ]
+        ]
         [ FeatherIcons.menu
             |> FeatherIcons.withSize 32
             |> FeatherIcons.toHtml []
+            |> fromUnstyled
         ]
 
 
@@ -491,35 +558,38 @@ workInProgressBanner =
             FeatherIcons.info
                 |> FeatherIcons.withSize 24
                 |> FeatherIcons.toHtml []
+                |> fromUnstyled
                 |> List.singleton
                 |> span
-                    [ text_purple
-                    , flex_shrink_0
-
-                    --
-                    , dark__text_gray_800
+                    [ css
+                        [ dark [ text_gray_800 ]
+                        , flex_shrink_0
+                        , text_purple
+                        ]
                     ]
     in
-    div [ p_5 ]
+    div [ css [ p_5 ] ]
         [ div
-            [ p_3
-            , rounded_lg
-            , flex
-            , flex_row
-            , items_center
-            , space_x_3
-            , bg_purple_tint
-
-            --
-            , dark__bg_darkmode_purple
-            , dark__text_gray_800
+            [ css
+                [ dark
+                    [ bg_darkmode_purple
+                    , text_gray_800
+                    ]
+                , bg_purple_tint
+                , flex
+                , flex_row
+                , items_center
+                , p_3
+                , rounded_lg
+                , space_x_3
+                ]
             ]
             [ infoIcon
-            , span [ text_sm ]
+            , span [ css [ text_sm ] ]
                 [ text "Looking empty? This dashboard app is work in progress! Are you interested in planned features or discussing them? Then please take a look at "
                 , View.Common.underlinedLink
                     { location = "https://talk.fission.codes/t/plans-for-the-account-dashboard/1586" }
-                    [ text "this forum post" ]
+                    [ Html.Styled.text "this forum post" ]
                 , text "."
                 ]
             ]
