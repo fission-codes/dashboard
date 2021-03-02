@@ -59,7 +59,10 @@ appShell element =
                     , left_0
                     , sidebarWidth
                     ]
-                , dark [ bg_darkness_above ]
+                , dark
+                    [ bg_darkness_above
+                    , border_gray_200
+                    ]
                 , bg_gray_600
                 , fixed
                 , flex
