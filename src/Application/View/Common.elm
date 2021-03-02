@@ -1,10 +1,12 @@
 module View.Common exposing (..)
 
+import Common
 import Css
 import Css.Media
 import FeatherIcons
 import Html.Styled as Html exposing (..)
-import Html.Styled.Attributes exposing (css, href, src)
+import Html.Styled.Attributes exposing (css, disabled, href, src)
+import Html.Styled.Events as Events
 import Tailwind.Breakpoints exposing (..)
 import Tailwind.Utilities exposing (..)
 
@@ -106,3 +108,51 @@ dark styles =
     Css.Media.withMediaQuery
         [ "(prefers-color-scheme: dark)" ]
         styles
+
+
+uppercaseButtonStyle : Css.Style
+uppercaseButtonStyle =
+    Css.batch
+        [ dark
+            [ Css.disabled
+                [ text_gray_500
+                , bg_gray_300
+                ]
+            , Css.active [ bg_opacity_10 ]
+            , text_darkmode_purple
+            ]
+        , Css.active
+            [ bg_purple_tint
+            , bg_opacity_30
+            ]
+        , Css.disabled
+            [ text_gray_300
+            , bg_opacity_30
+            , bg_gray_500
+            ]
+        , flex
+        , flex_row
+        , font_display
+        , items_center
+        , p_2
+        , rounded
+        , text_purple
+        , text_xs
+        , tracking_widest
+        , uppercase
+        ]
+
+
+uppercaseButton : { isLoading : Bool, label : String, onClick : msg } -> Html msg
+uppercaseButton { isLoading, label, onClick } =
+    button
+        [ Events.onClick onClick
+        , disabled isLoading
+        , css [ uppercaseButtonStyle ]
+        ]
+        (List.concat
+            [ [ text label ]
+            , Common.when isLoading
+                [ loadingAnimation Small [ css [ ml_3 ] ] ]
+            ]
+        )

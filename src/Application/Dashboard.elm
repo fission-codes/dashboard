@@ -8,7 +8,10 @@ import Ports
 import Radix exposing (..)
 import Route exposing (Route)
 import Url exposing (Url)
-import View.Dashboard as View
+import View.Account
+import View.Common
+import View.Dashboard
+import View.Navigation
 import Webnative
 import Webnative.Types as Webnative
 
@@ -50,15 +53,15 @@ view : DashboardModel -> Browser.Document Msg
 view model =
     { title = "Fission Dashboard"
     , body =
-        View.appShell
+        View.Dashboard.appShell
             { navigation =
                 { expanded = model.navigationExpanded
                 , onToggleExpanded = DashboardMsg ToggleNavigationExpanded
                 , items =
                     List.concat
-                        [ [ View.navigationHeader "Users" ]
+                        [ [ View.Navigation.header "Users" ]
                         , navigationItems.users |> List.map (viewNavItem model)
-                        , [ View.navigationHeader "Developers" ]
+                        , [ View.Navigation.header "Developers" ]
                         , navigationItems.developers |> List.map (viewNavItem model)
                         ]
                 }
@@ -92,7 +95,7 @@ navigationItems =
 
 viewNavItem : DashboardModel -> NavItem -> Html Msg
 viewNavItem model { route, icon, name } =
-    View.navigationItem []
+    View.Navigation.item []
         { active = route == model.route
         , icon = icon
         , label = name
@@ -102,13 +105,13 @@ viewNavItem model { route, icon, name } =
 
 viewAccount : DashboardModel -> List (Html Msg)
 viewAccount model =
-    View.workInProgressBanner
-        :: List.intersperse View.spacer
-            [ View.dashboardHeading "Your Account"
-            , View.sectionUsername
-                { username = [ View.settingText [ Html.text model.username ] ]
+    View.Account.workInProgressBanner
+        :: List.intersperse View.Dashboard.spacer
+            [ View.Dashboard.heading "Your Account"
+            , View.Account.sectionUsername
+                { username = [ View.Account.settingText [ Html.text model.username ] ]
                 }
-            , View.sectionEmail
+            , View.Account.sectionEmail
                 { verificationStatus = [ resendVerificationEmailButton model ]
                 }
             ]
@@ -116,13 +119,13 @@ viewAccount model =
 
 viewAppList : DashboardModel -> List (Html Msg)
 viewAppList model =
-    List.intersperse View.spacer
-        [ View.dashboardHeading "Developed Apps" ]
+    List.intersperse View.Dashboard.spacer
+        [ View.Dashboard.heading "Developed Apps" ]
 
 
 resendVerificationEmailButton : DashboardModel -> Html Msg
 resendVerificationEmailButton model =
-    View.uppercaseButton
+    View.Common.uppercaseButton
         { label = "Resend Verification Email"
         , onClick = DashboardMsg EmailResendVerification
         , isLoading = model.resendingVerificationEmail
