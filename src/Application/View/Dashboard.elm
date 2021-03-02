@@ -661,7 +661,23 @@ spacer =
 uppercaseButtonStyle : Css.Style
 uppercaseButtonStyle =
     Css.batch
-        [ dark [ text_darkmode_purple ]
+        [ dark
+            [ Css.disabled
+                [ text_gray_500
+                , bg_gray_300
+                ]
+            , Css.active [ bg_opacity_10 ]
+            , text_darkmode_purple
+            ]
+        , Css.active
+            [ bg_purple_tint
+            , bg_opacity_30
+            ]
+        , Css.disabled
+            [ text_gray_300
+            , bg_opacity_30
+            , bg_gray_500
+            ]
         , flex
         , flex_row
         , font_display
@@ -672,18 +688,6 @@ uppercaseButtonStyle =
         , text_xs
         , tracking_widest
         , uppercase
-
-        --
-        , Css.active
-            [ bg_purple_tint
-            , bg_opacity_30
-            ]
-        , Css.disabled
-            [ dark [ text_gray_500 ]
-            , text_gray_300
-            , bg_opacity_30
-            , bg_gray_500
-            ]
         ]
 
 
