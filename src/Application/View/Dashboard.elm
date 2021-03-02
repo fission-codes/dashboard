@@ -12,6 +12,14 @@ import Tailwind.Utilities exposing (..)
 import View.Common exposing (dark, fissionFocusRing)
 
 
+headerHeight =
+    h_20
+
+
+sidebarWidth =
+    w_80
+
+
 appShell :
     { navigation :
         { items : List (Html msg)
@@ -34,18 +42,29 @@ appShell element =
             [ css
                 [ lg
                     [ border_r_2
-                    , border_gray_500
-                    , left_0
+                    , h_auto
+                    , sidebarWidth
+                    ]
+                , flex_shrink_0
+                , headerHeight
+                ]
+            ]
+            []
+        , div
+            [ css
+                [ border_gray_500
+                , lg
+                    [ border_r_2
                     , inset_y_0
-                    , w_80
+                    , left_0
+                    , sidebarWidth
                     ]
                 , dark [ bg_darkness_above ]
                 , bg_gray_600
+                , fixed
                 , flex
                 , flex_col
-                , flex_shrink_0
                 , inset_x_0
-                , sticky
                 , top_0
                 ]
             ]
@@ -220,7 +239,7 @@ appHeader element =
             [ css
                 [ flex
                 , flex_row
-                , h_20
+                , headerHeight
                 , items_center
                 ]
             ]
