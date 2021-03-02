@@ -5,9 +5,8 @@ import Css
 import Css.Global
 import FeatherIcons
 import Html.Styled exposing (..)
-import Html.Styled.Attributes exposing (checked, class, classList, css, disabled, href, name, placeholder, src, type_, value)
+import Html.Styled.Attributes exposing (class, css, placeholder, type_, value)
 import Html.Styled.Events as Events
-import Route exposing (Route)
 import Tailwind.Breakpoints exposing (..)
 import Tailwind.Utilities exposing (..)
 import View.Common exposing (dark)
