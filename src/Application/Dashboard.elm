@@ -1,6 +1,7 @@
 module Dashboard exposing (..)
 
 import Browser
+import FeatherIcons
 import Html.Styled as Html exposing (Html)
 import Json.Decode as Json
 import Ports
@@ -14,6 +15,7 @@ init : String -> DashboardModel
 init username =
     { username = username
     , resendingVerificationEmail = False
+    , navigationExpanded = False
     }
 
 
@@ -33,9 +35,10 @@ update msg model =
             , Cmd.none
             )
 
-
-
--- view
+        ToggleNavigationExpanded ->
+            ( { model | navigationExpanded = not model.navigationExpanded }
+            , Cmd.none
+            )
 
 
 view : DashboardModel -> Browser.Document Msg
@@ -43,7 +46,25 @@ view model =
     { title = "Fission Dashboard"
     , body =
         View.appShell
-            { main =
+            { navigation =
+                { expanded = model.navigationExpanded
+                , onToggleExpanded = DashboardMsg ToggleNavigationExpanded
+                , items =
+                    [ View.navigationHeader "Users"
+                    , View.navigationItem []
+                        { active = True
+                        , icon = FeatherIcons.user
+                        , label = "Account"
+                        }
+                    , View.navigationHeader "Developers"
+                    , View.navigationItem []
+                        { active = False
+                        , icon = FeatherIcons.code
+                        , label = "App List"
+                        }
+                    ]
+                }
+            , main =
                 View.workInProgressBanner
                     :: List.intersperse View.spacer
                         [ View.dashboardHeading "Your Account"

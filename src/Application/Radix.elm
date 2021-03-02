@@ -42,6 +42,7 @@ type WebnativeError
 type alias DashboardModel =
     { username : String
     , resendingVerificationEmail : Bool
+    , navigationExpanded : Bool
     }
 
 
@@ -65,3 +66,4 @@ type Msg
 type DashboardMsg
     = EmailResendVerification
     | VerificationEmailSent
+    | ToggleNavigationExpanded

@@ -5,7 +5,7 @@ import Css
 import Css.Global
 import FeatherIcons
 import Html.Styled exposing (..)
-import Html.Styled.Attributes exposing (class, css, disabled, href, placeholder, src, type_, value)
+import Html.Styled.Attributes exposing (checked, class, classList, css, disabled, href, name, placeholder, src, type_, value)
 import Html.Styled.Events as Events
 import Tailwind.Breakpoints exposing (..)
 import Tailwind.Utilities exposing (..)
@@ -13,29 +13,68 @@ import View.Common exposing (dark, fissionFocusRing)
 
 
 appShell :
-    { main : List (Html msg)
+    { navigation :
+        { items : List (Html msg)
+        , expanded : Bool
+        , onToggleExpanded : msg
+        }
+    , main : List (Html msg)
     }
     -> Html msg
-appShell content =
+appShell element =
     div
         [ css
-            [ flex
+            [ lg [ flex_row ]
+            , flex
             , flex_col
             , flex_grow
             ]
         ]
         [ div
             [ css
-                [ dark [ bg_darkness_above ]
+                [ lg
+                    [ border_r_2
+                    , border_gray_500
+                    , left_0
+                    , inset_y_0
+                    , w_80
+                    ]
+                , dark [ bg_darkness_above ]
                 , bg_gray_600
                 , flex
+                , flex_col
                 , flex_shrink_0
                 , inset_x_0
                 , sticky
                 , top_0
                 ]
             ]
-            appHeader
+            [ appHeader
+                { menuExpanded = element.navigation.expanded
+                , onToggle = element.navigation.onToggleExpanded
+                }
+            , nav
+                [ classList
+                    [ ( "expanded", element.navigation.expanded ) ]
+                , css
+                    [ lg [ flex ]
+                    , Css.Global.withClass "expanded"
+                        [ flex ]
+                    , flex_col
+                    , hidden
+                    ]
+                ]
+                element.navigation.items
+            , footer
+                [ css
+                    [ lg [ flex ]
+                    , hidden
+                    , px_6
+                    , mt_auto
+                    ]
+                ]
+                appFooter
+            ]
         , main_
             [ css
                 [ container
@@ -45,21 +84,132 @@ appShell content =
                 , mx_auto
                 ]
             ]
-            content.main
+            element.main
         , footer
             [ css
-                [ dark [ bg_darkness_above ]
+                [ lg [ hidden ]
+                , dark [ bg_darkness_above ]
                 , bg_gray_600
                 , flex
+                , px_6
                 ]
             ]
             appFooter
         ]
 
 
-appHeader : List (Html msg)
-appHeader =
-    [ header
+navigationHeader : String -> Html msg
+navigationHeader label =
+    h4
+        [ css
+            [ dark [ text_gray_400 ]
+            , pt_4
+            , px_3
+            , pb_2
+            , font_display
+            , text_xs
+            , tracking_wider
+            , uppercase
+            , text_gray_300
+            ]
+        ]
+        [ text label ]
+
+
+navigationItem : List Css.Style -> { active : Bool, icon : FeatherIcons.Icon, label : String } -> Html msg
+navigationItem styles { active, icon, label } =
+    button
+        [ classList
+            [ ( "active", active ) ]
+        , css
+            [ Css.batch styles
+            , Css.Global.withClass "active"
+                [ dark
+                    [ bg_gray_200
+                    , border_darkmode_purple
+                    ]
+                , bg_purple_tint
+                , border_purple
+                ]
+            , lg
+                [ h_10 ]
+            , bg_transparent
+            , border_l_2
+            , border_transparent
+            , fissionFocusRing
+            , flex
+            , flex_grow
+            , flex_row
+            , h_14
+            , items_center
+            ]
+        ]
+        [ icon
+            |> FeatherIcons.withSize 16
+            |> FeatherIcons.toHtml []
+            |> fromUnstyled
+            |> List.singleton
+            |> span
+                [ classList
+                    [ ( "active", active ) ]
+                , css
+                    [ Css.Global.withClass "active"
+                        [ dark [ text_gray_600 ]
+                        , text_purple
+                        ]
+                    , dark [ text_gray_400 ]
+
+                    --
+                    , flex_shrink_0
+                    , pl_5
+                    , pr_3
+                    , text_gray_300
+                    ]
+                ]
+        , span
+            [ classList
+                [ ( "active", active ) ]
+            , css
+                [ Css.Global.withClass "active"
+                    [ dark [ text_gray_800 ]
+                    , text_purple
+                    ]
+                , dark [ text_gray_400 ]
+                , flex_grow
+                , text_left
+                , font_body
+                , py_2
+                , text_base
+                , text_gray_300
+                ]
+            ]
+            [ text label ]
+        , FeatherIcons.chevronRight
+            |> FeatherIcons.withSize 16
+            |> FeatherIcons.toHtml []
+            |> fromUnstyled
+            |> List.singleton
+            |> span
+                [ classList
+                    [ ( "active", active ) ]
+                , css
+                    [ Css.Global.withClass "active"
+                        [ dark [ text_gray_600 ]
+                        , block
+                        , text_purple
+                        ]
+                    , flex_shrink_0
+                    , hidden
+                    , ml_auto
+                    , pr_2
+                    ]
+                ]
+        ]
+
+
+appHeader : { menuExpanded : Bool, onToggle : msg } -> Html msg
+appHeader element =
+    header
         [ css
             [ container
             , mx_auto
@@ -76,89 +226,86 @@ appHeader =
             ]
             [ View.Common.logo
                 { styles = []
-                , imageStyles = [ Tailwind.Utilities.h_8 ]
+                , imageStyles = [ h_8 ]
                 }
+            , button
+                [ Events.onClick element.onToggle
+                , css
+                    [ lg [ hidden ]
+                    , dark [ text_gray_400 ]
+                    , fissionFocusRing
+                    , ml_auto
+                    , rounded
+                    , text_gray_300
+                    ]
+                ]
+                [ (if element.menuExpanded then
+                    FeatherIcons.x
 
-            -- , menuButton []
+                   else
+                    FeatherIcons.menu
+                  )
+                    |> FeatherIcons.withSize 32
+                    |> FeatherIcons.toHtml []
+                    |> fromUnstyled
+                ]
             ]
         ]
-    ]
 
 
 appFooter : List (Html msg)
 appFooter =
-    [ footer
+    [ div
         [ css
-            [ container
-            , mx_auto
-            , px_6
+            [ flex
+            , flex_row
+            , items_center
+            , py_6
+            , space_x_8
             ]
         ]
-        [ div
+        [ img
+            [ src "images/badge-solid-faded.svg"
+            , css [ h_8 ]
+            ]
+            []
+        , div
             [ css
-                [ flex
-                , flex_row
-                , items_center
-                , py_6
-                , space_x_8
+                [ md
+                    [ flex_row
+                    , space_y_0
+                    , space_x_8
+                    , flex_grow_0
+                    ]
+                , flex
+                , flex_col
+                , flex_grow
+                , items_start
+                , space_y_2
                 ]
             ]
-            [ img
-                [ src "images/badge-solid-faded.svg"
-                , css [ h_8 ]
-                ]
-                []
-            , span
-                [ css
-                    [ dark
-                        [ text_gray_400 ]
-                    , md
-                        [ inline ]
-                    , flex_grow
-                    , hidden
-                    , mr_auto
-                    , text_gray_200
+            [ footerLink { styles = [], text = "Discord", url = "https://discord.gg/daDMAjE" }
+            ]
+        , div
+            [ css
+                [ md
+                    [ flex_row
+                    , space_y_0
+                    , space_x_8
+                    , flex_grow_0
                     ]
+                , flex
+                , flex_col
+                , flex_grow
+                , items_start
+                , space_y_2
                 ]
-                [ text "Fission Internet Software" ]
-            , div
-                [ css
-                    [ md
-                        [ flex_row
-                        , space_y_0
-                        , space_x_8
-                        , flex_grow_0
-                        ]
-                    , flex
-                    , flex_col
-                    , flex_grow
-                    , items_start
-                    , space_y_2
-                    ]
-                ]
-                [ footerLink { styles = [], text = "Discord", url = "https://discord.gg/daDMAjE" }
-                , footerLink { styles = [], text = "Forum", url = "https://talk.fission.codes/" }
-                ]
+            ]
+            [ footerLink { styles = [], text = "Forum", url = "https://talk.fission.codes/" }
 
-            -- TODO
-            -- , div
-            --     [ css
-            --         [ md
-            --             [ flex_row
-            --             , space_y_0
-            --             , space_x_8
-            --             , flex_grow_0
-            --             ]
-            --         , flex
-            --         , flex_col
-            --         , flex_grow
-            --         , items_start
-            --         , space_y_2
-            --         ]
-            --     ]
-            --     [ footerLink [] { text = "Terms of Service", url = "#" }
-            --     , footerLink [] { text = "Privacy Policy", url = "#" }
-            --     ]
+            -- TODO Should we even have Terms of Service or Privacy Policy in the Dashboard at all?
+            -- , footerLink [] { text = "Terms of Service", url = "#" }
+            -- , footerLink [] { text = "Privacy Policy", url = "#" }
             ]
         ]
     ]
@@ -530,25 +677,6 @@ uppercaseButton { isLoading, label, onClick } =
                 [ View.Common.loadingAnimation View.Common.Small [ css [ ml_3 ] ] ]
             ]
         )
-
-
-menuButton : List Css.Style -> Html msg
-menuButton styles =
-    button
-        [ css
-            [ Css.batch styles
-            , dark [ text_gray_400 ]
-            , fissionFocusRing
-            , ml_auto
-            , rounded
-            , text_gray_300
-            ]
-        ]
-        [ FeatherIcons.menu
-            |> FeatherIcons.withSize 32
-            |> FeatherIcons.toHtml []
-            |> fromUnstyled
-        ]
 
 
 workInProgressBanner : Html msg
