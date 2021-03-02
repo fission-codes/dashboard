@@ -97,28 +97,12 @@ underlinedLink { location } =
             , decoration_color_purple
             , decoration_thickness_1_dot_5
             , underline
-            , fissionFocusRing
             ]
         ]
 
 
 dark : List Css.Style -> Css.Style
-dark =
-    Css.Media.withMediaQuery [ "(prefers-color-scheme: dark)" ]
-
-
-fissionFocusRing : Css.Style
-fissionFocusRing =
-    Css.batch
-        [ dark
-            [ Css.focus
-                [ ring_opacity_40
-                , ring_white
-                ]
-            ]
-        , Css.focus
-            [ ring_2
-            , ring_opacity_80
-            , ring_purple
-            ]
-        ]
+dark styles =
+    Css.Media.withMediaQuery
+        [ "(prefers-color-scheme: dark)" ]
+        styles

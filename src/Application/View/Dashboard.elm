@@ -9,7 +9,7 @@ import Html.Styled.Attributes exposing (checked, class, classList, css, disabled
 import Html.Styled.Events as Events
 import Tailwind.Breakpoints exposing (..)
 import Tailwind.Utilities exposing (..)
-import View.Common exposing (dark, fissionFocusRing)
+import View.Common exposing (dark)
 
 
 headerHeight =
@@ -51,9 +51,10 @@ appShell element =
             ]
             []
         , div
-            [ css
-                [ border_gray_500
-                , lg
+            [ classList
+                [ ( "expanded", element.navigation.expanded ) ]
+            , css
+                [ lg
                     [ border_r_2
                     , inset_y_0
                     , left_0
@@ -63,7 +64,11 @@ appShell element =
                     [ bg_darkness_above
                     , border_gray_200
                     ]
+                , Css.Global.withClass "expanded"
+                    [ bottom_0
+                    ]
                 , bg_gray_600
+                , border_gray_500
                 , fixed
                 , flex
                 , flex_col
@@ -158,7 +163,6 @@ navigationItem styles { active, icon, label } =
             , bg_transparent
             , border_l_2
             , border_transparent
-            , fissionFocusRing
             , flex
             , flex_grow
             , flex_row
@@ -255,7 +259,6 @@ appHeader element =
                 , css
                     [ lg [ hidden ]
                     , dark [ text_gray_400 ]
-                    , fissionFocusRing
                     , ml_auto
                     , rounded
                     , text_gray_300
@@ -339,7 +342,6 @@ footerLink element =
         [ css
             [ Css.batch element.styles
             , dark [ text_gray_400 ]
-            , fissionFocusRing
             , rounded
             , text_gray_200
             , underline
@@ -660,7 +662,6 @@ uppercaseButtonStyle : Css.Style
 uppercaseButtonStyle =
     Css.batch
         [ dark [ text_darkmode_purple ]
-        , fissionFocusRing
         , flex
         , flex_row
         , font_display
