@@ -7,6 +7,7 @@ import Html.Styled as Html
 import Json.Decode as Json
 import Ports
 import Radix exposing (..)
+import Route
 import Url exposing (Url)
 import View.AuthFlow
 import View.Common
@@ -53,8 +54,9 @@ appPermissions =
 
 
 init : Flags -> Url -> Navigation.Key -> ( Model, Cmd Msg )
-init _ _ navKey =
+init _ url navKey =
     ( { navKey = navKey
+      , url = url
       , state = LoadingScreen
       }
     , Cmd.none
@@ -90,6 +92,14 @@ updateOther msg model =
         InitializedWebnative result ->
             case result of
                 Ok webnativeState ->
+                    let
+                        onAuthenticated username =
+                            ( { model
+                                | state = Authenticated (Dashboard.init model.url username)
+                              }
+                            , Cmd.none
+                            )
+                    in
                     case webnativeState of
                         Webnative.Types.NotAuthorised _ ->
                             ( { model | state = SigninScreen }
@@ -102,14 +112,10 @@ updateOther msg model =
                             )
 
                         Webnative.Types.AuthSucceeded { username } ->
-                            ( { model | state = Authenticated (Dashboard.init username) }
-                            , Cmd.none
-                            )
+                            onAuthenticated username
 
                         Webnative.Types.Continuation { username } ->
-                            ( { model | state = Authenticated (Dashboard.init username) }
-                            , Cmd.none
-                            )
+                            onAuthenticated username
 
                 Err _ ->
                     ( model, Cmd.none )
@@ -143,24 +149,50 @@ updateOther msg model =
         -----------------------------------------
         -- URL
         -----------------------------------------
-        UrlChanged _ ->
-            ( model, Cmd.none )
+        UrlChanged url ->
+            ( onUrlChange url model
+            , Cmd.none
+            )
 
         UrlRequested request ->
-            ( model
-            , case request of
-                Browser.Internal _ ->
-                    Cmd.none
+            case request of
+                Browser.Internal url ->
+                    ( onUrlChange url model
+                    , Navigation.pushUrl model.navKey (Url.toString url)
+                    )
 
                 Browser.External url ->
-                    Navigation.load url
-            )
+                    ( model
+                    , Navigation.load url
+                    )
 
         -----------------------------------------
         -- Message/Model desync
         -----------------------------------------
         DashboardMsg _ ->
             ( model, Cmd.none )
+
+
+onUrlChange : Url -> Model -> Model
+onUrlChange url model =
+    { model
+        | url = url
+        , state =
+            case model.state of
+                Authenticated dashboardModel ->
+                    case Route.fromUrl url of
+                        Just route ->
+                            Authenticated
+                                { dashboardModel
+                                    | route = route
+                                }
+
+                        _ ->
+                            model.state
+
+                _ ->
+                    model.state
+    }
 
 
 

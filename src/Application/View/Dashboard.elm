@@ -7,6 +7,7 @@ import FeatherIcons
 import Html.Styled exposing (..)
 import Html.Styled.Attributes exposing (checked, class, classList, css, disabled, href, name, placeholder, src, type_, value)
 import Html.Styled.Events as Events
+import Route exposing (Route)
 import Tailwind.Breakpoints exposing (..)
 import Tailwind.Utilities exposing (..)
 import View.Common exposing (dark)
@@ -143,11 +144,20 @@ navigationHeader label =
         [ text label ]
 
 
-navigationItem : List Css.Style -> { active : Bool, icon : FeatherIcons.Icon, label : String } -> Html msg
-navigationItem styles { active, icon, label } =
-    button
-        [ classList
-            [ ( "active", active ) ]
+navigationItem :
+    List Css.Style
+    ->
+        { active : Bool
+        , icon : FeatherIcons.Icon
+        , label : String
+        , link : Route
+        }
+    -> Html msg
+navigationItem styles element =
+    a
+        [ href (Route.toUrl element.link)
+        , classList
+            [ ( "active", element.active ) ]
         , css
             [ Css.batch styles
             , Css.Global.withClass "active"
@@ -170,14 +180,14 @@ navigationItem styles { active, icon, label } =
             , items_center
             ]
         ]
-        [ icon
+        [ element.icon
             |> FeatherIcons.withSize 16
             |> FeatherIcons.toHtml []
             |> fromUnstyled
             |> List.singleton
             |> span
                 [ classList
-                    [ ( "active", active ) ]
+                    [ ( "active", element.active ) ]
                 , css
                     [ Css.Global.withClass "active"
                         [ dark [ text_gray_600 ]
@@ -194,7 +204,7 @@ navigationItem styles { active, icon, label } =
                 ]
         , span
             [ classList
-                [ ( "active", active ) ]
+                [ ( "active", element.active ) ]
             , css
                 [ Css.Global.withClass "active"
                     [ dark [ text_gray_800 ]
@@ -209,7 +219,7 @@ navigationItem styles { active, icon, label } =
                 , text_gray_300
                 ]
             ]
-            [ text label ]
+            [ text element.label ]
         , FeatherIcons.chevronRight
             |> FeatherIcons.withSize 16
             |> FeatherIcons.toHtml []
@@ -217,7 +227,7 @@ navigationItem styles { active, icon, label } =
             |> List.singleton
             |> span
                 [ classList
-                    [ ( "active", active ) ]
+                    [ ( "active", element.active ) ]
                 , css
                     [ Css.Global.withClass "active"
                         [ dark [ text_gray_600 ]

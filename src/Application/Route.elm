@@ -10,6 +10,7 @@ import Url.Parser exposing (..)
 
 type Route
     = Index
+    | AppList
 
 
 
@@ -28,4 +29,25 @@ fromUrl =
 route : Parser (Route -> a) a
 route =
     oneOf
-        [ map Index top ]
+        [ top
+            </> fragment
+                    (\f ->
+                        case f of
+                            Just "developers/app-list" ->
+                                AppList
+
+                            _ ->
+                                Index
+                    )
+        , map Index top
+        ]
+
+
+toUrl : Route -> String
+toUrl r =
+    case r of
+        Index ->
+            "/"
+
+        AppList ->
+            "/#developers/app-list"
