@@ -185,6 +185,7 @@ onUrlChange url model =
                             Authenticated
                                 { dashboardModel
                                     | route = route
+                                    , navigationExpanded = False
                                 }
 
                         _ ->
