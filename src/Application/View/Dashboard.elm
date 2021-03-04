@@ -260,17 +260,3 @@ footerLink element =
         , href element.url
         ]
         [ text element.text ]
-
-
-spacer : Html msg
-spacer =
-    hr
-        [ css
-            [ dark [ bg_gray_100 ]
-            , bg_purple_tint
-            , border_0
-            , h_px
-            , mx_5
-            ]
-        ]
-        []

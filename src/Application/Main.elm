@@ -256,7 +256,7 @@ view model =
                                 , Html.text "That means the website loaded with \"http\" instead of \"https\" or something similar. "
                                 , Html.br [] []
                                 , Html.text "If you don't know what's up, feel free to "
-                                , View.Common.underlinedLink
+                                , View.Common.underlinedLink []
                                     { location = "https://fission.codes/support" }
                                     [ Html.text "contact us" ]
                                 , Html.text "."
@@ -271,7 +271,7 @@ view model =
                                 , Html.text "This can also happen when you're trying to use fission in private browsing windows. "
                                 , Html.br [] []
                                 , Html.text "If you've got any questions, please "
-                                , View.Common.underlinedLink
+                                , View.Common.underlinedLink []
                                     { location = "https://fission.codes/support" }
                                     [ Html.text "contact us" ]
                                 , Html.text "."
@@ -286,7 +286,7 @@ view model =
                                 , Html.text "\"."
                                 , Html.br [] []
                                 , Html.text "Please contact "
-                                , View.Common.underlinedLink
+                                , View.Common.underlinedLink []
                                     { location = "https://fission.codes/support" }
                                     [ Html.text "our support" ]
                                 , Html.text " and tell us about this issue."

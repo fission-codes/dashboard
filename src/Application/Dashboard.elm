@@ -9,6 +9,7 @@ import Radix exposing (..)
 import Route exposing (Route)
 import Url exposing (Url)
 import View.Account
+import View.AppList
 import View.Common
 import View.Dashboard
 import View.Navigation
@@ -106,7 +107,7 @@ viewNavItem model { route, icon, name } =
 viewAccount : DashboardModel -> List (Html Msg)
 viewAccount model =
     View.Account.workInProgressBanner
-        :: List.intersperse View.Dashboard.spacer
+        :: List.intersperse View.Common.sectionSpacer
             [ View.Dashboard.heading "Your Account"
             , View.Account.sectionUsername
                 { username = [ View.Account.settingText [ Html.text model.username ] ]
@@ -119,8 +120,28 @@ viewAccount model =
 
 viewAppList : DashboardModel -> List (Html Msg)
 viewAppList model =
-    List.intersperse View.Dashboard.spacer
-        [ View.Dashboard.heading "Developed Apps" ]
+    List.intersperse View.Common.sectionSpacer
+        [ View.Dashboard.heading "Developed Apps"
+        , View.AppList.sectionNewApp
+        , View.AppList.sectionAppList
+            [ View.AppList.appListItem
+                { name = "long-tulip"
+                , url = "https://long-tulip.fission.app"
+                }
+            , View.AppList.appListItem
+                { name = "wicked-elderly-fuchsia-turtle"
+                , url = "https://wicked-elderly-fuchsia-turtle.fission.app"
+                }
+            , View.AppList.appListItem
+                { name = "flatmate"
+                , url = "https://flatmate.fission.app"
+                }
+            , View.AppList.appListItem
+                { name = "herknen"
+                , url = "https://herknen.fission.app"
+                }
+            ]
+        ]
 
 
 resendVerificationEmailButton : DashboardModel -> Html Msg

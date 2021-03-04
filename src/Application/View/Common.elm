@@ -90,12 +90,13 @@ loadingAnimation typ attributes =
             )
 
 
-underlinedLink : { location : String } -> List (Html msg) -> Html msg
-underlinedLink { location } =
+underlinedLink : List Css.Style -> { location : String } -> List (Html msg) -> Html msg
+underlinedLink styles { location } =
     a
         [ href location
         , css
-            [ dark [ decoration_color_gray_800 ]
+            [ Css.batch styles
+            , dark [ decoration_color_gray_800 ]
             , decoration_color_purple
             , decoration_thickness_1_dot_5
             , underline
@@ -156,3 +157,36 @@ uppercaseButton { isLoading, label, onClick } =
                 [ loadingAnimation Small [ css [ ml_3 ] ] ]
             ]
         )
+
+
+px : Float -> Css.Rem
+px n =
+    Css.rem (n / 16)
+
+
+infoTextStyle : Css.Style
+infoTextStyle =
+    Css.batch
+        [ dark [ text_gray_400 ]
+        , text_sm
+        , text_gray_200
+        ]
+
+
+sectionSpacer : Html msg
+sectionSpacer =
+    spacer [ mx_5 ]
+
+
+spacer : List Css.Style -> Html msg
+spacer styles =
+    hr
+        [ css
+            [ Css.batch styles
+            , dark [ bg_gray_200 ]
+            , bg_purple_tint
+            , border_0
+            , h_px
+            ]
+        ]
+        []

@@ -9,7 +9,7 @@ import Html.Styled.Attributes exposing (class, css, placeholder, type_, value)
 import Html.Styled.Events as Events
 import Tailwind.Breakpoints exposing (..)
 import Tailwind.Utilities exposing (..)
-import View.Common exposing (dark)
+import View.Common exposing (dark, infoTextStyle)
 
 
 settingSection : List (Html msg) -> Html msg
@@ -78,15 +78,6 @@ settingInput element =
             ]
         )
         []
-
-
-infoTextStyle : Css.Style
-infoTextStyle =
-    Css.batch
-        [ dark [ text_gray_400 ]
-        , text_sm
-        , text_gray_200
-        ]
 
 
 sectionUsername : { username : List (Html msg) } -> Html msg
@@ -323,7 +314,7 @@ workInProgressBanner =
             [ infoIcon
             , span [ css [ text_sm ] ]
                 [ text "Looking empty? This dashboard app is work in progress! Are you interested in planned features or discussing them? Then please take a look at "
-                , View.Common.underlinedLink
+                , View.Common.underlinedLink []
                     { location = "https://talk.fission.codes/t/plans-for-the-account-dashboard/1586" }
                     [ Html.Styled.text "this forum post" ]
                 , text "."
