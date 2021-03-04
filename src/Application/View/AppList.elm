@@ -33,12 +33,12 @@ sectionNewApp =
                 , border_2
                 , border_dashed
                 , border_gray_400
+                , cursor_pointer
                 , flex
                 , items_center
                 , mt_4
                 , rounded_lg
                 , text_gray_300
-                , cursor_pointer
                 , Css.minHeight (px 120)
                 , Css.hover
                     [ text_purple
@@ -57,7 +57,13 @@ sectionNewApp =
                 , attribute "multiple" ""
                 , attribute "directory" ""
                 , attribute "webkitdirectory" ""
-                , css [ opacity_0, absolute, pointer_events_none ]
+                , css
+                    [ opacity_0
+                    , absolute
+                    , pointer_events_none
+                    , w_0
+                    , h_0
+                    ]
                 ]
                 []
             ]
