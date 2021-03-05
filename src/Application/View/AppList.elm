@@ -1,6 +1,5 @@
 module View.AppList exposing (..)
 
-import Common
 import Css
 import Css.Global
 import FeatherIcons
@@ -34,6 +33,7 @@ sectionNewApp =
                 [ css
                     [ Css.minHeight (px 120)
                     , Css.hover uploadAnticipationStyle
+                    , Css.pseudoClass "focus-within" uploadAnticipationStyle
                     , Css.Global.withClass "drop-active" uploadAnticipationStyle
                     , dark
                         [ border_gray_200
@@ -107,7 +107,7 @@ sectionAppList appList =
         , ul
             [ css
                 [ appListMargin.outerAsPadding
-                , mt_5
+                , mt_2
                 , space_y_2
                 ]
             ]
