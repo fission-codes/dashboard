@@ -88,7 +88,7 @@ sectionUsername element =
             [ responsiveGroup
                 [ span
                     [ css
-                        [ md [ w_1over3 ]
+                        [ md [ w_1over2 ]
                         , infoTextStyle
                         ]
                     ]
@@ -121,7 +121,7 @@ sectionEmail element =
             [ responsiveGroup
                 [ span
                     [ css
-                        [ md [ w_1over3 ]
+                        [ md [ w_1over2 ]
                         , infoTextStyle
                         ]
                     ]
@@ -166,7 +166,7 @@ groupHeading content =
         [ css
             [ md
                 [ inline
-                , w_1over3
+                , w_1over2
                 ]
             , hidden
             , infoTextStyle

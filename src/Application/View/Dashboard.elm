@@ -268,6 +268,7 @@ section styles content =
         [ css
             [ Css.batch styles
             , my_8
+            , max_w_3xl
             ]
         ]
         content

@@ -16,21 +16,25 @@ import View.Dashboard
 
 sectionNewApp : Html msg
 sectionNewApp =
-    View.Dashboard.section [ max_w_xl ]
+    let
+        uploadAnticipationStyle =
+            [ dark
+                [ border_darkmode_purple
+                , text_darkmode_purple
+                ]
+            , text_purple
+            , border_purple
+            ]
+    in
+    View.Dashboard.section [ ]
         [ View.Dashboard.sectionTitle [] "Create a new App"
         , View.Dashboard.sectionParagraph [ infoTextStyle ]
             [ text "Upload a folder with HTML, CSS and javascript files:"
             , label
                 [ css
                     [ Css.minHeight (px 120)
-                    , Css.hover
-                        [ text_purple
-                        , border_purple
-                        , dark
-                            [ border_darkmode_purple
-                            , text_darkmode_purple
-                            ]
-                        ]
+                    , Css.hover uploadAnticipationStyle
+                    , Css.Global.withClass "drop-active" uploadAnticipationStyle
                     , dark
                         [ border_gray_200
                         , text_gray_300
@@ -96,7 +100,7 @@ margin =
 
 sectionAppList : List (Html msg) -> Html msg
 sectionAppList appList =
-    View.Dashboard.section [ max_w_xl ]
+    View.Dashboard.section [ ]
         [ View.Dashboard.sectionTitle [] "Published Apps"
         , ul
             [ css
