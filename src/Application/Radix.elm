@@ -2,7 +2,6 @@ module Radix exposing (..)
 
 import Browser exposing (UrlRequest)
 import Browser.Navigation
-import Dict exposing (Dict)
 import Json.Decode as Json
 import Route exposing (Route)
 import Url exposing (Url)
@@ -47,6 +46,7 @@ type alias AuthenticatedModel =
     , resendingVerificationEmail : Bool
     , navigationExpanded : Bool
     , route : Route
+    , appList : Maybe (List { name : String, url : String })
     }
 
 
@@ -74,4 +74,4 @@ type AuthenticatedMsg
     | EmailResendVerification
     | VerificationEmailSent
       -- App List
-    | FetchedAppList (Dict String (List String))
+    | FetchedAppList Json.Value

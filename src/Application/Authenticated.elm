@@ -1,6 +1,7 @@
 module Authenticated exposing (..)
 
 import Browser
+import Dict exposing (Dict)
 import FeatherIcons
 import Html.Styled as Html exposing (Html)
 import Json.Decode as Json
@@ -28,8 +29,9 @@ init url username =
       , resendingVerificationEmail = False
       , navigationExpanded = False
       , route = route
+      , appList = Nothing
       }
-    , Cmd.none
+    , commandsByRoute route
     )
 
 
@@ -39,8 +41,18 @@ onRouteChange route model =
         | route = route
         , navigationExpanded = False
       }
-    , Cmd.none
+    , commandsByRoute route
     )
+
+
+commandsByRoute : Route -> Cmd Msg
+commandsByRoute route =
+    case route of
+        Route.AppList ->
+            Ports.webnativeAppIndexFetch ()
+
+        _ ->
+            Cmd.none
 
 
 update : AuthenticatedMsg -> AuthenticatedModel -> ( AuthenticatedModel, Cmd Msg )
@@ -64,8 +76,36 @@ update msg model =
             )
 
         -- App list
-        FetchedAppList appsById ->
-            ( model, Cmd.none )
+        FetchedAppList value ->
+            case Json.decodeValue appsIndexDecoder value of
+                Ok dict ->
+                    let
+                        appList =
+                            dict
+                                |> Dict.toList
+                                |> List.concatMap
+                                    (\( _, urls ) ->
+                                        urls
+                                            |> List.concatMap
+                                                (\url ->
+                                                    case String.split "." url of
+                                                        [ subdomain, _, _ ] ->
+                                                            [ { name = subdomain
+                                                              , url = url
+                                                              }
+                                                            ]
+
+                                                        _ ->
+                                                            []
+                                                )
+                                    )
+                    in
+                    ( { model | appList = Just appList }
+                    , Cmd.none
+                    )
+
+                Err _ ->
+                    ( model, Cmd.none )
 
 
 view : AuthenticatedModel -> Browser.Document Msg
@@ -141,24 +181,16 @@ viewAppList model =
     List.intersperse View.Common.sectionSpacer
         [ View.Dashboard.heading "Developed Apps"
         , View.AppList.sectionNewApp
-        , View.AppList.sectionAppList
-            [ View.AppList.appListItem
-                { name = "long-tulip"
-                , url = "https://long-tulip.fission.app"
-                }
-            , View.AppList.appListItem
-                { name = "wicked-elderly-fuchsia-turtle"
-                , url = "https://wicked-elderly-fuchsia-turtle.fission.app"
-                }
-            , View.AppList.appListItem
-                { name = "flatmate"
-                , url = "https://flatmate.fission.app"
-                }
-            , View.AppList.appListItem
-                { name = "herknen"
-                , url = "https://herknen.fission.app"
-                }
-            ]
+        , case model.appList of
+            Just loadedList ->
+                loadedList
+                    |> List.map View.AppList.appListItem
+                    |> View.AppList.sectionAppList
+
+            Nothing ->
+                -- TODO Add loading indicator
+                View.AppList.sectionAppList
+                    []
         ]
 
 
@@ -173,9 +205,17 @@ resendVerificationEmailButton model =
 
 subscriptions : AuthenticatedModel -> Sub Msg
 subscriptions model =
-    if model.resendingVerificationEmail then
-        Ports.webnativeVerificationEmailSent
-            (\_ -> AuthenticatedMsg VerificationEmailSent)
+    Sub.batch
+        [ if model.resendingVerificationEmail then
+            Ports.webnativeVerificationEmailSent
+                (\_ -> AuthenticatedMsg VerificationEmailSent)
 
-    else
-        Sub.none
+          else
+            Sub.none
+        , Ports.webnativeAppIndexFetched (AuthenticatedMsg << FetchedAppList)
+        ]
+
+
+appsIndexDecoder : Json.Decoder (Dict String (List String))
+appsIndexDecoder =
+    Json.dict (Json.list Json.string)

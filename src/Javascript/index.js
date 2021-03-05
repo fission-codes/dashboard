@@ -8,6 +8,9 @@ const permissions = {
     creator: "Fission",
     name: "Dashboard",
   },
+  public: [
+    "Apps/Published/"
+  ],
 }
 
 webnative.setup.debug({ enabled: true })
@@ -26,7 +29,10 @@ webnative
     // No need for filesystem operations at the moment
     webnativeElm.setup(elmApp, () => state.fs)
 
+    window.fs = state.fs;
+
     elmApp.ports.webnativeInitialized.send(state)
+    
     elmApp.ports.webnativeResendVerificationEmail.subscribe(async () => {
       try {
         await webnative.lobby.resendVerificationEmail()
@@ -34,9 +40,19 @@ webnative
         elmApp.ports.webnativeVerificationEmailSent.send({})
       }
     })
+
+    elmApp.ports.webnativeAppIndexFetch.subscribe(async () => {
+      try {
+        const index = await webnative.apps.index()
+        elmApp.ports.webnativeAppIndexFetched.send(index)
+      } catch (error) {
+        console.error("Error while fetching the app index", error)
+      }
+    })
   })
   .catch(error => {
-    elmApp.ports.webnativeError.send(error);
+    console.error("Error in webnative initialization", error)
+    elmApp.ports.webnativeError.send(error)
   });
 
 

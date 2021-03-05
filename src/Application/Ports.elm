@@ -28,3 +28,9 @@ port webnativeVerificationEmailSent : ({} -> msg) -> Sub msg
 
 
 port webnativeError : (String -> msg) -> Sub msg
+
+
+port webnativeAppIndexFetch : () -> Cmd mgs
+
+
+port webnativeAppIndexFetched : (Json.Value -> msg) -> Sub msg
