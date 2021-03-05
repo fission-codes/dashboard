@@ -296,6 +296,9 @@ sectionParagraph styles content =
         [ css
             [ Css.batch styles
             , sectionParagraphSpacings
+            , flex
+            , flex_col
+            , space_y_5
             ]
         ]
         content

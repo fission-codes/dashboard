@@ -26,7 +26,7 @@ sectionNewApp =
             , border_purple
             ]
     in
-    View.Dashboard.section [ ]
+    View.Dashboard.section []
         [ View.Dashboard.sectionTitle [] "Create a new App"
         , View.Dashboard.sectionParagraph [ infoTextStyle ]
             [ text "Upload a folder with HTML, CSS and javascript files:"
@@ -69,18 +69,20 @@ sectionNewApp =
                 ]
             ]
         , View.Dashboard.sectionParagraph [ infoTextStyle ]
-            [ text "Don’t know how to get started? Start with the "
-            , View.Common.underlinedLink []
-                { location = "https://generator.fission.codes" }
-                [ text "app generator" ]
-            , text "!"
-            , br [] []
-            , br [] []
-            , text "Are you comfortable with a terminal? Use the "
-            , View.Common.underlinedLink []
-                { location = "https://guide.fission.codes/developers/installation#installing-the-fission-cli" }
-                [ text "fission command line interface" ]
-            , text "!"
+            [ span []
+                [ text "Don’t know how to get started? Start with the "
+                , View.Common.underlinedLink []
+                    { location = "https://generator.fission.codes" }
+                    [ text "app generator" ]
+                , text "!"
+                , br [] []
+                , br [] []
+                , text "Are you comfortable with a terminal? Use the "
+                , View.Common.underlinedLink []
+                    { location = "https://guide.fission.codes/developers/installation#installing-the-fission-cli" }
+                    [ text "fission command line interface" ]
+                , text "!"
+                ]
             ]
         ]
 
@@ -100,7 +102,7 @@ margin =
 
 sectionAppList : List (Html msg) -> Html msg
 sectionAppList appList =
-    View.Dashboard.section [ ]
+    View.Dashboard.section []
         [ View.Dashboard.sectionTitle [] "Published Apps"
         , ul
             [ css

@@ -80,11 +80,7 @@ sectionUsername : { username : List (Html msg) } -> Html msg
 sectionUsername element =
     View.Dashboard.section []
         [ View.Dashboard.sectionTitle [] "Username"
-        , View.Dashboard.sectionParagraph
-            [ flex
-            , flex_col
-            , space_y_5
-            ]
+        , View.Dashboard.sectionParagraph []
             [ responsiveGroup
                 [ span
                     [ css
@@ -113,11 +109,7 @@ sectionEmail :
 sectionEmail element =
     View.Dashboard.section []
         [ View.Dashboard.sectionTitle [] "Email"
-        , View.Dashboard.sectionParagraph
-            [ flex
-            , flex_col
-            , space_y_5
-            ]
+        , View.Dashboard.sectionParagraph []
             [ responsiveGroup
                 [ span
                     [ css
