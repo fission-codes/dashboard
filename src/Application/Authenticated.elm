@@ -1,4 +1,4 @@
-module Dashboard exposing (..)
+module Authenticated exposing (..)
 
 import Browser
 import FeatherIcons
@@ -17,23 +17,42 @@ import Webnative
 import Webnative.Types as Webnative
 
 
-init : Url -> String -> DashboardModel
+init : Url -> String -> ( AuthenticatedModel, Cmd Msg )
 init url username =
-    { username = username
-    , resendingVerificationEmail = False
-    , navigationExpanded = False
-    , route =
-        Route.fromUrl url
-            |> Maybe.withDefault Route.Index
-    }
+    let
+        route =
+            Route.fromUrl url
+                |> Maybe.withDefault Route.Index
+    in
+    ( { username = username
+      , resendingVerificationEmail = False
+      , navigationExpanded = False
+      , route = route
+      }
+    , Cmd.none
+    )
 
 
-update : DashboardMsg -> DashboardModel -> ( DashboardModel, Cmd Msg )
+onRouteChange : Route -> AuthenticatedModel -> ( AuthenticatedModel, Cmd Msg )
+onRouteChange route model =
+    ( { model
+        | route = route
+        , navigationExpanded = False
+      }
+    , Cmd.none
+    )
+
+
+update : AuthenticatedMsg -> AuthenticatedModel -> ( AuthenticatedModel, Cmd Msg )
 update msg model =
     case msg of
-        -----------------------------------------
-        -- App
-        -----------------------------------------
+        -- Mobile Navigation
+        ToggleNavigationExpanded ->
+            ( { model | navigationExpanded = not model.navigationExpanded }
+            , Cmd.none
+            )
+
+        -- Account
         EmailResendVerification ->
             ( { model | resendingVerificationEmail = True }
             , Ports.webnativeResendVerificationEmail {}
@@ -44,20 +63,19 @@ update msg model =
             , Cmd.none
             )
 
-        ToggleNavigationExpanded ->
-            ( { model | navigationExpanded = not model.navigationExpanded }
-            , Cmd.none
-            )
+        -- App list
+        FetchedAppList appsById ->
+            ( model, Cmd.none )
 
 
-view : DashboardModel -> Browser.Document Msg
+view : AuthenticatedModel -> Browser.Document Msg
 view model =
     { title = "Fission Dashboard"
     , body =
         View.Dashboard.appShell
             { navigation =
                 { expanded = model.navigationExpanded
-                , onToggleExpanded = DashboardMsg ToggleNavigationExpanded
+                , onToggleExpanded = AuthenticatedMsg ToggleNavigationExpanded
                 , items =
                     List.concat
                         [ [ View.Navigation.header "Users" ]
@@ -94,7 +112,7 @@ navigationItems =
     }
 
 
-viewNavItem : DashboardModel -> NavItem -> Html Msg
+viewNavItem : AuthenticatedModel -> NavItem -> Html Msg
 viewNavItem model { route, icon, name } =
     View.Navigation.item []
         { active = route == model.route
@@ -104,7 +122,7 @@ viewNavItem model { route, icon, name } =
         }
 
 
-viewAccount : DashboardModel -> List (Html Msg)
+viewAccount : AuthenticatedModel -> List (Html Msg)
 viewAccount model =
     View.Account.workInProgressBanner
         :: List.intersperse View.Common.sectionSpacer
@@ -118,7 +136,7 @@ viewAccount model =
             ]
 
 
-viewAppList : DashboardModel -> List (Html Msg)
+viewAppList : AuthenticatedModel -> List (Html Msg)
 viewAppList model =
     List.intersperse View.Common.sectionSpacer
         [ View.Dashboard.heading "Developed Apps"
@@ -144,20 +162,20 @@ viewAppList model =
         ]
 
 
-resendVerificationEmailButton : DashboardModel -> Html Msg
+resendVerificationEmailButton : AuthenticatedModel -> Html Msg
 resendVerificationEmailButton model =
     View.Common.uppercaseButton
         { label = "Resend Verification Email"
-        , onClick = DashboardMsg EmailResendVerification
+        , onClick = AuthenticatedMsg EmailResendVerification
         , isLoading = model.resendingVerificationEmail
         }
 
 
-subscriptions : DashboardModel -> Sub Msg
+subscriptions : AuthenticatedModel -> Sub Msg
 subscriptions model =
     if model.resendingVerificationEmail then
         Ports.webnativeVerificationEmailSent
-            (\_ -> DashboardMsg VerificationEmailSent)
+            (\_ -> AuthenticatedMsg VerificationEmailSent)
 
     else
         Sub.none

@@ -2,6 +2,7 @@ module Radix exposing (..)
 
 import Browser exposing (UrlRequest)
 import Browser.Navigation
+import Dict exposing (Dict)
 import Json.Decode as Json
 import Route exposing (Route)
 import Url exposing (Url)
@@ -29,7 +30,7 @@ type alias Model =
 
 
 type State
-    = Authenticated DashboardModel
+    = Authenticated AuthenticatedModel
     | SigninScreen
     | LoadingScreen
     | ErrorScreen WebnativeError
@@ -41,7 +42,7 @@ type WebnativeError
     | UnknownError String
 
 
-type alias DashboardModel =
+type alias AuthenticatedModel =
     { username : String
     , resendingVerificationEmail : Bool
     , navigationExpanded : Bool
@@ -56,7 +57,7 @@ type alias DashboardModel =
 type Msg
     = UrlChanged Url
     | UrlRequested UrlRequest
-    | DashboardMsg DashboardMsg
+    | AuthenticatedMsg AuthenticatedMsg
       -----------------------------------------
       -- Webnative
       -----------------------------------------
@@ -66,7 +67,11 @@ type Msg
     | RedirectToLobby
 
 
-type DashboardMsg
-    = EmailResendVerification
+type AuthenticatedMsg
+    = -- Mobile Navigation
+      ToggleNavigationExpanded
+      -- Account
+    | EmailResendVerification
     | VerificationEmailSent
-    | ToggleNavigationExpanded
+      -- App List
+    | FetchedAppList (Dict String (List String))

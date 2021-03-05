@@ -70,14 +70,16 @@ sectionNewApp =
             ]
         , View.Dashboard.sectionParagraph [ infoTextStyle ]
             [ span []
-                [ text "Don’t know how to get started? Start with the "
-                , View.Common.underlinedLink []
-                    { location = "https://generator.fission.codes" }
-                    [ text "app generator" ]
-                , text "!"
-                , br [] []
-                , br [] []
-                , text "Are you comfortable with a terminal? Use the "
+                [ -- TODO: Add back when the generator is published and can create apps
+                  --   text "Don’t know how to get started? Start with the "
+                  -- , View.Common.underlinedLink []
+                  --     { location = "https://generator.fission.codes" }
+                  --     [ text "app generator" ]
+                  -- , text "!"
+                  -- , br [] []
+                  -- , br [] []
+                  -- ,
+                  text "Are you comfortable with a terminal? Use the "
                 , View.Common.underlinedLink []
                     { location = "https://guide.fission.codes/developers/installation#installing-the-fission-cli" }
                     [ text "fission command line interface" ]

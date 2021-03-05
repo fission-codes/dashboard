@@ -1,8 +1,8 @@
 module Main exposing (main)
 
+import Authenticated
 import Browser
 import Browser.Navigation as Navigation
-import Dashboard
 import Html.Styled as Html
 import Json.Decode as Json
 import Ports
@@ -70,10 +70,10 @@ init _ url navKey =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case ( model.state, msg ) of
-        ( Authenticated dashboardModel, DashboardMsg dashboardMsg ) ->
+        ( Authenticated authenticatedModel, AuthenticatedMsg authenticatedMsg ) ->
             let
                 ( newModel, cmds ) =
-                    Dashboard.update dashboardMsg dashboardModel
+                    Authenticated.update authenticatedMsg authenticatedModel
             in
             ( { model | state = Authenticated newModel }
             , cmds
@@ -94,11 +94,9 @@ updateOther msg model =
                 Ok webnativeState ->
                     let
                         onAuthenticated username =
-                            ( { model
-                                | state = Authenticated (Dashboard.init model.url username)
-                              }
-                            , Cmd.none
-                            )
+                            Authenticated.init model.url username
+                                |> Tuple.mapFirst
+                                    (\state -> { model | state = Authenticated state })
                     in
                     case webnativeState of
                         Webnative.Types.NotAuthorised _ ->
@@ -150,16 +148,19 @@ updateOther msg model =
         -- URL
         -----------------------------------------
         UrlChanged url ->
-            ( onUrlChange url model
-            , Cmd.none
-            )
+            onUrlChange url model
 
         UrlRequested request ->
             case request of
                 Browser.Internal url ->
-                    ( onUrlChange url model
-                    , Navigation.pushUrl model.navKey (Url.toString url)
-                    )
+                    onUrlChange url model
+                        |> Tuple.mapSecond
+                            (\commands ->
+                                Cmd.batch
+                                    [ Navigation.pushUrl model.navKey (Url.toString url)
+                                    , commands
+                                    ]
+                            )
 
                 Browser.External url ->
                     ( model
@@ -169,31 +170,33 @@ updateOther msg model =
         -----------------------------------------
         -- Message/Model desync
         -----------------------------------------
-        DashboardMsg _ ->
+        AuthenticatedMsg _ ->
             ( model, Cmd.none )
 
 
-onUrlChange : Url -> Model -> Model
+onUrlChange : Url -> Model -> ( Model, Cmd Msg )
 onUrlChange url model =
-    { model
-        | url = url
-        , state =
+    let
+        ( newState, commands ) =
             case model.state of
-                Authenticated dashboardModel ->
+                Authenticated authenticatedModel ->
                     case Route.fromUrl url of
                         Just route ->
-                            Authenticated
-                                { dashboardModel
-                                    | route = route
-                                    , navigationExpanded = False
-                                }
+                            Authenticated.onRouteChange route authenticatedModel
+                                |> Tuple.mapFirst Authenticated
 
                         _ ->
-                            model.state
+                            ( model.state, Cmd.none )
 
                 _ ->
-                    model.state
-    }
+                    ( model.state, Cmd.none )
+    in
+    ( { model
+        | url = url
+        , state = newState
+      }
+    , commands
+    )
 
 
 
@@ -208,7 +211,7 @@ subscriptions model =
         , Ports.webnativeError GotWebnativeError
         , case model.state of
             Authenticated dashboard ->
-                Dashboard.subscriptions dashboard
+                Authenticated.subscriptions dashboard
 
             _ ->
                 Sub.none
@@ -223,7 +226,7 @@ view : Model -> Browser.Document Msg
 view model =
     case model.state of
         Authenticated dashboard ->
-            Dashboard.view dashboard
+            Authenticated.view dashboard
 
         SigninScreen ->
             { title = "Fission Dashboard"
