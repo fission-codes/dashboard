@@ -87,8 +87,8 @@ sectionNewApp =
         ]
 
 
-margin : { outerAsPadding : Css.Style, innerAsPadding : Css.Style, innerAsMargin : Css.Style }
-margin =
+appListMargin : { outerAsPadding : Css.Style, innerAsPadding : Css.Style, innerAsMargin : Css.Style }
+appListMargin =
     -- Invariant: inner + outer == View.Dashboard.sectionParagraphSpacings
     { outerAsPadding =
         Css.batch
@@ -106,12 +106,12 @@ sectionAppList appList =
         [ View.Dashboard.sectionTitle [] "Published Apps"
         , ul
             [ css
-                [ margin.outerAsPadding
+                [ appListMargin.outerAsPadding
                 , mt_5
                 , space_y_2
                 ]
             ]
-            (List.intersperse (View.Common.spacer [ margin.innerAsMargin ])
+            (List.intersperse (View.Common.spacer [ appListMargin.innerAsMargin ])
                 appList
             )
         ]
@@ -126,7 +126,7 @@ appListItem { name, url } =
                 [ rounded_lg
                 , block
                 , py_2
-                , margin.innerAsPadding
+                , appListMargin.innerAsPadding
                 , Css.hover
                     [ dark [ bg_gray_200 ]
                     , bg_gray_600
