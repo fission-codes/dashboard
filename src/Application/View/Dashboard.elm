@@ -136,7 +136,7 @@ heading headingText =
                 , text_4xl
                 ]
             , font_display
-            , px_8
+            , px_10
             , py_5
             , text_2xl
             ]
@@ -260,3 +260,50 @@ footerLink element =
         , href element.url
         ]
         [ text element.text ]
+
+
+section : List Css.Style -> List (Html msg) -> Html msg
+section styles content =
+    Html.Styled.section
+        [ css
+            [ Css.batch styles
+            , my_8
+            ]
+        ]
+        content
+
+
+sectionTitle : List Css.Style -> String -> Html msg
+sectionTitle styles title =
+    h2
+        [ css
+            [ Css.batch styles
+            , dark [ text_gray_600 ]
+            , lg [ pl_10 ]
+            , font_body
+            , pl_5
+            , text_gray_300
+            , text_lg
+            ]
+        ]
+        [ text title ]
+
+
+sectionParagraph : List Css.Style -> List (Html msg) -> Html msg
+sectionParagraph styles content =
+    p
+        [ css
+            [ Css.batch styles
+            , sectionParagraphSpacings
+            ]
+        ]
+        content
+
+
+sectionParagraphSpacings : Css.Style
+sectionParagraphSpacings =
+    Css.batch
+        [ lg [ px_10 ]
+        , mt_5
+        , px_5
+        ]

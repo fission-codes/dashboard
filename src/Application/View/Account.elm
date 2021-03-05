@@ -10,11 +10,7 @@ import Html.Styled.Events as Events
 import Tailwind.Breakpoints exposing (..)
 import Tailwind.Utilities exposing (..)
 import View.Common exposing (dark, infoTextStyle)
-
-
-settingSection : List (Html msg) -> Html msg
-settingSection content =
-    section [ css [ my_8 ] ] content
+import View.Dashboard
 
 
 settingText : List (Html msg) -> Html msg
@@ -82,9 +78,13 @@ settingInput element =
 
 sectionUsername : { username : List (Html msg) } -> Html msg
 sectionUsername element =
-    settingSection
-        [ sectionTitle [] "Username"
-        , sectionParagraph
+    View.Dashboard.section []
+        [ View.Dashboard.sectionTitle [] "Username"
+        , View.Dashboard.sectionParagraph
+            [ flex
+            , flex_col
+            , space_y_5
+            ]
             [ responsiveGroup
                 [ span
                     [ css
@@ -111,9 +111,13 @@ sectionEmail :
     }
     -> Html msg
 sectionEmail element =
-    settingSection
-        [ sectionTitle [] "Email"
-        , sectionParagraph
+    View.Dashboard.section []
+        [ View.Dashboard.sectionTitle [] "Email"
+        , View.Dashboard.sectionParagraph
+            [ flex
+            , flex_col
+            , space_y_5
+            ]
             [ responsiveGroup
                 [ span
                     [ css
@@ -246,36 +250,6 @@ warning content =
             [ css [ font_display ] ]
             content
         ]
-
-
-sectionParagraph : List (Html msg) -> Html msg
-sectionParagraph content =
-    p
-        [ css
-            [ flex
-            , flex_col
-            , mt_5
-            , pl_10
-            , pr_5
-            , space_y_5
-            ]
-        ]
-        content
-
-
-sectionTitle : List Css.Style -> String -> Html msg
-sectionTitle styles title =
-    h2
-        [ css
-            [ Css.batch styles
-            , dark [ text_gray_600 ]
-            , font_body
-            , ml_5
-            , text_gray_300
-            , text_lg
-            ]
-        ]
-        [ text title ]
 
 
 workInProgressBanner : Html msg
