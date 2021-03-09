@@ -26,13 +26,7 @@ webnative
     permissions
   })
   .then(state => {
-    // No need for filesystem operations at the moment
-    webnativeElm.setup(elmApp, () => state.fs)
-
-    window.fs = state.fs;
-
-    elmApp.ports.webnativeInitialized.send(state)
-    
+    // Subscribe to ports first, so we make sure to never miss any Elm commands.
     elmApp.ports.webnativeResendVerificationEmail.subscribe(async () => {
       try {
         await webnative.lobby.resendVerificationEmail()
@@ -49,6 +43,13 @@ webnative
         console.error("Error while fetching the app index", error)
       }
     })
+
+    // No need for filesystem operations at the moment
+    webnativeElm.setup(elmApp, () => state.fs)
+
+    window.fs = state.fs;
+
+    elmApp.ports.webnativeInitialized.send(state)
   })
   .catch(error => {
     console.error("Error in webnative initialization", error)
