@@ -89,6 +89,49 @@ sectionNewApp =
         ]
 
 
+sectionAppList : Html msg -> Html msg
+sectionAppList appList =
+    View.Dashboard.section []
+        [ View.Dashboard.sectionTitle [] "Published Apps"
+        , appList
+        ]
+
+
+appListLoading : List (Html msg) -> Html msg
+appListLoading content =
+    View.Dashboard.sectionParagraph
+        [ infoTextStyle
+        , Css.minHeight (px 120)
+        ]
+        [ span
+            [ css
+                [ m_auto
+                , flex
+                , flex_col
+                , space_y_3
+                ]
+            ]
+            content
+        ]
+
+
+appListLoadingIndicator : Html msg
+appListLoadingIndicator =
+    View.Common.loadingAnimation
+        View.Common.Small
+        [ css [ mx_auto ] ]
+
+
+appListLoadingText : List (Html msg) -> Html msg
+appListLoadingText =
+    span
+        [ css
+            [ text_center
+            , mx_auto
+            ]
+        ]
+
+
 appListMargin : { outerAsPadding : Css.Style, innerAsPadding : Css.Style, innerAsMargin : Css.Style }
 appListMargin =
     -- Invariant: inner + outer == View.Dashboard.sectionParagraphSpacings
@@ -102,21 +145,18 @@ appListMargin =
     }
 
 
-sectionAppList : List (Html msg) -> Html msg
-sectionAppList appList =
-    View.Dashboard.section []
-        [ View.Dashboard.sectionTitle [] "Published Apps"
-        , ul
-            [ css
-                [ appListMargin.outerAsPadding
-                , mt_2
-                , space_y_2
-                ]
+appListLoaded : List (Html msg) -> Html msg
+appListLoaded appItems =
+    ul
+        [ css
+            [ appListMargin.outerAsPadding
+            , mt_2
+            , space_y_2
             ]
-            (List.intersperse (View.Common.spacer [ appListMargin.innerAsMargin ])
-                appList
-            )
         ]
+        (List.intersperse (View.Common.spacer [ appListMargin.innerAsMargin ])
+            appItems
+        )
 
 
 appListItem : { name : String, url : String } -> Html msg

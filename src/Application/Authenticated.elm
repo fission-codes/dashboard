@@ -182,15 +182,28 @@ viewAppList model =
         [ View.Dashboard.heading "Developed Apps"
         , View.AppList.sectionNewApp
         , case model.appList of
+            Just [] ->
+                View.AppList.sectionAppList
+                    (View.AppList.appListLoading
+                        [ View.AppList.appListLoadingText
+                            [ Html.text "No Apps published, yet. Become a developer by uploading your first app using the section above." ]
+                        ]
+                    )
+
             Just loadedList ->
                 loadedList
                     |> List.map View.AppList.appListItem
+                    |> View.AppList.appListLoaded
                     |> View.AppList.sectionAppList
 
             Nothing ->
-                -- TODO Add loading indicator
                 View.AppList.sectionAppList
-                    []
+                    (View.AppList.appListLoading
+                        [ View.AppList.appListLoadingIndicator
+                        , View.AppList.appListLoadingText
+                            [ Html.text "Loading List" ]
+                        ]
+                    )
         ]
 
 
