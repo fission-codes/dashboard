@@ -6,6 +6,7 @@ import FeatherIcons
 import Html.Styled exposing (..)
 import Html.Styled.Attributes exposing (classList, css, href, src)
 import Html.Styled.Events as Events
+import Route exposing (Route)
 import Tailwind.Breakpoints exposing (..)
 import Tailwind.Utilities exposing (..)
 import View.Common exposing (dark)
@@ -126,8 +127,8 @@ appShell element =
         ]
 
 
-heading : String -> Html msg
-heading headingText =
+heading : List (Html msg) -> Html msg
+heading headingItems =
     h1
         [ css
             [ md
@@ -135,13 +136,56 @@ heading headingText =
                 , py_8
                 , text_4xl
                 ]
+            , flex
+            , flex_row
+            , flex_wrap
             , font_display
+            , items_center
             , px_10
             , py_5
             , text_2xl
             ]
         ]
-        [ text headingText ]
+        headingItems
+
+
+headingSubLevel : { link : Route, label : String } -> Html msg
+headingSubLevel { link, label } =
+    a
+        [ href (Route.toUrl link)
+        , css
+            [ md [ text_2xl ]
+            , text_lg
+            ]
+        ]
+        [ text label ]
+
+
+headingSeparator : Html msg
+headingSeparator =
+    FeatherIcons.chevronRight
+        |> FeatherIcons.withSize 32
+        |> FeatherIcons.toHtml []
+        |> fromUnstyled
+        |> List.singleton
+        |> span
+            [ css
+                [ md [ mx_5 ]
+                , text_gray_400
+                , mx_2
+                ]
+            ]
+
+
+headingSubItem : String -> Html msg
+headingSubItem label =
+    span
+        [ css
+            [ md [ text_2xl ]
+            , text_lg
+            ]
+        ]
+        [ text label ]
 
 
 appHeader : { menuExpanded : Bool, onToggle : msg } -> Html msg

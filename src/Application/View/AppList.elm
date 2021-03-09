@@ -7,6 +7,7 @@ import Html.Attributes
 import Html.Styled exposing (..)
 import Html.Styled.Attributes exposing (attribute, class, css, href, placeholder, type_, value)
 import Html.Styled.Events as Events
+import Route exposing (Route)
 import Tailwind.Breakpoints exposing (..)
 import Tailwind.Utilities exposing (..)
 import View.Common exposing (dark, infoTextStyle, px)
@@ -159,11 +160,11 @@ appListLoaded appItems =
         )
 
 
-appListItem : { name : String, url : String } -> Html msg
-appListItem { name, url } =
+appListItem : { name : String, url : String, link : Route } -> Html msg
+appListItem { name, url, link } =
     li []
         [ a
-            [ href url
+            [ href (Route.toUrl link)
             , css
                 [ rounded_lg
                 , block

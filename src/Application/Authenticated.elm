@@ -48,7 +48,7 @@ onRouteChange route model =
 commandsByRoute : Route -> Cmd Msg
 commandsByRoute route =
     case route of
-        Route.AppList ->
+        Route.DeveloperAppList Route.DeveloperAppListIndex ->
             Ports.webnativeAppIndexFetch ()
 
         _ ->
@@ -129,8 +129,11 @@ view model =
                     Route.Index ->
                         viewAccount model
 
-                    Route.AppList ->
+                    Route.DeveloperAppList Route.DeveloperAppListIndex ->
                         viewAppList model
+
+                    Route.DeveloperAppList (Route.DeverloperAppListApp app) ->
+                        viewAppListApp model app
             }
             |> Html.toUnstyled
             |> List.singleton
@@ -144,10 +147,16 @@ type alias NavItem =
 navigationItems : { users : List NavItem, developers : List NavItem }
 navigationItems =
     { users =
-        [ { route = Route.Index, name = "Account", icon = FeatherIcons.user }
+        [ { route = Route.Index
+          , name = "Account"
+          , icon = FeatherIcons.user
+          }
         ]
     , developers =
-        [ { route = Route.AppList, name = "App List", icon = FeatherIcons.code }
+        [ { route = Route.DeveloperAppList Route.DeveloperAppListIndex
+          , name = "App List"
+          , icon = FeatherIcons.code
+          }
         ]
     }
 
@@ -155,7 +164,7 @@ navigationItems =
 viewNavItem : AuthenticatedModel -> NavItem -> Html Msg
 viewNavItem model { route, icon, name } =
     View.Navigation.item []
-        { active = route == model.route
+        { active = Route.isSameFirstLevel route model.route
         , icon = icon
         , label = name
         , link = route
@@ -166,12 +175,18 @@ viewAccount : AuthenticatedModel -> List (Html Msg)
 viewAccount model =
     View.Account.workInProgressBanner
         :: List.intersperse View.Common.sectionSpacer
-            [ View.Dashboard.heading "Your Account"
+            [ View.Dashboard.heading [ Html.text "Your Account" ]
             , View.Account.sectionUsername
                 { username = [ View.Account.settingText [ Html.text model.username ] ]
                 }
             , View.Account.sectionEmail
-                { verificationStatus = [ resendVerificationEmailButton model ]
+                { verificationStatus =
+                    [ View.Common.uppercaseButton
+                        { label = "Resend Verification Email"
+                        , onClick = AuthenticatedMsg EmailResendVerification
+                        , isLoading = model.resendingVerificationEmail
+                        }
+                    ]
                 }
             ]
 
@@ -179,7 +194,7 @@ viewAccount model =
 viewAppList : AuthenticatedModel -> List (Html Msg)
 viewAppList model =
     List.intersperse View.Common.sectionSpacer
-        [ View.Dashboard.heading "Developed Apps"
+        [ View.Dashboard.heading [ Html.text "Developed Apps" ]
         , View.AppList.sectionNewApp
         , case model.appList of
             Just [] ->
@@ -192,7 +207,14 @@ viewAppList model =
 
             Just loadedList ->
                 loadedList
-                    |> List.map View.AppList.appListItem
+                    |> List.map
+                        (\app ->
+                            View.AppList.appListItem
+                                { name = app.name
+                                , url = "https://" ++ app.url
+                                , link = Route.DeveloperAppList (Route.DeverloperAppListApp app.url)
+                                }
+                        )
                     |> View.AppList.appListLoaded
                     |> View.AppList.sectionAppList
 
@@ -207,13 +229,18 @@ viewAppList model =
         ]
 
 
-resendVerificationEmailButton : AuthenticatedModel -> Html Msg
-resendVerificationEmailButton model =
-    View.Common.uppercaseButton
-        { label = "Resend Verification Email"
-        , onClick = AuthenticatedMsg EmailResendVerification
-        , isLoading = model.resendingVerificationEmail
-        }
+viewAppListApp : AuthenticatedModel -> String -> List (Html Msg)
+viewAppListApp model appName =
+    List.intersperse View.Common.sectionSpacer
+        [ View.Dashboard.heading
+            [ View.Dashboard.headingSubLevel
+                { link = Route.DeveloperAppList Route.DeveloperAppListIndex
+                , label = "Developed Apps"
+                }
+            , View.Dashboard.headingSeparator
+            , View.Dashboard.headingSubItem appName
+            ]
+        ]
 
 
 subscriptions : AuthenticatedModel -> Sub Msg

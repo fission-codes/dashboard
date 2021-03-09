@@ -10,7 +10,12 @@ import Url.Parser exposing (..)
 
 type Route
     = Index
-    | AppList
+    | DeveloperAppList DeveloperAppListRoute
+
+
+type DeveloperAppListRoute
+    = DeveloperAppListIndex
+    | DeverloperAppListApp String
 
 
 
@@ -26,20 +31,45 @@ fromUrl =
 -- ㊙️
 
 
+{-| Due to lacking SPA-mode support on fission apps, we
+have to use fragment-based SPA routing for now.
+-}
 route : Parser (Route -> a) a
 route =
     oneOf
         [ top
             </> fragment
                     (\f ->
-                        case f of
-                            Just "developers/app-list" ->
-                                AppList
-
-                            _ ->
-                                Index
+                        parse routeParser
+                            { protocol = Url.Https
+                            , host = ""
+                            , port_ = Nothing
+                            , path =
+                                f
+                                    |> Maybe.map (\frag -> "/" ++ frag)
+                                    |> Maybe.withDefault "/"
+                            , query = Nothing
+                            , fragment = Nothing
+                            }
+                            |> Maybe.withDefault Index
                     )
         , map Index top
+        ]
+
+
+routeParser : Parser (Route -> a) a
+routeParser =
+    oneOf
+        [ map DeveloperAppList (top </> s "developers" </> s "apps" </> developerAppListParser)
+        , map Index top
+        ]
+
+
+developerAppListParser : Parser (DeveloperAppListRoute -> a) a
+developerAppListParser =
+    oneOf
+        [ map DeveloperAppListIndex top
+        , map DeverloperAppListApp string
         ]
 
 
@@ -49,5 +79,24 @@ toUrl r =
         Index ->
             "/"
 
-        AppList ->
-            "/#developers/app-list"
+        DeveloperAppList DeveloperAppListIndex ->
+            "/#developers/apps"
+
+        DeveloperAppList (DeverloperAppListApp app) ->
+            "/#developers/apps/" ++ Url.percentEncode app
+
+
+isSameFirstLevel : Route -> Route -> Bool
+isSameFirstLevel routeOne routeTwo =
+    case ( routeOne, routeTwo ) of
+        ( Index, Index ) ->
+            True
+
+        ( Index, _ ) ->
+            False
+
+        ( DeveloperAppList _, DeveloperAppList _ ) ->
+            True
+
+        ( DeveloperAppList _, _ ) ->
+            False
