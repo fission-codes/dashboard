@@ -4,6 +4,7 @@ import Common
 import Css
 import Css.Media
 import FeatherIcons
+import Html.Attributes
 import Html.Styled as Html exposing (..)
 import Html.Styled.Attributes exposing (css, disabled, href, src)
 import Html.Styled.Events as Events
@@ -101,6 +102,26 @@ underlinedLink styles { location } =
             , decoration_color_purple
             , decoration_thickness_1_dot_5
             ]
+        ]
+
+
+linkMarkedExternal : List Css.Style -> { link : String } -> Html msg
+linkMarkedExternal styles { link } =
+    a
+        [ href link
+        , css
+            [ Css.batch styles
+            , dark [ text_darkmode_purple ]
+            , text_purple
+            ]
+        ]
+        [ text link
+        , FeatherIcons.externalLink
+            |> FeatherIcons.withSize 16
+            |> FeatherIcons.toHtml [ Html.Attributes.style "display" "inline" ]
+            |> fromUnstyled
+            |> List.singleton
+            |> span [ css [ ml_1 ] ]
         ]
 
 

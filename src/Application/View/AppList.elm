@@ -5,7 +5,7 @@ import Css.Global
 import FeatherIcons
 import Html.Attributes
 import Html.Styled exposing (..)
-import Html.Styled.Attributes exposing (attribute, class, css, href, placeholder, src, tabindex, type_, value)
+import Html.Styled.Attributes exposing (attribute, class, css, href, placeholder, src, tabindex, target, title, type_, value)
 import Html.Styled.Events as Events
 import Route exposing (Route)
 import Tailwind.Breakpoints exposing (..)
@@ -80,10 +80,15 @@ previewIframe { url } =
             [ Css.width (px (previewWidth / 4))
             , Css.height (px (previewHeight / 4))
             , relative
+            , overflow_hidden
+            , inline_block
             ]
         ]
-        [ div
-            [ css
+        [ a
+            [ title ("Live preview of " ++ url)
+            , href url
+            , target "_blank"
+            , css
                 [ absolute
                 , transform
                 , scale_25
@@ -111,7 +116,7 @@ previewIframe { url } =
 sectionAppList : Html msg -> Html msg
 sectionAppList appList =
     View.Dashboard.section []
-        [ View.Dashboard.sectionTitle [] "Published Apps"
+        [ View.Dashboard.sectionTitle [] [ text "Published Apps" ]
         , appList
         ]
 

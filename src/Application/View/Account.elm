@@ -79,7 +79,7 @@ settingInput element =
 sectionUsername : { username : List (Html msg) } -> Html msg
 sectionUsername element =
     View.Dashboard.section []
-        [ View.Dashboard.sectionTitle [] "Username"
+        [ View.Dashboard.sectionTitle [] [ text "Username" ]
         , View.Dashboard.sectionParagraph []
             [ responsiveGroup
                 [ span
@@ -108,7 +108,7 @@ sectionEmail :
     -> Html msg
 sectionEmail element =
     View.Dashboard.section []
-        [ View.Dashboard.sectionTitle [] "Email"
+        [ View.Dashboard.sectionTitle [] [ text "Email" ]
         , View.Dashboard.sectionParagraph []
             [ responsiveGroup
                 [ span

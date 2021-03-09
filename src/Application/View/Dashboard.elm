@@ -319,8 +319,8 @@ section styles content =
         content
 
 
-sectionTitle : List Css.Style -> String -> Html msg
-sectionTitle styles title =
+sectionTitle : List Css.Style -> List (Html msg) -> Html msg
+sectionTitle styles content =
     h2
         [ css
             [ Css.batch styles
@@ -332,7 +332,7 @@ sectionTitle styles title =
             , text_lg
             ]
         ]
-        [ text title ]
+        content
 
 
 sectionParagraph : List Css.Style -> List (Html msg) -> Html msg

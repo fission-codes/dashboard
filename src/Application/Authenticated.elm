@@ -197,7 +197,7 @@ viewAppList model =
     List.intersperse View.Common.sectionSpacer
         [ View.Dashboard.heading [ Html.text "Developed Apps" ]
         , View.Dashboard.section []
-            [ View.Dashboard.sectionTitle [] "Create a new App"
+            [ View.Dashboard.sectionTitle [] [ Html.text "Create a new App" ]
             , View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
                 [ Html.text "Upload a folder with HTML, CSS and javascript files:"
                 , View.AppList.uploadDropzone
@@ -305,16 +305,21 @@ viewAppListAppNotFound appName =
 
 viewAppListAppLoaded : AuthenticatedModel -> { name : String, url : String } -> List (Html Msg)
 viewAppListAppLoaded model app =
+    let
+        realUrl =
+            "https://" ++ app.url
+    in
     [ View.Dashboard.section []
-        [ View.Dashboard.sectionTitle [] "Preview"
+        [ View.Dashboard.sectionTitle []
+            [ Html.text "Preview of "
+            , View.Common.linkMarkedExternal [] { link = realUrl }
+            ]
         , View.Dashboard.sectionParagraph []
-            [ View.AppList.previewIframe
-                { url = "https://" ++ app.url
-                }
+            [ View.AppList.previewIframe { url = realUrl }
             ]
         ]
     , View.Dashboard.section []
-        [ View.Dashboard.sectionTitle [] "Update your App"
+        [ View.Dashboard.sectionTitle [] [ Html.text "Update your App" ]
         , View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
             [ Html.text "Upload a folder with HTML, CSS and javascript files:"
             , View.AppList.uploadDropzone
