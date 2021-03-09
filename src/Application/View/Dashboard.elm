@@ -76,6 +76,7 @@ appShell element =
                 , flex_col
                 , inset_x_0
                 , top_0
+                , z_10
                 ]
             ]
             [ appHeader
@@ -354,4 +355,56 @@ sectionParagraphSpacings =
         [ lg [ px_10 ]
         , mt_5
         , px_5
+        ]
+
+
+sectionLoading : List (Html msg) -> Html msg
+sectionLoading content =
+    sectionParagraph
+        [ View.Common.infoTextStyle
+        , min_h_120px
+        ]
+        [ span
+            [ css
+                [ flex
+                , flex_col
+                , items_center
+                , m_auto
+                , space_y_3
+                ]
+            ]
+            content
+        ]
+
+
+sectionLoadingIndicator : Html msg
+sectionLoadingIndicator =
+    View.Common.loadingAnimation
+        View.Common.Small
+        [ css [ mx_auto ] ]
+
+
+sectionLoadingErrorIcon : Html msg
+sectionLoadingErrorIcon =
+    FeatherIcons.alertTriangle
+        |> FeatherIcons.withSize 24
+        |> FeatherIcons.toHtml []
+        |> fromUnstyled
+        |> List.singleton
+        |> span
+            [ css
+                [ dark [ text_darkmode_red ]
+                , text_red
+                , inline
+                ]
+            ]
+
+
+sectionLoadingText : List (Html msg) -> Html msg
+sectionLoadingText =
+    span
+        [ css
+            [ text_center
+            , mx_auto
+            ]
         ]

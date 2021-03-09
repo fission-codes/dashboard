@@ -5,7 +5,7 @@ import Css.Global
 import FeatherIcons
 import Html.Attributes
 import Html.Styled exposing (..)
-import Html.Styled.Attributes exposing (attribute, class, css, href, placeholder, type_, value)
+import Html.Styled.Attributes exposing (attribute, class, css, href, placeholder, src, tabindex, type_, value)
 import Html.Styled.Events as Events
 import Route exposing (Route)
 import Tailwind.Breakpoints exposing (..)
@@ -28,8 +28,7 @@ uploadDropzone =
     in
     label
         [ css
-            [ Css.minHeight (px 120)
-            , Css.hover uploadAnticipationStyle
+            [ Css.hover uploadAnticipationStyle
             , Css.pseudoClass "focus-within" uploadAnticipationStyle
             , Css.Global.withClass "drop-active" uploadAnticipationStyle
             , dark
@@ -42,6 +41,7 @@ uploadDropzone =
             , cursor_pointer
             , flex
             , items_center
+            , min_h_120px
             , mt_4
             , rounded_lg
             , text_gray_300
@@ -66,46 +66,53 @@ uploadDropzone =
         ]
 
 
+previewIframe : { url : String } -> Html msg
+previewIframe { url } =
+    let
+        previewWidth =
+            1440
+
+        previewHeight =
+            900
+    in
+    div
+        [ css
+            [ Css.width (px (previewWidth / 4))
+            , Css.height (px (previewHeight / 4))
+            , relative
+            ]
+        ]
+        [ div
+            [ css
+                [ absolute
+                , transform
+                , scale_25
+                , origin_top_left
+                , shadow_lg
+                , bg_white
+                ]
+            ]
+            [ iframe
+                [ src url
+                , attribute "frameborder" "0"
+                , attribute "focusable" "false"
+                , tabindex -1
+                , css
+                    [ Css.width (px previewWidth)
+                    , Css.height (px previewHeight)
+                    , pointer_events_none
+                    ]
+                ]
+                []
+            ]
+        ]
+
+
 sectionAppList : Html msg -> Html msg
 sectionAppList appList =
     View.Dashboard.section []
         [ View.Dashboard.sectionTitle [] "Published Apps"
         , appList
-        ]
-
-
-appListLoading : List (Html msg) -> Html msg
-appListLoading content =
-    View.Dashboard.sectionParagraph
-        [ infoTextStyle
-        , Css.minHeight (px 120)
-        ]
-        [ span
-            [ css
-                [ m_auto
-                , flex
-                , flex_col
-                , space_y_3
-                ]
-            ]
-            content
-        ]
-
-
-appListLoadingIndicator : Html msg
-appListLoadingIndicator =
-    View.Common.loadingAnimation
-        View.Common.Small
-        [ css [ mx_auto ] ]
-
-
-appListLoadingText : List (Html msg) -> Html msg
-appListLoadingText =
-    span
-        [ css
-            [ text_center
-            , mx_auto
-            ]
         ]
 
 

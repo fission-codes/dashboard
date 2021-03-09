@@ -5,6 +5,7 @@ import Dict exposing (Dict)
 import FeatherIcons
 import Html.Styled as Html exposing (Html)
 import Json.Decode as Json
+import List.Extra as List
 import Ports
 import Radix exposing (..)
 import Route exposing (Route)
@@ -48,7 +49,7 @@ onRouteChange route model =
 commandsByRoute : Route -> Cmd Msg
 commandsByRoute route =
     case route of
-        Route.DeveloperAppList Route.DeveloperAppListIndex ->
+        Route.DeveloperAppList _ ->
             Ports.webnativeAppIndexFetch ()
 
         _ ->
@@ -223,8 +224,8 @@ viewAppList model =
         , case model.appList of
             Just [] ->
                 View.AppList.sectionAppList
-                    (View.AppList.appListLoading
-                        [ View.AppList.appListLoadingText
+                    (View.Dashboard.sectionLoading
+                        [ View.Dashboard.sectionLoadingText
                             [ Html.text "No Apps published, yet. Become a developer by uploading your first app using the section above." ]
                         ]
                     )
@@ -244,9 +245,9 @@ viewAppList model =
 
             Nothing ->
                 View.AppList.sectionAppList
-                    (View.AppList.appListLoading
-                        [ View.AppList.appListLoadingIndicator
-                        , View.AppList.appListLoadingText
+                    (View.Dashboard.sectionLoading
+                        [ View.Dashboard.sectionLoadingIndicator
+                        , View.Dashboard.sectionLoadingText
                             [ Html.text "Loading List" ]
                         ]
                     )
@@ -255,25 +256,71 @@ viewAppList model =
 
 viewAppListApp : AuthenticatedModel -> String -> List (Html Msg)
 viewAppListApp model appName =
-    List.intersperse View.Common.sectionSpacer
-        [ View.Dashboard.heading
-            [ View.Dashboard.headingSubLevel
-                { link = Route.DeveloperAppList Route.DeveloperAppListIndex
-                , label = "Developed Apps"
-                }
-            , View.Dashboard.headingSeparator
-            , View.Dashboard.headingSubItem appName
-            ]
+    List.intersperse
+        View.Common.sectionSpacer
+        (List.concat
+            [ [ View.Dashboard.heading
+                    [ View.Dashboard.headingSubLevel
+                        { link = Route.DeveloperAppList Route.DeveloperAppListIndex
+                        , label = "Developed Apps"
+                        }
+                    , View.Dashboard.headingSeparator
+                    , View.Dashboard.headingSubItem appName
+                    ]
+              ]
+            , case model.appList of
+                Nothing ->
+                    [ viewAppListAppLoading ]
 
-        -- TODO We have to make sure that the "appName" is actually one of your apps! Iframe security and such.
-        , View.Dashboard.section []
-            [ View.Dashboard.sectionTitle [] "Update your App"
-            , View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
-                [ Html.text "Upload a folder with HTML, CSS and javascript files:"
-                , View.AppList.uploadDropzone
-                ]
+                Just appList ->
+                    case List.find (\app -> app.url == appName) appList of
+                        Just app ->
+                            viewAppListAppLoaded model app
+
+                        Nothing ->
+                            [ viewAppListAppNotFound appName ]
+            ]
+        )
+
+
+viewAppListAppLoading : Html Msg
+viewAppListAppLoading =
+    View.Dashboard.sectionLoading
+        [ View.Dashboard.sectionLoadingIndicator
+        , View.Dashboard.sectionLoadingText
+            [ Html.text "Loading app information" ]
+        ]
+
+
+viewAppListAppNotFound : String -> Html Msg
+viewAppListAppNotFound appName =
+    View.Dashboard.sectionLoading
+        [ View.Dashboard.sectionLoadingErrorIcon
+        , View.Dashboard.sectionLoadingText
+            [ Html.text "Could not find an app "
+            , Html.text appName
             ]
         ]
+
+
+viewAppListAppLoaded : AuthenticatedModel -> { name : String, url : String } -> List (Html Msg)
+viewAppListAppLoaded model app =
+    [ View.Dashboard.section []
+        [ View.Dashboard.sectionTitle [] "Preview"
+        , View.Dashboard.sectionParagraph []
+            [ View.AppList.previewIframe
+                { url = "https://" ++ app.url
+                }
+            ]
+        ]
+    , View.Dashboard.section []
+        [ View.Dashboard.sectionTitle [] "Update your App"
+        , View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
+            [ Html.text "Upload a folder with HTML, CSS and javascript files:"
+            , View.AppList.uploadDropzone
+            ]
+        ]
+    ]
 
 
 subscriptions : AuthenticatedModel -> Sub Msg
