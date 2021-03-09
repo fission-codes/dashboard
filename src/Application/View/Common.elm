@@ -97,9 +97,9 @@ underlinedLink styles { location } =
         , css
             [ Css.batch styles
             , dark [ decoration_color_gray_800 ]
+            , underline
             , decoration_color_purple
             , decoration_thickness_1_dot_5
-            , underline
             ]
         ]
 
