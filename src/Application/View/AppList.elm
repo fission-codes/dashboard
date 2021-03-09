@@ -14,8 +14,8 @@ import View.Common exposing (dark, infoTextStyle, px)
 import View.Dashboard
 
 
-sectionNewApp : Html msg
-sectionNewApp =
+uploadDropzone : Html msg
+uploadDropzone =
     let
         uploadAnticipationStyle =
             [ dark
@@ -26,67 +26,43 @@ sectionNewApp =
             , border_purple
             ]
     in
-    View.Dashboard.section []
-        [ View.Dashboard.sectionTitle [] "Create a new App"
-        , View.Dashboard.sectionParagraph [ infoTextStyle ]
-            [ text "Upload a folder with HTML, CSS and javascript files:"
-            , label
-                [ css
-                    [ Css.minHeight (px 120)
-                    , Css.hover uploadAnticipationStyle
-                    , Css.pseudoClass "focus-within" uploadAnticipationStyle
-                    , Css.Global.withClass "drop-active" uploadAnticipationStyle
-                    , dark
-                        [ border_gray_200
-                        , text_gray_300
-                        ]
-                    , border_2
-                    , border_dashed
-                    , border_gray_400
-                    , cursor_pointer
-                    , flex
-                    , items_center
-                    , mt_4
-                    , rounded_lg
-                    , text_gray_300
-                    ]
+    label
+        [ css
+            [ Css.minHeight (px 120)
+            , Css.hover uploadAnticipationStyle
+            , Css.pseudoClass "focus-within" uploadAnticipationStyle
+            , Css.Global.withClass "drop-active" uploadAnticipationStyle
+            , dark
+                [ border_gray_200
+                , text_gray_300
                 ]
-                [ span [ css [ mx_auto ] ]
-                    [ text "click, or drop a folder" ]
-                , input
-                    [ type_ "file"
-                    , attribute "multiple" ""
-                    , attribute "directory" ""
-                    , attribute "webkitdirectory" ""
-                    , css
-                        [ opacity_0
-                        , absolute
-                        , pointer_events_none
-                        , w_0
-                        , h_0
-                        ]
-                    ]
-                    []
+            , border_2
+            , border_dashed
+            , border_gray_400
+            , cursor_pointer
+            , flex
+            , items_center
+            , mt_4
+            , rounded_lg
+            , text_gray_300
+            ]
+        ]
+        [ span [ css [ mx_auto ] ]
+            [ text "drop a folder or click" ]
+        , input
+            [ type_ "file"
+            , attribute "multiple" ""
+            , attribute "directory" ""
+            , attribute "webkitdirectory" ""
+            , css
+                [ opacity_0
+                , absolute
+                , pointer_events_none
+                , w_0
+                , h_0
                 ]
             ]
-        , View.Dashboard.sectionParagraph [ infoTextStyle ]
-            [ span []
-                [ -- TODO: Add back when the generator is published and can create apps
-                  --   text "Don’t know how to get started? Start with the "
-                  -- , View.Common.underlinedLink []
-                  --     { location = "https://generator.fission.codes" }
-                  --     [ text "app generator" ]
-                  -- , text "!"
-                  -- , br [] []
-                  -- , br [] []
-                  -- ,
-                  text "Are you comfortable with a terminal? Use the "
-                , View.Common.underlinedLink []
-                    { location = "https://guide.fission.codes/developers/installation#installing-the-fission-cli" }
-                    [ text "fission command line interface" ]
-                , text "!"
-                ]
-            ]
+            []
         ]
 
 

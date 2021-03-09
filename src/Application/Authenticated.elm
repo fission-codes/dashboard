@@ -195,7 +195,31 @@ viewAppList : AuthenticatedModel -> List (Html Msg)
 viewAppList model =
     List.intersperse View.Common.sectionSpacer
         [ View.Dashboard.heading [ Html.text "Developed Apps" ]
-        , View.AppList.sectionNewApp
+        , View.Dashboard.section []
+            [ View.Dashboard.sectionTitle [] "Create a new App"
+            , View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
+                [ Html.text "Upload a folder with HTML, CSS and javascript files:"
+                , View.AppList.uploadDropzone
+                ]
+            , View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
+                [ Html.span []
+                    [ -- TODO: Add back when the generator is published and can create apps
+                      --   Html.text "Don’t know how to get started? Start with the "
+                      -- , View.Common.underlinedLink []
+                      --     { location = "https://generator.fission.codes" }
+                      --     [ Html.text "app generator" ]
+                      -- , Html.text "!"
+                      -- , Html.br [] []
+                      -- , Html.br [] []
+                      -- ,
+                      Html.text "Are you comfortable with a terminal? Use the "
+                    , View.Common.underlinedLink []
+                        { location = "https://guide.fission.codes/developers/installation#installing-the-fission-cli" }
+                        [ Html.text "fission command line interface" ]
+                    , Html.text "!"
+                    ]
+                ]
+            ]
         , case model.appList of
             Just [] ->
                 View.AppList.sectionAppList
@@ -239,6 +263,15 @@ viewAppListApp model appName =
                 }
             , View.Dashboard.headingSeparator
             , View.Dashboard.headingSubItem appName
+            ]
+
+        -- TODO We have to make sure that the "appName" is actually one of your apps! Iframe security and such.
+        , View.Dashboard.section []
+            [ View.Dashboard.sectionTitle [] "Update your App"
+            , View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
+                [ Html.text "Upload a folder with HTML, CSS and javascript files:"
+                , View.AppList.uploadDropzone
+                ]
             ]
         ]
 
