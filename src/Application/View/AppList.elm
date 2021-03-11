@@ -14,8 +14,8 @@ import View.Common exposing (dark, infoTextStyle, px)
 import View.Dashboard
 
 
-uploadDropzone : Html msg
-uploadDropzone =
+uploadDropzone : Maybe String -> Html msg
+uploadDropzone appName =
     let
         uploadAnticipationStyle =
             [ dark
@@ -26,11 +26,12 @@ uploadDropzone =
             , border_purple
             ]
     in
-    label
-        [ css
+    node "dashboard-upload-dropzone"
+        [ attribute "app-name" (appName |> Maybe.withDefault "")
+        , css
             [ Css.hover uploadAnticipationStyle
             , Css.pseudoClass "focus-within" uploadAnticipationStyle
-            , Css.Global.withClass "drop-active" uploadAnticipationStyle
+            , Css.Global.withClass "dropping" uploadAnticipationStyle
             , dark
                 [ border_gray_200
                 , text_gray_300
@@ -40,29 +41,37 @@ uploadDropzone =
             , border_gray_400
             , cursor_pointer
             , flex
-            , items_center
-            , min_h_120px
-            , mt_4
-            , rounded_lg
             , text_gray_300
+            , mt_4
+            , min_h_120px
+            , rounded_lg
             ]
         ]
-        [ span [ css [ mx_auto ] ]
-            [ text "drop a folder or click" ]
-        , input
-            [ type_ "file"
-            , attribute "multiple" ""
-            , attribute "directory" ""
-            , attribute "webkitdirectory" ""
-            , css
-                [ opacity_0
-                , absolute
-                , pointer_events_none
-                , w_0
-                , h_0
+        [ label
+            [ css
+                [ flex
+                , flex_grow
+                , items_center
+                , cursor_pointer
                 ]
             ]
-            []
+            [ span [ css [ mx_auto ] ]
+                [ text "drop a folder or click" ]
+            , input
+                [ type_ "file"
+                , attribute "multiple" ""
+                , attribute "directory" ""
+                , attribute "webkitdirectory" ""
+                , css
+                    [ opacity_0
+                    , absolute
+                    , pointer_events_none
+                    , w_0
+                    , h_0
+                    ]
+                ]
+                []
+            ]
         ]
 
 
@@ -80,6 +89,7 @@ previewIframe { url } =
             [ Css.width (px (previewWidth / 4))
             , Css.height (px (previewHeight / 4))
             , relative
+            , shadow
             , overflow_hidden
             , inline_block
             ]
@@ -93,7 +103,6 @@ previewIframe { url } =
                 , transform
                 , scale_25
                 , origin_top_left
-                , shadow_lg
                 , bg_white
                 ]
             ]

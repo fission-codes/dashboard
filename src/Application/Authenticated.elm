@@ -200,7 +200,7 @@ viewAppList model =
             [ View.Dashboard.sectionTitle [] [ Html.text "Create a new App" ]
             , View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
                 [ Html.text "Upload a folder with HTML, CSS and javascript files:"
-                , View.AppList.uploadDropzone
+                , View.AppList.uploadDropzone Nothing
                 ]
             , View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
                 [ Html.span []
@@ -285,20 +285,24 @@ viewAppListApp model appName =
 
 viewAppListAppLoading : Html Msg
 viewAppListAppLoading =
-    View.Dashboard.sectionLoading
-        [ View.Dashboard.sectionLoadingIndicator
-        , View.Dashboard.sectionLoadingText
-            [ Html.text "Loading app information" ]
+    View.Dashboard.section []
+        [ View.Dashboard.sectionLoading
+            [ View.Dashboard.sectionLoadingIndicator
+            , View.Dashboard.sectionLoadingText
+                [ Html.text "Loading app information" ]
+            ]
         ]
 
 
 viewAppListAppNotFound : String -> Html Msg
 viewAppListAppNotFound appName =
-    View.Dashboard.sectionLoading
-        [ View.Dashboard.sectionLoadingErrorIcon
-        , View.Dashboard.sectionLoadingText
-            [ Html.text "Could not find an app "
-            , Html.text appName
+    View.Dashboard.section []
+        [ View.Dashboard.sectionLoading
+            [ View.Dashboard.sectionLoadingErrorIcon
+            , View.Dashboard.sectionLoadingText
+                [ Html.text "Could not find an app "
+                , Html.text appName
+                ]
             ]
         ]
 
@@ -322,7 +326,7 @@ viewAppListAppLoaded model app =
         [ View.Dashboard.sectionTitle [] [ Html.text "Update your App" ]
         , View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
             [ Html.text "Upload a folder with HTML, CSS and javascript files:"
-            , View.AppList.uploadDropzone
+            , View.AppList.uploadDropzone (Just app.name)
             ]
         ]
     ]

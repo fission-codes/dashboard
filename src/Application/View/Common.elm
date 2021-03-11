@@ -6,7 +6,7 @@ import Css.Media
 import FeatherIcons
 import Html.Attributes
 import Html.Styled as Html exposing (..)
-import Html.Styled.Attributes exposing (css, disabled, href, src)
+import Html.Styled.Attributes exposing (css, disabled, href, src, target)
 import Html.Styled.Events as Events
 import Tailwind.Breakpoints exposing (..)
 import Tailwind.Utilities exposing (..)
@@ -109,6 +109,7 @@ linkMarkedExternal : List Css.Style -> { link : String } -> Html msg
 linkMarkedExternal styles { link } =
     a
         [ href link
+        , target "_blank"
         , css
             [ Css.batch styles
             , dark [ text_darkmode_purple ]

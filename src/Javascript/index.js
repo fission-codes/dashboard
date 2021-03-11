@@ -8,16 +8,16 @@ const permissions = {
     creator: "Fission",
     name: "Dashboard",
   },
-  public: [
-    "Apps/Published/"
-  ],
+  fs: {
+    publicPaths: ["/Apps"]
+  },
 }
 
 webnative.setup.debug({ enabled: true })
 
-if (window.location.hostname === "localhost") {
-  setupInStaging()
-}
+// if (window.location.hostname === "localhost") {
+//   setupInStaging()
+// }
 
 window.webnative = webnative
 
@@ -64,6 +64,86 @@ if ("serviceWorker" in navigator && window.location.hostname !== "localhost") {
 }
 
 
+customElements.define("dashboard-upload-dropzone", class extends HTMLElement {
+  constructor() {
+    super()
+  }
+
+  static get observedAttributes() {
+    return ["app-name"]
+  }
+
+  connectedCallback() {
+    // Manage highlighting
+
+    const highlight = async event => {
+      event.preventDefault()
+      this.classList.add("dropping")
+    }
+
+    const unhighlight = async event => {
+      event.preventDefault()
+      this.classList.remove("dropping")
+    }
+
+    this.addEventListener("dragleave", unhighlight);
+    ["dragenter", "dragover"].map(ev => this.addEventListener(ev, highlight))
+
+
+    // File upload events
+
+    this.addEventListener("change", async event => {
+      event.preventDefault()
+
+      console.log("change event", event)
+    })
+
+    this.addEventListener("drop", async event => {
+      event.preventDefault()
+      event.stopPropagation()
+
+      unhighlight(event)
+
+      const appName = this.getAttribute("app-name")
+      console.log(appName)
+      if (appName == null) return
+      const appUrl = `${appName}.fission.app`
+      const appPath = `Apps/${appName}/Published`
+
+      const files = []
+      for (const item of event.dataTransfer.items) {
+        const entry = item.webkitGetAsEntry()
+        const entryFiles = await listFiles(entry)
+        entryFiles.forEach(entryFile => {
+          console.log("Recognized uploaded file", entryFile.fullPath)
+          files.push(entryFile)
+        })
+      }
+
+      console.log("Removing all previous files")
+      await fs.rm(`public/${appPath}`)
+      console.log("Done")
+
+      const cid = await addAppFiles(appPath, files)
+
+      console.log("Uploading files")
+      await fs.publish()
+      console.log("Done")
+
+      console.log("Uploading app to fission", cid)
+      await webnative.apps.update(appUrl, cid)
+      console.log("Done. Your app is live! 🚀")
+    })
+  }
+
+  disconnectedCallback() {
+  }
+
+  attributeChangedCallback(name, oldValue, newValue) {
+  }
+})
+
+
 // Utilities
 
 function setupInStaging() {
@@ -74,4 +154,43 @@ function setupInStaging() {
     lobby: "https://auth.runfission.net",
     user: "fissionuser.net"
   })
+}
+
+async function addAppFiles(appPath, files) {
+  await Promise.all(files.map(async file => {
+    const asJsFile = await fileContent(file)
+    const content = await asJsFile.arrayBuffer()
+    await fs.write(`public/${appPath}${file.fullPath}`, content)
+    console.log("Added file", file.fullPath)
+  }))
+
+  const ipfs = await webnative.ipfs.get()
+  const rootCid = await fs.root.put()
+  const { cid } = await ipfs.files.stat(`/ipfs/${rootCid}/p/${appPath}/`)
+  return cid.toBaseEncodedString()
+}
+
+function fileContent(file) {
+  return new Promise((resolve, reject) => {
+    file.file(resolve, reject)
+  })
+}
+
+function directoryEntries(directory) {
+  return new Promise((resolve, reject) => {
+    directory.createReader().readEntries(resolve, reject)
+  })
+}
+
+async function listFiles(entry, files = []) {
+  if (entry.isDirectory) {
+    const entries = await directoryEntries(entry)
+    for (const subEntry of entries) {
+      await listFiles(subEntry, files)
+    }
+  }
+  if (entry.isFile) {
+    files.push(entry)
+  }
+  return files
 }
