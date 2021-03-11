@@ -67,6 +67,8 @@ if ("serviceWorker" in navigator && window.location.hostname !== "localhost") {
 customElements.define("dashboard-upload-dropzone", class extends HTMLElement {
   constructor() {
     super()
+
+    this.inProgress = false
   }
 
   static get observedAttributes() {
@@ -93,6 +95,8 @@ customElements.define("dashboard-upload-dropzone", class extends HTMLElement {
     // File upload events
 
     this.addEventListener("change", async event => {
+      if (this.inProgress) return
+      this.inProgress = true
       event.preventDefault()
       event.stopPropagation()
 
@@ -116,12 +120,18 @@ customElements.define("dashboard-upload-dropzone", class extends HTMLElement {
         this.dispatchPublishEnd()
 
       } catch (error) {
+
         this.dispatchPublishFail()
         throw error
+
       }
+
+      this.inProgress = false
     })
 
     this.addEventListener("drop", async event => {
+      if (this.inProgress) return
+      this.inProgress = true
       event.preventDefault()
       event.stopPropagation()
 
@@ -154,6 +164,7 @@ customElements.define("dashboard-upload-dropzone", class extends HTMLElement {
         throw error
 
       }
+      this.inProgress = false
     })
   }
 
