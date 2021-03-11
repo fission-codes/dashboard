@@ -56,7 +56,7 @@ uploadDropzone appName =
                 ]
             ]
             [ span [ css [ mx_auto ] ]
-                [ text "drop a folder or click" ]
+                [ text "drop files and folders or click to choose" ]
             , input
                 [ type_ "file"
                 , attribute "multiple" ""
@@ -182,23 +182,7 @@ appListItem { name, url, link } =
                     ]
                 ]
                 [ text name ]
-            , View.Common.underlinedLink
-                [ dark
-                    [ text_darkmode_purple
-                    , decoration_color_darkmode_purple
-                    ]
-                , decoration_color_purple
-                , text_purple
-                , whitespace_nowrap
-                ]
-                { location = url }
-                [ text url
-                , FeatherIcons.externalLink
-                    |> FeatherIcons.withSize 16
-                    |> FeatherIcons.toHtml [ Html.Attributes.style "display" "inline" ]
-                    |> fromUnstyled
-                    |> List.singleton
-                    |> span [ css [ ml_1 ] ]
-                ]
+            , View.Common.linkMarkedExternal []
+                { link = url }
             ]
         ]

@@ -112,6 +112,12 @@ linkMarkedExternal styles { link } =
         , target "_blank"
         , css
             [ Css.batch styles
+            , Css.hover
+                [ dark [ decoration_color_darkmode_purple ]
+                , underline
+                , decoration_color_purple
+                , decoration_thickness_1_dot_5
+                ]
             , dark [ text_darkmode_purple ]
             , text_purple
             ]
