@@ -51,9 +51,9 @@ workbox_config := "./src/Javascript/workbox.config.cjs"
 @elm-production:
 	echo "🌳  Compiling Elm (optimised)"
 	elm make \
+		src/Application/Main.elm \
 		--output {{dist}}/application.js \
-		--optimize \
-		src/Application/Main.elm
+		--optimize
 
 
 @favicons:
