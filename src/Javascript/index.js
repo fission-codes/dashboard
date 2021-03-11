@@ -98,34 +98,17 @@ customElements.define("dashboard-upload-dropzone", class extends HTMLElement {
 
       const files = Array.from(event.target.files)
 
-      const appName = this.getAttribute("app-name")
-      console.log(appName)
-      if (appName == null) return
-      const appUrl = `${appName}.fission.app`
-      const appPath = `Apps/${appName}/Published`
-
-      if (await fs.exists(`public/${appPath}`)) {
-        console.log("Removing all previous files")
-        await fs.rm(`public/${appPath}`)
-        console.log("Done")
-      }
-
-      const cid = await addAppFiles(appPath, files, async file => {
+      const gatherFileInfo = async file => {
         const firstSlash = file.webkitRelativePath.indexOf("/")
         const relativePath = file.webkitRelativePath.substring(firstSlash)
         return {
           arrayBuffer: await file.arrayBuffer(),
           relativePath,
         }
-      })
+      }
 
-      console.log("Uploading files")
-      await fs.publish()
-      console.log("Done")
-
-      console.log("Uploading app to fission", cid)
-      await webnative.apps.update(appUrl, cid)
-      console.log("Done. Your app is live! 🚀")
+      const appName = await this.targetAppName()
+      await this.publishAppFiles(appName, files, gatherFileInfo)
     })
 
     this.addEventListener("drop", async event => {
@@ -134,45 +117,60 @@ customElements.define("dashboard-upload-dropzone", class extends HTMLElement {
 
       unhighlight(event)
 
-      const appName = this.getAttribute("app-name")
-      console.log(appName)
-      if (appName == null) return
-      const appUrl = `${appName}.fission.app`
-      const appPath = `Apps/${appName}/Published`
-
       const files = []
       for (const item of event.dataTransfer.items) {
         const entry = item.webkitGetAsEntry()
         const entryFiles = await listFiles(entry)
         entryFiles.forEach(entryFile => {
-          console.log("Recognized uploaded file", entryFile.fullPath)
           files.push(entryFile)
         })
       }
 
-      if (await fs.exists(`public/${appPath}`)) {
-        console.log("Removing all previous files")
-        await fs.rm(`public/${appPath}`)
-        console.log("Done")
-      }
-
-      const cid = await addAppFiles(appPath, files, async entry => {
+      const gatherFileInfo = async file => {
         const asJsFile = await fileContent(file)
         const content = await asJsFile.arrayBuffer()
         return {
           arrayBuffer: content,
-          relativePath: entry.fullPath,
+          relativePath: file.fullPath,
         }
-      })
-
-      console.log("Uploading files")
-      await fs.publish()
-      console.log("Done")
-
-      console.log("Uploading app to fission", cid)
-      await webnative.apps.update(appUrl, cid)
-      console.log("Done. Your app is live! 🚀")
+      }
+      
+      const appName = await this.targetAppName()
+      await this.publishAppFiles(appName, files, gatherFileInfo)
     })
+  }
+
+  async targetAppName() {
+    let appName = this.getAttribute("app-name")
+    if (appName == null || appName === "") {
+      console.log("Reserving a new subdomain for the app")
+      appName = await webnative.apps.create()
+      // We only want the part before the .fission.app
+      appName = appName.substring(0, appName.indexOf("."))
+      console.log("Done", appName)
+    }
+    return appName
+  }
+
+  async publishAppFiles(appName, files, gatherFileInfo) {
+    const appUrl = `${appName}.fission.app`
+    const appPath = `Apps/${appName}/Published`
+
+    if (await fs.exists(`public/${appPath}`)) {
+      console.log("Removing all previous files")
+      await fs.rm(`public/${appPath}`)
+      console.log("Done")
+    }
+
+    const cid = await addAppFiles(appPath, files, gatherFileInfo)
+
+    console.log("Uploading files to fission")
+    await fs.publish()
+    console.log("Done")
+
+    console.log("Telling fission to publish this app version", cid)
+    await webnative.apps.update(appUrl, cid)
+    console.log("Done. Your app is live! 🚀")
   }
 
   disconnectedCallback() {
@@ -196,11 +194,11 @@ function setupInStaging() {
 }
 
 async function addAppFiles(appPath, files, getFileInfo) {
-  await Promise.all(files.map(async file => {
+  for (const file of files) {
     const { arrayBuffer, relativePath } = await getFileInfo(file)
     await fs.write(`public/${appPath}${relativePath}`, arrayBuffer)
     console.log("Added file", relativePath)
-  }))
+  }
 
   const ipfs = await webnative.ipfs.get()
   const rootCid = await fs.root.put()
