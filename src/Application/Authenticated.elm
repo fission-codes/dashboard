@@ -108,6 +108,21 @@ update msg model =
                 Err _ ->
                     ( model, Cmd.none )
 
+        DropzonePublishStart ->
+            ( model, Cmd.none )
+
+        DropzonePublishEnd ->
+            ( model, Cmd.none )
+
+        DropzonePublishFail ->
+            ( model, Cmd.none )
+
+        DropzonePublishAction _ ->
+            ( model, Cmd.none )
+
+        DropzonePublishProgress _ ->
+            ( model, Cmd.none )
+
 
 view : AuthenticatedModel -> Browser.Document Msg
 view model =
@@ -200,7 +215,16 @@ viewAppList model =
             [ View.Dashboard.sectionTitle [] [ Html.text "Create a new App" ]
             , View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
                 [ Html.text "Upload a folder with HTML, CSS and javascript files:"
-                , View.AppList.uploadDropzone Nothing
+                , View.AppList.uploadDropzone
+                    { onPublishStart = AuthenticatedMsg DropzonePublishStart
+                    , onPublishEnd = AuthenticatedMsg DropzonePublishEnd
+                    , onPublishFail = AuthenticatedMsg DropzonePublishFail
+                    , onPublishAction = AuthenticatedMsg << DropzonePublishAction
+                    , onPublishProgress = AuthenticatedMsg << DropzonePublishProgress
+                    , appName = Nothing
+                    , dashedBorder = True
+                    }
+                    [ View.AppList.clickableDropzone ]
                 ]
             , View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
                 [ Html.span []
@@ -326,7 +350,16 @@ viewAppListAppLoaded model app =
         [ View.Dashboard.sectionTitle [] [ Html.text "Update your App" ]
         , View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
             [ Html.text "Upload a folder with HTML, CSS and javascript files:"
-            , View.AppList.uploadDropzone (Just app.name)
+            , View.AppList.uploadDropzone
+                { onPublishStart = AuthenticatedMsg DropzonePublishStart
+                , onPublishEnd = AuthenticatedMsg DropzonePublishEnd
+                , onPublishFail = AuthenticatedMsg DropzonePublishFail
+                , onPublishAction = AuthenticatedMsg << DropzonePublishAction
+                , onPublishProgress = AuthenticatedMsg << DropzonePublishProgress
+                , appName = Just app.name
+                , dashedBorder = True
+                }
+                [ View.AppList.clickableDropzone ]
             ]
         ]
     ]

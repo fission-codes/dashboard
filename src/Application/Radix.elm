@@ -75,3 +75,8 @@ type AuthenticatedMsg
     | VerificationEmailSent
       -- App List
     | FetchedAppList Json.Value
+    | DropzonePublishStart
+    | DropzonePublishEnd
+    | DropzonePublishFail
+    | DropzonePublishAction String
+    | DropzonePublishProgress { progress : Int, total : Int, info : String }

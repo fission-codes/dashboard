@@ -2,11 +2,10 @@ module View.AppList exposing (..)
 
 import Css
 import Css.Global
-import FeatherIcons
-import Html.Attributes
 import Html.Styled exposing (..)
 import Html.Styled.Attributes exposing (attribute, class, css, href, placeholder, src, tabindex, target, title, type_, value)
 import Html.Styled.Events as Events
+import Json.Decode as Json
 import Route exposing (Route)
 import Tailwind.Breakpoints exposing (..)
 import Tailwind.Utilities exposing (..)
@@ -14,8 +13,18 @@ import View.Common exposing (dark, infoTextStyle, px)
 import View.Dashboard
 
 
-uploadDropzone : Maybe String -> Html msg
-uploadDropzone appName =
+uploadDropzone :
+    { onPublishStart : msg
+    , onPublishEnd : msg
+    , onPublishFail : msg
+    , onPublishAction : String -> msg
+    , onPublishProgress : { progress : Int, total : Int, info : String } -> msg
+    , appName : Maybe String
+    , dashedBorder : Bool
+    }
+    -> List (Html msg)
+    -> Html msg
+uploadDropzone element content =
     let
         uploadAnticipationStyle =
             [ dark
@@ -27,51 +36,78 @@ uploadDropzone appName =
             ]
     in
     node "dashboard-upload-dropzone"
-        [ attribute "app-name" (appName |> Maybe.withDefault "")
+        [ attribute "app-name" (element.appName |> Maybe.withDefault "")
+        , Events.on "publishStart" (Json.succeed element.onPublishStart)
+        , Events.on "publishEnd" (Json.succeed element.onPublishEnd)
+        , Events.on "publishFail" (Json.succeed element.onPublishFail)
+        , Events.on "publishAction" (Json.map element.onPublishAction (Json.at [ "detail", "info" ] Json.string))
+        , Events.on "publishProgress"
+            (Json.field "detail"
+                (Json.map3
+                    (\progress total info ->
+                        element.onPublishProgress
+                            { progress = progress
+                            , total = total
+                            , info = info
+                            }
+                    )
+                    (Json.field "progress" Json.int)
+                    (Json.field "total" Json.int)
+                    (Json.field "info" Json.string)
+                )
+            )
         , css
-            [ Css.hover uploadAnticipationStyle
-            , Css.pseudoClass "focus-within" uploadAnticipationStyle
-            , Css.Global.withClass "dropping" uploadAnticipationStyle
-            , dark
-                [ border_gray_200
-                , text_gray_300
-                ]
-            , border_2
-            , border_dashed
-            , border_gray_400
-            , cursor_pointer
+            [ dark [ text_gray_300 ]
             , flex
             , text_gray_300
             , mt_4
             , min_h_120px
-            , rounded_lg
+            ]
+        , if element.dashedBorder then
+            css
+                [ Css.hover uploadAnticipationStyle
+                , Css.pseudoClass "focus-within" uploadAnticipationStyle
+                , Css.Global.withClass "dropping" uploadAnticipationStyle
+                , dark [ border_gray_200 ]
+                , border_2
+                , border_dashed
+                , border_gray_400
+                , cursor_pointer
+                , rounded_lg
+                ]
+
+          else
+            css []
+        ]
+        content
+
+
+clickableDropzone : Html msg
+clickableDropzone =
+    label
+        [ css
+            [ flex
+            , flex_grow
+            , items_center
+            , cursor_pointer
             ]
         ]
-        [ label
-            [ css
-                [ flex
-                , flex_grow
-                , items_center
-                , cursor_pointer
+        [ span [ css [ mx_auto ] ]
+            [ text "drop files and folders or click to choose" ]
+        , input
+            [ type_ "file"
+            , attribute "multiple" ""
+            , attribute "directory" ""
+            , attribute "webkitdirectory" ""
+            , css
+                [ opacity_0
+                , absolute
+                , pointer_events_none
+                , w_0
+                , h_0
                 ]
             ]
-            [ span [ css [ mx_auto ] ]
-                [ text "drop files and folders or click to choose" ]
-            , input
-                [ type_ "file"
-                , attribute "multiple" ""
-                , attribute "directory" ""
-                , attribute "webkitdirectory" ""
-                , css
-                    [ opacity_0
-                    , absolute
-                    , pointer_events_none
-                    , w_0
-                    , h_0
-                    ]
-                ]
-                []
-            ]
+            []
         ]
 
 
