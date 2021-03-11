@@ -211,26 +211,26 @@ customElements.define("dashboard-upload-dropzone", class extends HTMLElement {
 
   dispatchPublishAction(info) {
     console.log(info)
-    this.dispatchEvent(new CustomEvent("publishAction", { info }))
+    this.dispatchEvent(new CustomEvent("publishAction", { detail: { info } }))
   }
 
   dispatchPublishProgress(progress, total, info) {
     console.log(progress, total, info)
-    this.dispatchEvent(new CustomEvent("publishProgress", { progress, total, info }))
+    this.dispatchEvent(new CustomEvent("publishProgress", { detail: { progress, total, info } }))
   }
 
   dispatchPublishStart() {
     console.log("starting")
-    this.dispatchEvent(new CustomEvent("publishStart", {}))
+    this.dispatchEvent(new CustomEvent("publishStart"))
   }
 
   dispatchPublishEnd() {
     console.log("Done. Your app is live! 🚀")
-    this.dispatchEvent(new CustomEvent("publishEnd", {}))
+    this.dispatchEvent(new CustomEvent("publishEnd"))
   }
 
   dispatchPublishFail() {
-    this.dispatchEvent(new CustomEvent("publishFail", {}))
+    this.dispatchEvent(new CustomEvent("publishFail"))
   }
 
   disconnectedCallback() {
