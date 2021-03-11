@@ -47,7 +47,15 @@ type alias AuthenticatedModel =
     , navigationExpanded : Bool
     , route : Route
     , appList : Maybe (List { name : String, url : String })
+    , uploadDropzoneState : UploadDropzoneState
     }
+
+
+type UploadDropzoneState
+    = DropzoneWaiting
+    | DropzoneAction String
+    | DropzoneProgress { info : String, progress : Int, total : Int }
+    | DropzoneFailed
 
 
 

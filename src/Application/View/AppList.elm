@@ -99,6 +99,48 @@ clickableDropzone =
         ]
 
 
+dropzoneLoading : List (Html msg) -> Html msg
+dropzoneLoading content =
+    span
+        [ css
+            [ flex
+            , flex_col
+            , flex_grow
+            , items_center
+            , m_auto
+            , px_5
+            , space_y_3
+            ]
+        ]
+        content
+
+
+dropzoneProgressIndicator : { progress : Int, total : Int } -> Html msg
+dropzoneProgressIndicator element =
+    progress
+        [ value (String.fromInt element.progress)
+        , Html.Styled.Attributes.max (String.fromInt element.total)
+        , css
+            [ appearance_none
+            , w_full
+            , Css.height (px 4)
+            , Css.pseudoElement "-webkit-progress-bar"
+                [ dark [ bg_darkness_above ]
+                , bg_gray_600
+                ]
+            , Css.pseudoElement "-webkit-progress-value"
+                [ dark [ bg_darkmode_purple ]
+                , bg_purple
+                ]
+            , Css.pseudoElement "-moz-progress-bar"
+                [ dark [ bg_darkmode_purple ]
+                , bg_purple
+                ]
+            ]
+        ]
+        []
+
+
 previewIframe : { url : String } -> Html msg
 previewIframe { url } =
     let

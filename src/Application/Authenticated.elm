@@ -31,6 +31,7 @@ init url username =
       , navigationExpanded = False
       , route = route
       , appList = Nothing
+      , uploadDropzoneState = DropzoneWaiting
       }
     , commandsByRoute route
     )
@@ -109,19 +110,29 @@ update msg model =
                     ( model, Cmd.none )
 
         DropzonePublishStart ->
-            ( model, Cmd.none )
+            ( { model | uploadDropzoneState = DropzoneAction "" }
+            , Cmd.none
+            )
 
         DropzonePublishEnd ->
-            ( model, Cmd.none )
+            ( { model | uploadDropzoneState = DropzoneWaiting }
+            , Cmd.none
+            )
 
         DropzonePublishFail ->
-            ( model, Cmd.none )
+            ( { model | uploadDropzoneState = DropzoneFailed }
+            , Cmd.none
+            )
 
-        DropzonePublishAction _ ->
-            ( model, Cmd.none )
+        DropzonePublishAction info ->
+            ( { model | uploadDropzoneState = DropzoneAction info }
+            , Cmd.none
+            )
 
-        DropzonePublishProgress _ ->
-            ( model, Cmd.none )
+        DropzonePublishProgress info ->
+            ( { model | uploadDropzoneState = DropzoneProgress info }
+            , Cmd.none
+            )
 
 
 view : AuthenticatedModel -> Browser.Document Msg
@@ -215,16 +226,7 @@ viewAppList model =
             [ View.Dashboard.sectionTitle [] [ Html.text "Create a new App" ]
             , View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
                 [ Html.text "Upload a folder with HTML, CSS and javascript files:"
-                , View.AppList.uploadDropzone
-                    { onPublishStart = AuthenticatedMsg DropzonePublishStart
-                    , onPublishEnd = AuthenticatedMsg DropzonePublishEnd
-                    , onPublishFail = AuthenticatedMsg DropzonePublishFail
-                    , onPublishAction = AuthenticatedMsg << DropzonePublishAction
-                    , onPublishProgress = AuthenticatedMsg << DropzonePublishProgress
-                    , appName = Nothing
-                    , dashedBorder = True
-                    }
-                    [ View.AppList.clickableDropzone ]
+                , viewUploadDropzone Nothing model.uploadDropzoneState
                 ]
             , View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
                 [ Html.span []
@@ -276,6 +278,64 @@ viewAppList model =
                         ]
                     )
         ]
+
+
+viewUploadDropzone : Maybe String -> UploadDropzoneState -> Html Msg
+viewUploadDropzone appName state =
+    let
+        viewDropzone dashedBorder =
+            View.AppList.uploadDropzone
+                { onPublishStart = AuthenticatedMsg DropzonePublishStart
+                , onPublishEnd = AuthenticatedMsg DropzonePublishEnd
+                , onPublishFail = AuthenticatedMsg DropzonePublishFail
+                , onPublishAction = AuthenticatedMsg << DropzonePublishAction
+                , onPublishProgress = AuthenticatedMsg << DropzonePublishProgress
+                , appName = appName
+                , dashedBorder = dashedBorder
+                }
+    in
+    case state of
+        DropzoneWaiting ->
+            viewDropzone True
+                [ View.AppList.clickableDropzone ]
+
+        DropzoneAction action ->
+            viewDropzone False
+                [ View.AppList.dropzoneLoading
+                    [ View.Dashboard.sectionLoadingIndicator
+                    , View.Dashboard.sectionLoadingText
+                        [ Html.text action ]
+                    ]
+                ]
+
+        DropzoneProgress progress ->
+            viewDropzone False
+                [ View.AppList.dropzoneLoading
+                    [ View.Dashboard.sectionLoadingIndicator
+                    , View.AppList.dropzoneProgressIndicator
+                        { progress = progress.progress
+                        , total = progress.total
+                        }
+                    , View.Dashboard.sectionLoadingText
+                        [ Html.text progress.info ]
+                    ]
+                ]
+
+        DropzoneFailed ->
+            viewDropzone False
+                [ View.AppList.dropzoneLoading
+                    [ View.Dashboard.sectionLoadingErrorIcon
+                    , View.Dashboard.sectionLoadingText
+                        [ Html.text "Oops! Something went wrong... Reload and try again."
+                        , Html.br [] []
+                        , Html.text "If you're advanced, you can check the developer console for errors and "
+                        , View.Common.underlinedLink []
+                            { location = "https://github.com/fission-suite/dashboard/issues" }
+                            [ Html.text "file an issue" ]
+                        , Html.text "."
+                        ]
+                    ]
+                ]
 
 
 viewAppListApp : AuthenticatedModel -> String -> List (Html Msg)
@@ -350,16 +410,7 @@ viewAppListAppLoaded model app =
         [ View.Dashboard.sectionTitle [] [ Html.text "Update your App" ]
         , View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
             [ Html.text "Upload a folder with HTML, CSS and javascript files:"
-            , View.AppList.uploadDropzone
-                { onPublishStart = AuthenticatedMsg DropzonePublishStart
-                , onPublishEnd = AuthenticatedMsg DropzonePublishEnd
-                , onPublishFail = AuthenticatedMsg DropzonePublishFail
-                , onPublishAction = AuthenticatedMsg << DropzonePublishAction
-                , onPublishProgress = AuthenticatedMsg << DropzonePublishProgress
-                , appName = Just app.name
-                , dashedBorder = True
-                }
-                [ View.AppList.clickableDropzone ]
+            , viewUploadDropzone (Just app.name) model.uploadDropzoneState
             ]
         ]
     ]
