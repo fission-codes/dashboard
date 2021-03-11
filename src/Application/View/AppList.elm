@@ -11,6 +11,7 @@ import Tailwind.Breakpoints exposing (..)
 import Tailwind.Utilities exposing (..)
 import View.Common exposing (dark, infoTextStyle, px)
 import View.Dashboard
+import View.UploadDropzone
 
 
 uploadDropzone :
@@ -35,28 +36,8 @@ uploadDropzone element content =
             , border_purple
             ]
     in
-    node "dashboard-upload-dropzone"
-        [ attribute "app-name" (element.appName |> Maybe.withDefault "")
-        , Events.on "publishStart" (Json.succeed element.onPublishStart)
-        , Events.on "publishEnd" (Json.succeed element.onPublishEnd)
-        , Events.on "publishFail" (Json.succeed element.onPublishFail)
-        , Events.on "publishAction" (Json.map element.onPublishAction (Json.at [ "detail", "info" ] Json.string))
-        , Events.on "publishProgress"
-            (Json.field "detail"
-                (Json.map3
-                    (\progress total info ->
-                        element.onPublishProgress
-                            { progress = progress
-                            , total = total
-                            , info = info
-                            }
-                    )
-                    (Json.field "progress" Json.int)
-                    (Json.field "total" Json.int)
-                    (Json.field "info" Json.string)
-                )
-            )
-        , css
+    View.UploadDropzone.view
+        [ css
             [ dark [ text_gray_300 ]
             , flex
             , text_gray_300
@@ -79,6 +60,13 @@ uploadDropzone element content =
           else
             css []
         ]
+        { onPublishStart = element.onPublishStart
+        , onPublishEnd = element.onPublishEnd
+        , onPublishFail = element.onPublishFail
+        , onPublishAction = element.onPublishAction
+        , onPublishProgress = element.onPublishProgress
+        , appName = element.appName |> Maybe.withDefault ""
+        }
         content
 
 
