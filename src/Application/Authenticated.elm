@@ -117,7 +117,7 @@ update navKey msg model =
 
         DropzonePublishEnd determinedAppName ->
             ( { model | uploadDropzoneState = DropzoneSucceeded determinedAppName }
-            , Cmd.none
+            , Ports.webnativeAppIndexFetch ()
             )
 
         DropzoneSuccessDismiss ->
@@ -126,7 +126,7 @@ update navKey msg model =
             )
 
         DropzoneSuccessGoToApp determinedAppName ->
-            ( model
+            ( { model | uploadDropzoneState = DropzoneWaiting }
             , Navigation.pushUrl navKey
                 (Route.toUrl
                     (Route.DeveloperAppList
