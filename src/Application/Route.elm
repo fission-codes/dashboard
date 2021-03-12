@@ -15,7 +15,7 @@ type Route
 
 type DeveloperAppListRoute
     = DeveloperAppListIndex
-    | DeverloperAppListApp String
+    | DeveloperAppListApp String
 
 
 
@@ -69,7 +69,7 @@ developerAppListParser : Parser (DeveloperAppListRoute -> a) a
 developerAppListParser =
     oneOf
         [ map DeveloperAppListIndex top
-        , map DeverloperAppListApp string
+        , map DeveloperAppListApp string
         ]
 
 
@@ -82,7 +82,7 @@ toUrl r =
         DeveloperAppList DeveloperAppListIndex ->
             "/#developers/apps"
 
-        DeveloperAppList (DeverloperAppListApp app) ->
+        DeveloperAppList (DeveloperAppListApp app) ->
             "/#developers/apps/" ++ Url.percentEncode app
 
 

@@ -114,8 +114,8 @@ update msg model =
             , Cmd.none
             )
 
-        DropzonePublishEnd appName ->
-            ( { model | uploadDropzoneState = DropzoneSucceeded appName }
+        DropzonePublishEnd determinedAppName ->
+            ( { model | uploadDropzoneState = DropzoneSucceeded determinedAppName }
             , Cmd.none
             )
 
@@ -164,7 +164,7 @@ view model =
                     Route.DeveloperAppList Route.DeveloperAppListIndex ->
                         viewAppList model
 
-                    Route.DeveloperAppList (Route.DeverloperAppListApp app) ->
+                    Route.DeveloperAppList (Route.DeveloperAppListApp app) ->
                         viewAppListApp model app
             }
             |> Html.toUnstyled
@@ -268,7 +268,7 @@ viewAppList model =
                             View.AppList.appListItem
                                 { name = app.name
                                 , url = "https://" ++ app.url
-                                , link = Route.DeveloperAppList (Route.DeverloperAppListApp app.url)
+                                , link = Route.DeveloperAppList (Route.DeveloperAppListApp app.url)
                                 }
                         )
                     |> View.AppList.appListLoaded
