@@ -384,8 +384,8 @@ sectionLoadingIndicator =
         [ css [ mx_auto ] ]
 
 
-sectionLoadingErrorIcon : Html msg
-sectionLoadingErrorIcon =
+iconError : Html msg
+iconError =
     FeatherIcons.alertTriangle
         |> FeatherIcons.withSize 24
         |> FeatherIcons.toHtml []
@@ -395,6 +395,22 @@ sectionLoadingErrorIcon =
             [ css
                 [ dark [ text_darkmode_red ]
                 , text_red
+                , inline
+                ]
+            ]
+
+
+iconSuccess : Html msg
+iconSuccess =
+    FeatherIcons.check
+        |> FeatherIcons.withSize 24
+        |> FeatherIcons.toHtml []
+        |> fromUnstyled
+        |> List.singleton
+        |> span
+            [ css
+                [ dark [ text_darkmode_purple ]
+                , text_purple
                 , inline
                 ]
             ]

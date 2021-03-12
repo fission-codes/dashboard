@@ -114,7 +114,12 @@ update msg model =
             , Cmd.none
             )
 
-        DropzonePublishEnd ->
+        DropzonePublishEnd appName ->
+            ( { model | uploadDropzoneState = DropzoneSucceeded appName }
+            , Cmd.none
+            )
+
+        DropzoneSuccessDismiss ->
             ( { model | uploadDropzoneState = DropzoneWaiting }
             , Cmd.none
             )
@@ -286,7 +291,7 @@ viewUploadDropzone appName state =
         viewDropzone dashedBorder =
             View.AppList.uploadDropzone
                 { onPublishStart = AuthenticatedMsg DropzonePublishStart
-                , onPublishEnd = AuthenticatedMsg DropzonePublishEnd
+                , onPublishEnd = AuthenticatedMsg << DropzonePublishEnd
                 , onPublishFail = AuthenticatedMsg DropzonePublishFail
                 , onPublishAction = AuthenticatedMsg << DropzonePublishAction
                 , onPublishProgress = AuthenticatedMsg << DropzonePublishProgress
@@ -321,10 +326,29 @@ viewUploadDropzone appName state =
                     ]
                 ]
 
+        DropzoneSucceeded determinedAppName ->
+            viewDropzone False
+                [ View.AppList.dropzoneLoading
+                    [ View.Dashboard.iconSuccess
+                    , View.Dashboard.sectionLoadingText
+                        [ Html.text "Success! "
+                        , View.Common.underlinedLink []
+                            { location = "https://" ++ determinedAppName ++ ".fission.app" }
+                            [ Html.text determinedAppName ]
+                        , Html.text " is now live! 🚀"
+                        ]
+                    , View.Common.uppercaseButton
+                        { label = "Dismiss"
+                        , onClick = AuthenticatedMsg DropzoneSuccessDismiss
+                        , isLoading = False
+                        }
+                    ]
+                ]
+
         DropzoneFailed ->
             viewDropzone False
                 [ View.AppList.dropzoneLoading
-                    [ View.Dashboard.sectionLoadingErrorIcon
+                    [ View.Dashboard.iconError
                     , View.Dashboard.sectionLoadingText
                         [ Html.text "Oops! Something went wrong... Reload and try again."
                         , Html.br [] []
@@ -382,7 +406,7 @@ viewAppListAppNotFound : String -> Html Msg
 viewAppListAppNotFound appName =
     View.Dashboard.section []
         [ View.Dashboard.sectionLoading
-            [ View.Dashboard.sectionLoadingErrorIcon
+            [ View.Dashboard.iconError
             , View.Dashboard.sectionLoadingText
                 [ Html.text "Could not find an app "
                 , Html.text appName

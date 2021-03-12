@@ -1,6 +1,5 @@
 module View.UploadDropzone exposing (..)
 
-import Css
 import Html.Styled exposing (..)
 import Html.Styled.Attributes exposing (attribute)
 import Html.Styled.Events as Events
@@ -16,7 +15,7 @@ view :
     List (Attribute msg)
     ->
         { onPublishStart : msg
-        , onPublishEnd : msg
+        , onPublishEnd : String -> msg
         , onPublishFail : msg
         , onPublishAction : String -> msg
         , onPublishProgress : { progress : Int, total : Int, info : String } -> msg
@@ -29,7 +28,7 @@ view attributes element content =
         (List.append attributes
             [ attribute "app-name" element.appName
             , Events.on "publishStart" (Json.succeed element.onPublishStart)
-            , Events.on "publishEnd" (Json.succeed element.onPublishEnd)
+            , Events.on "publishEnd" (Json.map element.onPublishEnd (Json.at [ "detail", "appName" ] Json.string))
             , Events.on "publishFail" (Json.succeed element.onPublishFail)
             , Events.on "publishAction" (Json.map element.onPublishAction (Json.at [ "detail", "info" ] Json.string))
             , Events.on "publishProgress"

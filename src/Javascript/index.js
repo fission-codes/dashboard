@@ -97,6 +97,7 @@ customElements.define("dashboard-upload-dropzone", class extends HTMLElement {
     this.addEventListener("change", async event => {
       if (this.inProgress) return
       this.inProgress = true
+
       event.preventDefault()
       event.stopPropagation()
 
@@ -117,7 +118,7 @@ customElements.define("dashboard-upload-dropzone", class extends HTMLElement {
         const appName = await this.targetAppName()
         await this.publishAppFiles(appName, files, getFilePath, getFileContents)
 
-        this.dispatchPublishEnd()
+        this.dispatchPublishEnd(appName)
 
       } catch (error) {
 
@@ -132,6 +133,7 @@ customElements.define("dashboard-upload-dropzone", class extends HTMLElement {
     this.addEventListener("drop", async event => {
       if (this.inProgress) return
       this.inProgress = true
+
       event.preventDefault()
       event.stopPropagation()
 
@@ -156,7 +158,8 @@ customElements.define("dashboard-upload-dropzone", class extends HTMLElement {
 
         const appName = await this.targetAppName()
         await this.publishAppFiles(appName, files, getFilePath, getFileContent)
-        this.dispatchPublishEnd()
+
+        this.dispatchPublishEnd(appName)
 
       } catch (error) {
 
@@ -164,6 +167,7 @@ customElements.define("dashboard-upload-dropzone", class extends HTMLElement {
         throw error
 
       }
+
       this.inProgress = false
     })
   }
@@ -235,9 +239,9 @@ customElements.define("dashboard-upload-dropzone", class extends HTMLElement {
     this.dispatchEvent(new CustomEvent("publishStart"))
   }
 
-  dispatchPublishEnd() {
+  dispatchPublishEnd(appName) {
     console.log("Done. Your app is live! 🚀")
-    this.dispatchEvent(new CustomEvent("publishEnd"))
+    this.dispatchEvent(new CustomEvent("publishEnd", { detail: { appName } }))
   }
 
   dispatchPublishFail() {

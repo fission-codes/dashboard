@@ -16,7 +16,7 @@ import View.UploadDropzone
 
 uploadDropzone :
     { onPublishStart : msg
-    , onPublishEnd : msg
+    , onPublishEnd : String -> msg
     , onPublishFail : msg
     , onPublishAction : String -> msg
     , onPublishProgress : { progress : Int, total : Int, info : String } -> msg

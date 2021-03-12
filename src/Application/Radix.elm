@@ -55,6 +55,7 @@ type UploadDropzoneState
     = DropzoneWaiting
     | DropzoneAction String
     | DropzoneProgress { info : String, progress : Int, total : Int }
+    | DropzoneSucceeded String
     | DropzoneFailed
 
 
@@ -84,7 +85,8 @@ type AuthenticatedMsg
       -- App List
     | FetchedAppList Json.Value
     | DropzonePublishStart
-    | DropzonePublishEnd
+    | DropzonePublishEnd String
     | DropzonePublishFail
     | DropzonePublishAction String
     | DropzonePublishProgress { progress : Int, total : Int, info : String }
+    | DropzoneSuccessDismiss
