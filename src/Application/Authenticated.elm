@@ -1,6 +1,7 @@
 module Authenticated exposing (..)
 
 import Browser
+import Browser.Navigation as Navigation
 import Dict exposing (Dict)
 import FeatherIcons
 import Html.Styled as Html exposing (Html)
@@ -57,8 +58,8 @@ commandsByRoute route =
             Cmd.none
 
 
-update : AuthenticatedMsg -> AuthenticatedModel -> ( AuthenticatedModel, Cmd Msg )
-update msg model =
+update : Navigation.Key -> AuthenticatedMsg -> AuthenticatedModel -> ( AuthenticatedModel, Cmd Msg )
+update navKey msg model =
     case msg of
         -- Mobile Navigation
         ToggleNavigationExpanded ->
@@ -122,6 +123,18 @@ update msg model =
         DropzoneSuccessDismiss ->
             ( { model | uploadDropzoneState = DropzoneWaiting }
             , Cmd.none
+            )
+
+        DropzoneSuccessGoToApp determinedAppName ->
+            ( model
+            , Navigation.pushUrl navKey
+                (Route.toUrl
+                    (Route.DeveloperAppList
+                        (Route.DeveloperAppListApp
+                            (determinedAppName ++ ".fission.app")
+                        )
+                    )
+                )
             )
 
         DropzonePublishFail ->
@@ -337,11 +350,20 @@ viewUploadDropzone appName state =
                             [ Html.text determinedAppName ]
                         , Html.text " is now live! 🚀"
                         ]
-                    , View.Common.uppercaseButton
-                        { label = "Dismiss"
-                        , onClick = AuthenticatedMsg DropzoneSuccessDismiss
-                        , isLoading = False
-                        }
+                    , case appName of
+                        Nothing ->
+                            View.Common.uppercaseButton
+                                { label = "To the App Page"
+                                , onClick = AuthenticatedMsg (DropzoneSuccessGoToApp determinedAppName)
+                                , isLoading = False
+                                }
+
+                        Just _ ->
+                            View.Common.uppercaseButton
+                                { label = "Dismiss"
+                                , onClick = AuthenticatedMsg DropzoneSuccessDismiss
+                                , isLoading = False
+                                }
                     ]
                 ]
 

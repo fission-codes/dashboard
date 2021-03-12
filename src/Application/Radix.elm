@@ -90,3 +90,4 @@ type AuthenticatedMsg
     | DropzonePublishAction String
     | DropzonePublishProgress { progress : Int, total : Int, info : String }
     | DropzoneSuccessDismiss
+    | DropzoneSuccessGoToApp String
