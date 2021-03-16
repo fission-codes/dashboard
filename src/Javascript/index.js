@@ -14,6 +14,7 @@ const permissions = {
 }
 
 webnative.setup.debug({ enabled: true })
+setupInStaging()
 
 // if (window.location.hostname === "localhost") {
 //   setupInStaging()
@@ -48,6 +49,8 @@ webnative
     webnativeElm.setup(elmApp, () => state.fs)
 
     window.fs = state.fs;
+
+    console.log(state)
 
     elmApp.ports.webnativeInitialized.send(state)
   })
