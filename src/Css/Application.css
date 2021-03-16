@@ -23,6 +23,10 @@ body {
 }
 
 
+:focus {
+  @apply outline-none;
+}
+
 :focus-visible {
   @apply ring-2 ring-opacity-80 ring-purple;
 }
