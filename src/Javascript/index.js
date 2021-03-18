@@ -9,18 +9,21 @@ const permissions = {
     name: "Dashboard",
   },
   fs: {
-    publicPaths: ["/Apps"]
+    publicPaths: ["Apps"]
   },
 }
 
 webnative.setup.debug({ enabled: true })
-setupInStaging()
 
 // if (window.location.hostname === "localhost") {
 //   setupInStaging()
 // }
 
 window.webnative = webnative
+
+elmApp.ports.webnativeRedirectToLobby.subscribe(async () => {
+  await webnative.redirectToLobby(permissions)
+})
 
 webnative
   .initialise({
@@ -201,7 +204,7 @@ customElements.define("dashboard-upload-dropzone", class extends HTMLElement {
     await fs.publish()
 
     this.dispatchPublishAction("Telling fission to publish the app")
-    await webnative.apps.update(appUrl, cid)
+    await webnative.apps.publish(appUrl, cid)
   }
 
   async addAppFiles(appPath, files, getFilePath, getFileContent) {

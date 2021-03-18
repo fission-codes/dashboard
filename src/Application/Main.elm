@@ -32,23 +32,6 @@ main =
         }
 
 
-base : Wnfs.Base
-base =
-    Wnfs.AppData appPermissions
-
-
-permissions : Webnative.Permissions
-permissions =
-    { app = Just appPermissions, fs = Nothing }
-
-
-appPermissions : Webnative.AppPermissions
-appPermissions =
-    { creator = "Fission"
-    , name = "Dashboard"
-    }
-
-
 
 -- 🌳
 
@@ -140,8 +123,7 @@ updateOther msg model =
 
         RedirectToLobby ->
             ( model
-            , Webnative.redirectToLobby Webnative.CurrentUrl permissions
-                |> Ports.webnativeRequest
+            , Ports.webnativeRedirectToLobby ()
             )
 
         -----------------------------------------
