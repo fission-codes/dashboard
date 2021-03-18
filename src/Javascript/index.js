@@ -9,7 +9,10 @@ const permissions = {
     name: "Dashboard",
   },
   fs: {
-    publicPaths: ["Apps"]
+    publicPaths: ["Apps"],
+  },
+  platform: {
+    apps: "*",
   },
 }
 
@@ -59,8 +62,8 @@ webnative
     elmApp.ports.webnativeInitialized.send(state)
   })
   .catch(error => {
-    console.error("Error in webnative initialization", error)
-    elmApp.ports.webnativeError.send(error)
+    console.error("Error in webnative initialisation", error)
+    elmApp.ports.webnativeError.send("Initialisation error")
   });
 
 
