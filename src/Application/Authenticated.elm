@@ -170,13 +170,18 @@ update navKey msg model =
                     ]
             then
                 ( { model | deletionState = AppDeletionInProgress }
-                , Cmd.none
+                , Ports.webnativeAppDelete app.url
                 )
 
             else
                 ( { model | deletionState = AppDeletionNotConfirmed }
                 , Cmd.none
                 )
+
+        DeleteAppFailed message ->
+            ( { model | deletionState = AppDeletionFailed message }
+            , Cmd.none
+            )
 
 
 view : AuthenticatedModel -> Browser.Document Msg
@@ -478,24 +483,28 @@ viewAppListAppLoaded model app =
                     { loading = False
                     , failed = False
                     , unconfirmed = False
+                    , error = Nothing
                     }
 
                 AppDeletionInProgress ->
                     { loading = True
                     , failed = False
                     , unconfirmed = False
+                    , error = Nothing
                     }
 
-                AppDeletionFailed _ ->
+                AppDeletionFailed error ->
                     { loading = False
                     , failed = True
                     , unconfirmed = False
+                    , error = Just error
                     }
 
                 AppDeletionNotConfirmed ->
                     { loading = False
                     , failed = True
                     , unconfirmed = True
+                    , error = Nothing
                     }
     in
     [ View.Dashboard.section []
@@ -547,6 +556,16 @@ viewAppListAppLoaded model app =
                     [ View.Common.warning
                         [ Html.text "Please confirm your deletion by typing in the correct app name." ]
                     ]
+                , deletion.error
+                    |> Maybe.map
+                        (\error ->
+                            [ View.Common.warning
+                                [ Html.text "There was an issue when trying to delete the app: "
+                                , Html.text error
+                                ]
+                            ]
+                        )
+                    |> Maybe.withDefault []
                 ]
             )
         ]
@@ -563,6 +582,11 @@ subscriptions model =
           else
             Sub.none
         , Ports.webnativeAppIndexFetched (AuthenticatedMsg << FetchedAppList)
+        , if model.deletionState == AppDeletionInProgress then
+            Ports.webnativeAppDeleteFailed (AuthenticatedMsg << DeleteAppFailed)
+
+          else
+            Sub.none
         ]
 
 

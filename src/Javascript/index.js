@@ -51,6 +51,21 @@ webnative
       }
     })
 
+    elmApp.ports.webnativeAppDelete.subscribe(async appUrl => {
+      // try {
+      //   const index = await webnative.apps.index()
+      //   const result = index.entries().find(([id, subdomains]) => subdomains.includes(appUrl))
+      //   if (result == null) {
+      //     throw new Error(`Coudln't find an app '${appUrl}'`)
+      //   }
+        
+      // } catch (error) {
+      //   console.error("Error while fetching the app index", error)
+      //   elmApp.ports.webnativeAppDeleteFailed.send(error.message)
+      // }
+      elmApp.ports.webnativeAppDeleteFailed.send("Not implemented")
+    })
+
     // No need for filesystem operations at the moment
     webnativeElm.setup(elmApp, () => state.fs)
 

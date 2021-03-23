@@ -102,3 +102,4 @@ type AuthenticatedMsg
     | DropzoneSuccessGoToApp String
     | RepeatAppNameInput String
     | DeleteAppClicked { name : String, url : String }
+    | DeleteAppFailed String
