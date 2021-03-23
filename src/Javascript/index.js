@@ -28,6 +28,10 @@ elmApp.ports.webnativeRedirectToLobby.subscribe(async () => {
   await webnative.redirectToLobby(permissions)
 })
 
+elmApp.ports.log.subscribe(messages => {
+  console.log.apply(console, messages)
+})
+
 webnative
   .initialise({
     permissions

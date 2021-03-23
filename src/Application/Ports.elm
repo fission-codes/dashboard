@@ -4,6 +4,9 @@ import Json.Decode as Json
 import Webnative
 
 
+port log : List Json.Value -> Cmd msg
+
+
 
 -- Webnative-Elm Ports
 

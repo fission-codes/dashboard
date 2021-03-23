@@ -7,6 +7,7 @@ import Dict exposing (Dict)
 import FeatherIcons
 import Html.Styled as Html exposing (Html)
 import Json.Decode as Json
+import Json.Encode as E
 import List.Extra as List
 import Ports
 import Radix exposing (..)
@@ -108,8 +109,13 @@ update navKey msg model =
                     , Cmd.none
                     )
 
-                Err _ ->
-                    ( model, Cmd.none )
+                Err error ->
+                    ( model
+                    , Ports.log
+                        [ E.string "Error trying to parse the result of apps.index()"
+                        , E.string (Json.errorToString error)
+                        ]
+                    )
 
         DropzonePublishStart ->
             ( { model | uploadDropzoneState = DropzoneAction "" }

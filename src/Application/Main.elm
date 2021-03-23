@@ -5,6 +5,7 @@ import Browser
 import Browser.Navigation as Navigation
 import Html.Styled as Html
 import Json.Decode as Json
+import Json.Encode as E
 import Ports
 import Radix exposing (..)
 import Route
@@ -96,8 +97,13 @@ updateOther msg model =
                         Webnative.Types.Continuation { username } ->
                             onAuthenticated username
 
-                Err _ ->
-                    ( model, Cmd.none )
+                Err error ->
+                    ( model
+                    , Ports.log
+                        [ E.string "Error trying to parse the returned state from webnative.initialise:"
+                        , E.string (Json.errorToString error)
+                        ]
+                    )
 
         GotWebnativeResponse _ ->
             ( model, Cmd.none )
