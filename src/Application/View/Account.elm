@@ -1,11 +1,10 @@
 module View.Account exposing (..)
 
-import Common
 import Css
 import Css.Global
 import FeatherIcons
 import Html.Styled exposing (..)
-import Html.Styled.Attributes exposing (class, css, placeholder, type_, value)
+import Html.Styled.Attributes exposing (class, classList, css, placeholder, type_, value)
 import Html.Styled.Events as Events
 import Tailwind.Breakpoints exposing (..)
 import Tailwind.Utilities exposing (..)
@@ -23,57 +22,6 @@ settingText content =
             ]
         ]
         content
-
-
-settingInput :
-    { placeholder : String
-    , value : String
-    , onInput : String -> msg
-    , inErrorState : Bool
-    }
-    -> Html msg
-settingInput element =
-    input
-        (List.concat
-            [ [ type_ "text"
-              , placeholder element.placeholder
-              , value element.value
-              , Events.onInput element.onInput
-
-              --
-              , css
-                    [ dark [ text_gray_500 ]
-                    , bg_gray_900
-                    , border
-                    , border_gray_500
-                    , flex_grow
-                    , flex_shrink
-                    , font_display
-                    , max_w_xs
-                    , min_w_0
-                    , placeholder_gray_400
-                    , px_3
-                    , py_1
-                    , rounded
-                    , text_base
-                    , text_gray_200
-
-                    --
-                    , Css.Global.withClass "error"
-                        [ dark [ border_darkmode_red ]
-                        , border_red
-                        ]
-                    , Css.focus
-                        [ dark [ border_darkmode_purple ]
-                        , border_purple
-                        ]
-                    ]
-              ]
-            , Common.when element.inErrorState
-                [ class "error" ]
-            ]
-        )
-        []
 
 
 sectionUsername : { username : List (Html msg) } -> Html msg

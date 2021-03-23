@@ -5,11 +5,10 @@ import Css.Global
 import Html.Styled exposing (..)
 import Html.Styled.Attributes exposing (attribute, class, css, href, placeholder, src, tabindex, target, title, type_, value)
 import Html.Styled.Events as Events
-import Json.Decode as Json
 import Route exposing (Route)
 import Tailwind.Breakpoints exposing (..)
 import Tailwind.Utilities exposing (..)
-import View.Common exposing (dark, infoTextStyle, px)
+import View.Common exposing (dark, px)
 import View.Dashboard
 import View.UploadDropzone
 
@@ -252,3 +251,16 @@ appListItem { name, url, link } =
                 { link = url }
             ]
         ]
+
+
+inputRow : { onSubmit : msg } -> List (Html msg) -> Html msg
+inputRow element content =
+    form
+        [ Events.onSubmit element.onSubmit
+        , css
+            [ flex
+            , flex_row
+            , space_x_3
+            ]
+        ]
+        content

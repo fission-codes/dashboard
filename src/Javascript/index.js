@@ -17,7 +17,6 @@ const permissions = {
 }
 
 webnative.setup.debug({ enabled: true })
-setupInStaging()
 
 // if (window.location.hostname === "localhost") {
 //   setupInStaging()

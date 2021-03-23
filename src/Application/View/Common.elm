@@ -2,11 +2,12 @@ module View.Common exposing (..)
 
 import Common
 import Css
+import Css.Global
 import Css.Media
 import FeatherIcons
 import Html.Attributes
 import Html.Styled as Html exposing (..)
-import Html.Styled.Attributes exposing (css, disabled, href, src, target)
+import Html.Styled.Attributes exposing (classList, css, disabled, href, placeholder, src, target, type_, value)
 import Html.Styled.Events as Events
 import Tailwind.Breakpoints exposing (..)
 import Tailwind.Utilities exposing (..)
@@ -159,10 +160,7 @@ uppercaseButtonStyle =
             , bg_opacity_30
             , bg_gray_500
             ]
-        , flex
-        , flex_row
         , font_display
-        , items_center
         , p_2
         , rounded
         , text_purple
@@ -172,12 +170,42 @@ uppercaseButtonStyle =
         ]
 
 
-uppercaseButton : { isLoading : Bool, label : String, onClick : msg } -> Html msg
-uppercaseButton { isLoading, label, onClick } =
-    button
-        [ Events.onClick onClick
+dangerButtonStyle : Css.Style
+dangerButtonStyle =
+    Css.batch
+        [ dark [ bg_darkmode_red ]
+        , font_body
+        , text_gray_900
+        , text_base
+        , bg_red
+        , rounded
+        , px_3
+        , py_1
+        ]
+
+
+button :
+    { isLoading : Bool
+    , label : String
+    , onClick : Maybe msg
+    , style : Css.Style
+    }
+    -> Html msg
+button { isLoading, label, onClick, style } =
+    Html.button
+        [ case onClick of
+            Just message ->
+                Events.onClick message
+
+            Nothing ->
+                type_ "submit"
         , disabled isLoading
-        , css [ uppercaseButtonStyle ]
+        , css
+            [ flex
+            , flex_row
+            , items_center
+            , style
+            ]
         ]
         (List.concat
             [ [ text label ]
@@ -185,6 +213,79 @@ uppercaseButton { isLoading, label, onClick } =
                 [ loadingAnimation Small [ css [ ml_3 ] ] ]
             ]
         )
+
+
+basicInputStyle : Css.Style
+basicInputStyle =
+    Css.batch
+        [ dark
+            [ text_gray_500
+            , bg_gray_100
+            , border_gray_200
+            ]
+        , bg_gray_900
+        , border
+        , border_gray_500
+        , flex_grow
+        , flex_shrink
+        , font_display
+        , min_w_0
+        , placeholder_gray_400
+        , px_3
+        , py_1
+        , ring_gray_500
+        , rounded
+        , text_base
+        , text_center
+        , text_gray_200
+
+        --
+        , Css.Global.withClass "error"
+            [ dark
+                [ border_darkmode_red
+                , ring_darkmode_red
+                ]
+            , border_red
+            , ring_red
+            ]
+        , Css.disabled
+            [ dark
+                [ bg_gray_200
+                , border_gray_200
+                , ring_gray_200
+                ]
+            , bg_gray_600
+            , border_gray_600
+            , text_gray_400
+            ]
+        ]
+
+
+input :
+    { placeholder : String
+    , value : String
+    , onInput : String -> msg
+    , inErrorState : Bool
+    , disabled : Bool
+    , style : Css.Style
+    }
+    -> Html msg
+input element =
+    Html.input
+        [ type_ "text"
+        , placeholder element.placeholder
+        , value element.value
+        , Events.onInput element.onInput
+        , disabled element.disabled
+
+        --
+        , css
+            [ element.style
+            ]
+        , classList
+            [ ( "error", element.inErrorState ) ]
+        ]
+        []
 
 
 px : Float -> Css.Rem
@@ -199,6 +300,11 @@ infoTextStyle =
         , text_sm
         , text_gray_200
         ]
+
+
+monoInfoText : List (Html msg) -> Html msg
+monoInfoText =
+    span [ css [ font_mono, text_xs ] ]
 
 
 sectionSpacer : Html msg
@@ -218,3 +324,30 @@ spacer styles =
             ]
         ]
         []
+
+
+warning : List (Html msg) -> Html msg
+warning content =
+    span
+        [ css
+            [ dark
+                [ text_darkmode_red
+                ]
+            , flex
+            , flex_row
+            , items_center
+            , text_red
+            , text_sm
+            , space_x_2
+            ]
+        ]
+        [ FeatherIcons.alertTriangle
+            |> FeatherIcons.withSize 16
+            |> FeatherIcons.toHtml []
+            |> fromUnstyled
+            |> List.singleton
+            |> span []
+        , span
+            [ css [ font_display ] ]
+            content
+        ]

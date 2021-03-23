@@ -2,6 +2,7 @@ module Authenticated exposing (..)
 
 import Browser
 import Browser.Navigation as Navigation
+import Common
 import Dict exposing (Dict)
 import FeatherIcons
 import Html.Styled as Html exposing (Html)
@@ -16,8 +17,6 @@ import View.AppList
 import View.Common
 import View.Dashboard
 import View.Navigation
-import Webnative
-import Webnative.Types as Webnative
 
 
 init : Url -> String -> ( AuthenticatedModel, Cmd Msg )
@@ -33,6 +32,8 @@ init url username =
       , route = route
       , appList = Nothing
       , uploadDropzoneState = DropzoneWaiting
+      , repeatAppNameInput = ""
+      , deletionState = AppDeletionWaiting
       }
     , commandsByRoute route
     )
@@ -152,6 +153,31 @@ update navKey msg model =
             , Cmd.none
             )
 
+        RepeatAppNameInput value ->
+            ( { model
+                | repeatAppNameInput = value
+                , deletionState = AppDeletionWaiting
+              }
+            , Cmd.none
+            )
+
+        DeleteAppClicked app ->
+            if
+                List.any ((==) model.repeatAppNameInput)
+                    [ app.name
+                    , app.url
+                    , "https://" ++ app.url
+                    ]
+            then
+                ( { model | deletionState = AppDeletionInProgress }
+                , Cmd.none
+                )
+
+            else
+                ( { model | deletionState = AppDeletionNotConfirmed }
+                , Cmd.none
+                )
+
 
 view : AuthenticatedModel -> Browser.Document Msg
 view model =
@@ -226,10 +252,11 @@ viewAccount model =
                 }
             , View.Account.sectionEmail
                 { verificationStatus =
-                    [ View.Common.uppercaseButton
+                    [ View.Common.button
                         { label = "Resend Verification Email"
-                        , onClick = AuthenticatedMsg EmailResendVerification
+                        , onClick = Just (AuthenticatedMsg EmailResendVerification)
                         , isLoading = model.resendingVerificationEmail
+                        , style = View.Common.uppercaseButtonStyle
                         }
                     ]
                 }
@@ -352,17 +379,19 @@ viewUploadDropzone appName state =
                         ]
                     , case appName of
                         Nothing ->
-                            View.Common.uppercaseButton
+                            View.Common.button
                                 { label = "To the App Page"
-                                , onClick = AuthenticatedMsg (DropzoneSuccessGoToApp determinedAppName)
+                                , onClick = Just (AuthenticatedMsg (DropzoneSuccessGoToApp determinedAppName))
                                 , isLoading = False
+                                , style = View.Common.uppercaseButtonStyle
                                 }
 
                         Just _ ->
-                            View.Common.uppercaseButton
+                            View.Common.button
                                 { label = "Dismiss"
-                                , onClick = AuthenticatedMsg DropzoneSuccessDismiss
+                                , onClick = Just (AuthenticatedMsg DropzoneSuccessDismiss)
                                 , isLoading = False
+                                , style = View.Common.uppercaseButtonStyle
                                 }
                     ]
                 ]
@@ -442,6 +471,32 @@ viewAppListAppLoaded model app =
     let
         realUrl =
             "https://" ++ app.url
+
+        deletion =
+            case model.deletionState of
+                AppDeletionWaiting ->
+                    { loading = False
+                    , failed = False
+                    , unconfirmed = False
+                    }
+
+                AppDeletionInProgress ->
+                    { loading = True
+                    , failed = False
+                    , unconfirmed = False
+                    }
+
+                AppDeletionFailed _ ->
+                    { loading = False
+                    , failed = True
+                    , unconfirmed = False
+                    }
+
+                AppDeletionNotConfirmed ->
+                    { loading = False
+                    , failed = True
+                    , unconfirmed = True
+                    }
     in
     [ View.Dashboard.section []
         [ View.Dashboard.sectionTitle []
@@ -458,6 +513,42 @@ viewAppListAppLoaded model app =
             [ Html.text "Upload a folder with HTML, CSS and javascript files:"
             , viewUploadDropzone (Just app.name) model.uploadDropzoneState
             ]
+        ]
+    , View.Dashboard.section []
+        [ View.Dashboard.sectionTitle [] [ Html.text "Delete your App" ]
+        , View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
+            (List.concat
+                [ [ Html.span []
+                        [ Html.text "This will make the app unaccessible at "
+                        , View.Common.linkMarkedExternal [] { link = realUrl }
+                        , Html.text ". The app’s data will still exist in your local filesystem under "
+                        , View.Common.monoInfoText [ Html.text ("public/Apps/" ++ app.name ++ "/Published") ]
+                        , Html.text "."
+                        ]
+                  , View.AppList.inputRow
+                        { onSubmit = AuthenticatedMsg (DeleteAppClicked app) }
+                        [ View.Common.input
+                            { placeholder = "please type " ++ app.name ++ " to confirm"
+                            , value = model.repeatAppNameInput
+                            , onInput = AuthenticatedMsg << RepeatAppNameInput
+                            , inErrorState = deletion.failed
+                            , disabled = deletion.loading
+                            , style = View.Common.basicInputStyle
+                            }
+                        , View.Common.button
+                            { isLoading = deletion.loading
+                            , onClick = Nothing
+                            , label = "Delete App"
+                            , style = View.Common.dangerButtonStyle
+                            }
+                        ]
+                  ]
+                , Common.when deletion.unconfirmed
+                    [ View.Common.warning
+                        [ Html.text "Please confirm your deletion by typing in the correct app name." ]
+                    ]
+                ]
+            )
         ]
     ]
 

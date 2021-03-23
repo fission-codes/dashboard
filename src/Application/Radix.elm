@@ -48,6 +48,8 @@ type alias AuthenticatedModel =
     , route : Route
     , appList : Maybe (List { name : String, url : String })
     , uploadDropzoneState : UploadDropzoneState
+    , repeatAppNameInput : String
+    , deletionState : AppDeletionState
     }
 
 
@@ -57,6 +59,13 @@ type UploadDropzoneState
     | DropzoneProgress { info : String, progress : Int, total : Int }
     | DropzoneSucceeded String
     | DropzoneFailed
+
+
+type AppDeletionState
+    = AppDeletionWaiting
+    | AppDeletionInProgress
+    | AppDeletionFailed String
+    | AppDeletionNotConfirmed
 
 
 
@@ -91,3 +100,5 @@ type AuthenticatedMsg
     | DropzonePublishProgress { progress : Int, total : Int, info : String }
     | DropzoneSuccessDismiss
     | DropzoneSuccessGoToApp String
+    | RepeatAppNameInput String
+    | DeleteAppClicked { name : String, url : String }

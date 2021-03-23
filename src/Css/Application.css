@@ -24,7 +24,7 @@ body {
 
 
 :focus {
-  @apply outline-none;
+  @apply outline-none !important; /* need to override another setting from the tailwind base style reset */
 }
 
 :focus-visible {
