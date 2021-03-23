@@ -18,9 +18,9 @@ const permissions = {
 
 webnative.setup.debug({ enabled: true })
 
-// if (window.location.hostname === "localhost") {
-//   setupInStaging()
-// }
+if (window.location.hostname === "localhost") {
+  setupInStaging()
+}
 
 window.webnative = webnative
 
@@ -56,18 +56,13 @@ webnative
     })
 
     elmApp.ports.webnativeAppDelete.subscribe(async appUrl => {
-      // try {
-      //   const index = await webnative.apps.index()
-      //   const result = index.entries().find(([id, subdomains]) => subdomains.includes(appUrl))
-      //   if (result == null) {
-      //     throw new Error(`Coudln't find an app '${appUrl}'`)
-      //   }
-        
-      // } catch (error) {
-      //   console.error("Error while fetching the app index", error)
-      //   elmApp.ports.webnativeAppDeleteFailed.send(error.message)
-      // }
-      elmApp.ports.webnativeAppDeleteFailed.send("Not implemented")
+      try {
+        await webnative.apps.deleteByDomain(appUrl)
+        elmApp.ports.webnativeAppDeleteSucceeded.send({})
+      } catch (error) {
+        console.error("Error while fetching the app index", error)
+        elmApp.ports.webnativeAppDeleteFailed.send(error.message)
+      }
     })
 
     // No need for filesystem operations at the moment

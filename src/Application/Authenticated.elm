@@ -3,7 +3,7 @@ module Authenticated exposing (..)
 import Browser
 import Browser.Navigation as Navigation
 import Common
-import Dict exposing (Dict)
+import Data.App as App
 import FeatherIcons
 import Html.Styled as Html exposing (Html)
 import Json.Decode as Json
@@ -83,29 +83,8 @@ update navKey msg model =
         -- App list
         FetchedAppList value ->
             case Json.decodeValue appsIndexDecoder value of
-                Ok dict ->
-                    let
-                        appList =
-                            dict
-                                |> Dict.toList
-                                |> List.concatMap
-                                    (\( _, urls ) ->
-                                        urls
-                                            |> List.concatMap
-                                                (\url ->
-                                                    case String.split "." url of
-                                                        [ subdomain, _, _ ] ->
-                                                            [ { name = subdomain
-                                                              , url = url
-                                                              }
-                                                            ]
-
-                                                        _ ->
-                                                            []
-                                                )
-                                    )
-                    in
-                    ( { model | appList = Just appList }
+                Ok appNames ->
+                    ( { model | appList = Just appNames }
                     , Cmd.none
                     )
 
@@ -170,19 +149,24 @@ update navKey msg model =
         DeleteAppClicked app ->
             if
                 List.any ((==) model.repeatAppNameInput)
-                    [ app.name
-                    , app.url
-                    , "https://" ++ app.url
+                    [ App.nameOnly app
+                    , App.toString app
+                    , App.toUrl app
                     ]
             then
                 ( { model | deletionState = AppDeletionInProgress }
-                , Ports.webnativeAppDelete app.url
+                , Ports.webnativeAppDelete (App.encode app)
                 )
 
             else
                 ( { model | deletionState = AppDeletionNotConfirmed }
                 , Cmd.none
                 )
+
+        DeleteAppSucceeded ->
+            ( model
+            , Navigation.load (Route.toUrl (Route.DeveloperAppList Route.DeveloperAppListIndex))
+            )
 
         DeleteAppFailed message ->
             ( { model | deletionState = AppDeletionFailed message }
@@ -317,9 +301,9 @@ viewAppList model =
                     |> List.map
                         (\app ->
                             View.AppList.appListItem
-                                { name = app.name
-                                , url = "https://" ++ app.url
-                                , link = Route.DeveloperAppList (Route.DeveloperAppListApp app.url)
+                                { name = App.nameOnly app
+                                , url = App.toUrl app
+                                , link = Route.DeveloperAppList (Route.DeveloperAppListApp (App.toString app))
                                 }
                         )
                     |> View.AppList.appListLoaded
@@ -443,7 +427,7 @@ viewAppListApp model appName =
                     [ viewAppListAppLoading ]
 
                 Just appList ->
-                    case List.find (\app -> app.url == appName) appList of
+                    case List.find (\app -> App.toString app == appName) appList of
                         Just app ->
                             viewAppListAppLoaded model app
 
@@ -477,11 +461,11 @@ viewAppListAppNotFound appName =
         ]
 
 
-viewAppListAppLoaded : AuthenticatedModel -> { name : String, url : String } -> List (Html Msg)
+viewAppListAppLoaded : AuthenticatedModel -> App.Name -> List (Html Msg)
 viewAppListAppLoaded model app =
     let
         realUrl =
-            "https://" ++ app.url
+            App.toUrl app
 
         deletion =
             case model.deletionState of
@@ -526,7 +510,7 @@ viewAppListAppLoaded model app =
         [ View.Dashboard.sectionTitle [] [ Html.text "Update your App" ]
         , View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
             [ Html.text "Upload a folder with HTML, CSS and javascript files:"
-            , viewUploadDropzone (Just app.name) model.uploadDropzoneState
+            , viewUploadDropzone (Just (App.nameOnly app)) model.uploadDropzoneState
             ]
         ]
     , View.Dashboard.section []
@@ -537,13 +521,13 @@ viewAppListAppLoaded model app =
                         [ Html.text "This will make the app unaccessible at "
                         , View.Common.linkMarkedExternal [] { link = realUrl }
                         , Html.text ". The app’s data will still exist in your local filesystem under "
-                        , View.Common.monoInfoText [ Html.text ("public/Apps/" ++ app.name ++ "/Published") ]
+                        , View.Common.monoInfoText [ Html.text ("public/Apps/" ++ App.nameOnly app ++ "/Published") ]
                         , Html.text "."
                         ]
                   , View.AppList.inputRow
                         { onSubmit = AuthenticatedMsg (DeleteAppClicked app) }
                         [ View.Common.input
-                            { placeholder = "please type " ++ app.name ++ " to confirm"
+                            { placeholder = "please type " ++ App.nameOnly app ++ " to confirm"
                             , value = model.repeatAppNameInput
                             , onInput = AuthenticatedMsg << RepeatAppNameInput
                             , inErrorState = deletion.failed
@@ -589,13 +573,16 @@ subscriptions model =
             Sub.none
         , Ports.webnativeAppIndexFetched (AuthenticatedMsg << FetchedAppList)
         , if model.deletionState == AppDeletionInProgress then
-            Ports.webnativeAppDeleteFailed (AuthenticatedMsg << DeleteAppFailed)
+            Sub.batch
+                [ Ports.webnativeAppDeleteFailed (AuthenticatedMsg << DeleteAppFailed)
+                , Ports.webnativeAppDeleteSucceeded (\_ -> AuthenticatedMsg DeleteAppSucceeded)
+                ]
 
           else
             Sub.none
         ]
 
 
-appsIndexDecoder : Json.Decoder (Dict String (List String))
+appsIndexDecoder : Json.Decoder (List App.Name)
 appsIndexDecoder =
-    Json.dict (Json.list Json.string)
+    Json.list (Json.field "domain" App.decoder)

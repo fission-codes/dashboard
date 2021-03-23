@@ -2,6 +2,7 @@ module Radix exposing (..)
 
 import Browser exposing (UrlRequest)
 import Browser.Navigation
+import Data.App as App
 import Json.Decode as Json
 import Route exposing (Route)
 import Url exposing (Url)
@@ -46,7 +47,7 @@ type alias AuthenticatedModel =
     , resendingVerificationEmail : Bool
     , navigationExpanded : Bool
     , route : Route
-    , appList : Maybe (List { name : String, url : String })
+    , appList : Maybe (List App.Name)
     , uploadDropzoneState : UploadDropzoneState
     , repeatAppNameInput : String
     , deletionState : AppDeletionState
@@ -101,5 +102,6 @@ type AuthenticatedMsg
     | DropzoneSuccessDismiss
     | DropzoneSuccessGoToApp String
     | RepeatAppNameInput String
-    | DeleteAppClicked { name : String, url : String }
+    | DeleteAppClicked App.Name
+    | DeleteAppSucceeded
     | DeleteAppFailed String

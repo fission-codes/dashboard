@@ -39,7 +39,10 @@ port webnativeAppIndexFetch : () -> Cmd msg
 port webnativeAppIndexFetched : (Json.Value -> msg) -> Sub msg
 
 
-port webnativeAppDelete : String -> Cmd msg
+port webnativeAppDelete : Json.Value -> Cmd msg
+
+
+port webnativeAppDeleteSucceeded : ({} -> msg) -> Sub msg
 
 
 port webnativeAppDeleteFailed : (String -> msg) -> Sub msg
