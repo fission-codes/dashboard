@@ -463,10 +463,29 @@ viewAppListAppNotFound appName =
 
 viewAppListAppLoaded : AuthenticatedModel -> App.Name -> List (Html Msg)
 viewAppListAppLoaded model app =
-    let
-        realUrl =
-            App.toUrl app
+    [ View.Dashboard.section []
+        [ View.Dashboard.sectionTitle []
+            [ Html.text "Preview of "
+            , View.Common.linkMarkedExternal [] { link = App.toUrl app }
+            ]
+        , View.Dashboard.sectionParagraph []
+            [ View.AppList.previewIframe { url = App.toUrl app }
+            ]
+        ]
+    , View.Dashboard.section []
+        [ View.Dashboard.sectionTitle [] [ Html.text "Update your App" ]
+        , View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
+            [ Html.text "Upload a folder with HTML, CSS and javascript files:"
+            , viewUploadDropzone (Just app) model.uploadDropzoneState
+            ]
+        ]
+    , viewAppDeletionSection model app
+    ]
 
+
+viewAppDeletionSection : AuthenticatedModel -> App.Name -> Html Msg
+viewAppDeletionSection model app =
+    let
         deletion =
             case model.deletionState of
                 AppDeletionWaiting ->
@@ -497,29 +516,13 @@ viewAppListAppLoaded model app =
                     , error = Nothing
                     }
     in
-    [ View.Dashboard.section []
-        [ View.Dashboard.sectionTitle []
-            [ Html.text "Preview of "
-            , View.Common.linkMarkedExternal [] { link = realUrl }
-            ]
-        , View.Dashboard.sectionParagraph []
-            [ View.AppList.previewIframe { url = realUrl }
-            ]
-        ]
-    , View.Dashboard.section []
-        [ View.Dashboard.sectionTitle [] [ Html.text "Update your App" ]
-        , View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
-            [ Html.text "Upload a folder with HTML, CSS and javascript files:"
-            , viewUploadDropzone (Just app) model.uploadDropzoneState
-            ]
-        ]
-    , View.Dashboard.section []
+    View.Dashboard.section []
         [ View.Dashboard.sectionTitle [] [ Html.text "Delete your App" ]
         , View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
             (List.concat
                 [ [ Html.span []
                         [ Html.text "This will make the app unaccessible at "
-                        , View.Common.linkMarkedExternal [] { link = realUrl }
+                        , View.Common.linkMarkedExternal [] { link = App.toUrl app }
                         , Html.text ". The app’s data will still exist in your local filesystem under "
                         , View.Common.monoInfoText [ Html.text ("public/Apps/" ++ App.nameOnly app ++ "/Published") ]
                         , Html.text "."
@@ -559,7 +562,6 @@ viewAppListAppLoaded model app =
                 ]
             )
         ]
-    ]
 
 
 subscriptions : AuthenticatedModel -> Sub Msg
