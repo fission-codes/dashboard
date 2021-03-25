@@ -1,9 +1,11 @@
 module View.UploadDropzone exposing (..)
 
+import Data.App as App
 import Html.Styled exposing (..)
 import Html.Styled.Attributes exposing (attribute)
 import Html.Styled.Events as Events
 import Json.Decode as Json
+import Maybe.Extra as Maybe
 
 
 {-| This is a function for rendering the "dashboard-upload-dropzone" custom element.
@@ -15,20 +17,20 @@ view :
     List (Attribute msg)
     ->
         { onPublishStart : msg
-        , onPublishEnd : String -> msg
+        , onPublishEnd : App.Name -> msg
         , onPublishFail : msg
         , onPublishAction : String -> msg
         , onPublishProgress : { progress : Int, total : Int, info : String } -> msg
-        , appName : String
+        , appName : Maybe App.Name
         }
     -> List (Html msg)
     -> Html msg
 view attributes element content =
     node "dashboard-upload-dropzone"
         (List.append attributes
-            [ attribute "app-name" element.appName
+            [ attribute "app-domain" (Maybe.unwrap "" App.toString element.appName)
             , Events.on "publishStart" (Json.succeed element.onPublishStart)
-            , Events.on "publishEnd" (Json.map element.onPublishEnd (Json.at [ "detail", "appName" ] Json.string))
+            , Events.on "publishEnd" (Json.map element.onPublishEnd (Json.at [ "detail", "domain" ] App.decoder))
             , Events.on "publishFail" (Json.succeed element.onPublishFail)
             , Events.on "publishAction" (Json.map element.onPublishAction (Json.at [ "detail", "info" ] Json.string))
             , Events.on "publishProgress"

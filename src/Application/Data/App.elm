@@ -1,7 +1,8 @@
-module Data.App exposing (Name, decoder, encode, nameOnly, toString, toUrl)
+module Data.App exposing (Name, decoder, encode, nameOnly, route, toString, toUrl)
 
 import Json.Decode as D
 import Json.Encode as E
+import Url.Parser as Url
 
 
 {-| For results from webnative.apps.index()
@@ -33,12 +34,11 @@ decoder =
     D.string
         |> D.andThen
             (\str ->
-                case String.split "." str of
-                    name :: rest ->
-                        Name { name = name, rest = "." ++ String.join "." rest }
-                            |> D.succeed
+                case fromString str of
+                    Just name ->
+                        D.succeed name
 
-                    [] ->
+                    Nothing ->
                         D.fail ("Couldn't parse app domain name (expecting something like \"long-tulip.fission.app\"): " ++ str)
             )
 
@@ -65,3 +65,23 @@ toString (Name { name, rest }) =
 nameOnly : Name -> String
 nameOnly (Name { name }) =
     name
+
+
+route : Url.Parser (Name -> a) a
+route =
+    Url.custom "APPNAME" fromString
+
+
+
+-- Local
+
+
+fromString : String -> Maybe Name
+fromString str =
+    case String.split "." str of
+        name :: rest ->
+            Name { name = name, rest = "." ++ String.join "." rest }
+                |> Just
+
+        [] ->
+            Nothing

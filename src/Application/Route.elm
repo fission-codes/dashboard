@@ -1,5 +1,6 @@
 module Route exposing (..)
 
+import Data.App as App
 import Url exposing (Url)
 import Url.Parser exposing (..)
 
@@ -15,7 +16,7 @@ type Route
 
 type DeveloperAppListRoute
     = DeveloperAppListIndex
-    | DeveloperAppListApp String
+    | DeveloperAppListApp App.Name
 
 
 
@@ -69,7 +70,7 @@ developerAppListParser : Parser (DeveloperAppListRoute -> a) a
 developerAppListParser =
     oneOf
         [ map DeveloperAppListIndex top
-        , map DeveloperAppListApp string
+        , map DeveloperAppListApp App.route
         ]
 
 
@@ -83,7 +84,7 @@ toUrl r =
             "/#developers/apps"
 
         DeveloperAppList (DeveloperAppListApp app) ->
-            "/#developers/apps/" ++ Url.percentEncode app
+            "/#developers/apps/" ++ Url.percentEncode (App.toString app)
 
 
 isSameFirstLevel : Route -> Route -> Bool

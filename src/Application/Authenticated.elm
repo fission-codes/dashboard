@@ -117,7 +117,7 @@ update navKey msg model =
                 (Route.toUrl
                     (Route.DeveloperAppList
                         (Route.DeveloperAppListApp
-                            (determinedAppName ++ ".fission.app")
+                            determinedAppName
                         )
                     )
                 )
@@ -303,7 +303,7 @@ viewAppList model =
                             View.AppList.appListItem
                                 { name = App.nameOnly app
                                 , url = App.toUrl app
-                                , link = Route.DeveloperAppList (Route.DeveloperAppListApp (App.toString app))
+                                , link = Route.DeveloperAppList (Route.DeveloperAppListApp app)
                                 }
                         )
                     |> View.AppList.appListLoaded
@@ -320,7 +320,7 @@ viewAppList model =
         ]
 
 
-viewUploadDropzone : Maybe String -> UploadDropzoneState -> Html Msg
+viewUploadDropzone : Maybe App.Name -> UploadDropzoneState -> Html Msg
 viewUploadDropzone appName state =
     let
         viewDropzone dashedBorder =
@@ -368,8 +368,8 @@ viewUploadDropzone appName state =
                     , View.Dashboard.sectionLoadingText
                         [ Html.text "Success! "
                         , View.Common.underlinedLink []
-                            { location = "https://" ++ determinedAppName ++ ".fission.app" }
-                            [ Html.text determinedAppName ]
+                            { location = App.toUrl determinedAppName }
+                            [ Html.text (App.toString determinedAppName) ]
                         , Html.text " is now live! 🚀"
                         ]
                     , case appName of
@@ -408,7 +408,7 @@ viewUploadDropzone appName state =
                 ]
 
 
-viewAppListApp : AuthenticatedModel -> String -> List (Html Msg)
+viewAppListApp : AuthenticatedModel -> App.Name -> List (Html Msg)
 viewAppListApp model appName =
     List.intersperse
         View.Common.sectionSpacer
@@ -419,7 +419,7 @@ viewAppListApp model appName =
                         , label = "Developed Apps"
                         }
                     , View.Dashboard.headingSeparator
-                    , View.Dashboard.headingSubItem appName
+                    , View.Dashboard.headingSubItem (App.toString appName)
                     ]
               ]
             , case model.appList of
@@ -427,7 +427,7 @@ viewAppListApp model appName =
                     [ viewAppListAppLoading ]
 
                 Just appList ->
-                    case List.find (\app -> App.toString app == appName) appList of
+                    case List.find ((==) appName) appList of
                         Just app ->
                             viewAppListAppLoaded model app
 
@@ -448,14 +448,14 @@ viewAppListAppLoading =
         ]
 
 
-viewAppListAppNotFound : String -> Html Msg
+viewAppListAppNotFound : App.Name -> Html Msg
 viewAppListAppNotFound appName =
     View.Dashboard.section []
         [ View.Dashboard.sectionLoading
             [ View.Dashboard.iconError
             , View.Dashboard.sectionLoadingText
                 [ Html.text "Could not find an app "
-                , Html.text appName
+                , Html.text (App.toString appName)
                 ]
             ]
         ]
@@ -510,7 +510,7 @@ viewAppListAppLoaded model app =
         [ View.Dashboard.sectionTitle [] [ Html.text "Update your App" ]
         , View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
             [ Html.text "Upload a folder with HTML, CSS and javascript files:"
-            , viewUploadDropzone (Just (App.nameOnly app)) model.uploadDropzoneState
+            , viewUploadDropzone (Just app) model.uploadDropzoneState
             ]
         ]
     , View.Dashboard.section []

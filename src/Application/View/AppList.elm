@@ -2,8 +2,9 @@ module View.AppList exposing (..)
 
 import Css
 import Css.Global
+import Data.App as App
 import Html.Styled exposing (..)
-import Html.Styled.Attributes exposing (attribute, class, css, href, placeholder, src, tabindex, target, title, type_, value)
+import Html.Styled.Attributes exposing (attribute, css, href, src, tabindex, target, title, type_, value)
 import Html.Styled.Events as Events
 import Route exposing (Route)
 import Tailwind.Breakpoints exposing (..)
@@ -15,11 +16,11 @@ import View.UploadDropzone
 
 uploadDropzone :
     { onPublishStart : msg
-    , onPublishEnd : String -> msg
+    , onPublishEnd : App.Name -> msg
     , onPublishFail : msg
     , onPublishAction : String -> msg
     , onPublishProgress : { progress : Int, total : Int, info : String } -> msg
-    , appName : Maybe String
+    , appName : Maybe App.Name
     , dashedBorder : Bool
     }
     -> List (Html msg)
@@ -64,7 +65,7 @@ uploadDropzone element content =
         , onPublishFail = element.onPublishFail
         , onPublishAction = element.onPublishAction
         , onPublishProgress = element.onPublishProgress
-        , appName = element.appName |> Maybe.withDefault ""
+        , appName = element.appName
         }
         content
 

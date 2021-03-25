@@ -138,10 +138,10 @@ customElements.define("dashboard-upload-dropzone", class extends HTMLElement {
 
         this.dispatchPublishStart()
 
-        const appName = await this.targetAppName()
-        await this.publishAppFiles(appName, files, getFilePath, getFileContents)
+        const appDomain = await this.targetAppDomain()
+        await this.publishAppFiles(appDomain, files, getFilePath, getFileContents)
 
-        this.dispatchPublishEnd(appName)
+        this.dispatchPublishEnd(appDomain)
 
       } catch (error) {
 
@@ -179,10 +179,10 @@ customElements.define("dashboard-upload-dropzone", class extends HTMLElement {
           return await asJsFile.arrayBuffer()
         }
 
-        const appName = await this.targetAppName()
-        await this.publishAppFiles(appName, files, getFilePath, getFileContent)
+        const appDomain = await this.targetAppDomain()
+        await this.publishAppFiles(appDomain, files, getFilePath, getFileContent)
 
-        this.dispatchPublishEnd(appName)
+        this.dispatchPublishEnd(appDomain)
 
       } catch (error) {
 
@@ -195,19 +195,23 @@ customElements.define("dashboard-upload-dropzone", class extends HTMLElement {
     })
   }
 
-  async targetAppName() {
-    let appName = this.getAttribute("app-name")
-    if (appName == null || appName === "") {
+  async targetAppDomain() {
+    // Expected to be something like "long-tulip.fission.app"
+    const appDomain = this.getAttribute("app-domain")
+    if (appDomain == null || appDomain === "") {
       this.dispatchPublishAction("Reserving a new subdomain for your app")
-      appName = await webnative.apps.create()
-      // We only want the part before the .fission.app
-      appName = appName.substring(0, appName.indexOf("."))
+      const app = await webnative.apps.create()
+      return app.domain
     }
-    return appName
+    return appDomain
   }
 
-  async publishAppFiles(appName, files, getFilePath, getFileContent) {
-    const appUrl = `${appName}.fission.app`
+  appNameOnly(appName) {
+    return appName.substring(0, appName.indexOf("."))
+  }
+
+  async publishAppFiles(appDomain, files, getFilePath, getFileContent) {
+    const appName = this.appNameOnly(appDomain)
     const appPath = `Apps/${appName}/Published`
 
     this.dispatchPublishAction("Preparing publish directory")
@@ -221,7 +225,7 @@ customElements.define("dashboard-upload-dropzone", class extends HTMLElement {
     await fs.publish()
 
     this.dispatchPublishAction("Telling fission to publish the app")
-    await webnative.apps.publish(appUrl, cid)
+    await webnative.apps.publish(appDomain, cid)
   }
 
   async addAppFiles(appPath, files, getFilePath, getFileContent) {
@@ -262,9 +266,9 @@ customElements.define("dashboard-upload-dropzone", class extends HTMLElement {
     this.dispatchEvent(new CustomEvent("publishStart"))
   }
 
-  dispatchPublishEnd(appName) {
+  dispatchPublishEnd(domain) {
     console.log("Done. Your app is live! 🚀")
-    this.dispatchEvent(new CustomEvent("publishEnd", { detail: { appName } }))
+    this.dispatchEvent(new CustomEvent("publishEnd", { detail: { domain } }))
   }
 
   dispatchPublishFail() {
