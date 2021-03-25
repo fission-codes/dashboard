@@ -18,7 +18,7 @@
   "dependencies": {
     "fission-kit": "fission-suite/kit#aed7844ccd76f6ca7feeca95981b47d4b1114a7c",
     "tailwindcss": "^2.0.3",
-    "webnative": "https://short-ancient-scarlet-troll.fission.app/webnative-0.22.0-alpha-6.tgz",
+    "webnative": "^0.23.0",
     "webnative-elm": "^4.0.0-3"
   }
 }
