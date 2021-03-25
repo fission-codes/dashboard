@@ -51,6 +51,8 @@ type alias AuthenticatedModel =
     , uploadDropzoneState : UploadDropzoneState
     , repeatAppNameInput : String
     , deletionState : AppDeletionState
+    , renamingState : AppRenamingState
+    , renameAppInput : String
     }
 
 
@@ -67,6 +69,11 @@ type AppDeletionState
     | AppDeletionInProgress
     | AppDeletionFailed String
     | AppDeletionNotConfirmed
+
+
+type AppRenamingState
+    = AppRenamingWaiting
+    | AppRenamingInvalidName
 
 
 
@@ -105,3 +112,5 @@ type AuthenticatedMsg
     | DeleteAppClicked App.Name
     | DeleteAppSucceeded
     | DeleteAppFailed String
+    | RenameAppInput String
+    | RenameAppClicked App.Name

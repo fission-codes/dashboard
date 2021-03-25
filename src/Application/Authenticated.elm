@@ -4,6 +4,7 @@ import Browser
 import Browser.Navigation as Navigation
 import Common
 import Data.App as App
+import Data.Validation
 import FeatherIcons
 import Html.Styled as Html exposing (Html)
 import Json.Decode as Json
@@ -36,6 +37,8 @@ init url username =
       , uploadDropzoneState = DropzoneWaiting
       , repeatAppNameInput = ""
       , deletionState = AppDeletionWaiting
+      , renamingState = AppRenamingWaiting
+      , renameAppInput = ""
       }
     , commandsByRoute route
     )
@@ -140,12 +143,17 @@ update navKey msg model =
             )
 
         RepeatAppNameInput value ->
-            ( { model
-                | repeatAppNameInput = value
-                , deletionState = AppDeletionWaiting
-              }
-            , Cmd.none
-            )
+            case model.deletionState of
+                AppDeletionInProgress ->
+                    ( model, Cmd.none )
+
+                _ ->
+                    ( { model
+                        | repeatAppNameInput = value
+                        , deletionState = AppDeletionWaiting
+                      }
+                    , Cmd.none
+                    )
 
         DeleteAppClicked app ->
             if
@@ -173,6 +181,27 @@ update navKey msg model =
             ( { model | deletionState = AppDeletionFailed message }
             , Cmd.none
             )
+
+        RenameAppInput value ->
+            ( { model
+                | renameAppInput = value
+                , renamingState = AppRenamingWaiting
+              }
+            , Cmd.none
+            )
+
+        RenameAppClicked app ->
+            let
+                trimmed =
+                    String.trim model.renameAppInput
+            in
+            if Data.Validation.isValid trimmed then
+                ( model, Cmd.none )
+
+            else
+                ( { model | renamingState = AppRenamingInvalidName }
+                , Cmd.none
+                )
 
 
 view : AuthenticatedModel -> Browser.Document Msg
@@ -492,9 +521,16 @@ viewAppRenamingSection : AuthenticatedModel -> App.Name -> Html Msg
 viewAppRenamingSection model app =
     let
         renaming =
-            { loading = False
-            , error = Nothing
-            }
+            case model.renamingState of
+                AppRenamingWaiting ->
+                    { loading = False
+                    , error = Nothing
+                    }
+
+                AppRenamingInvalidName ->
+                    { loading = False
+                    , error = Just "This is not a valid subdomain name. Make sure to only use alphanumeric, lowercase characters. You can split words with dashes or underscores."
+                    }
     in
     View.Dashboard.section []
         [ View.Dashboard.sectionTitle [] [ Html.text "Rename your App" ]
@@ -502,11 +538,11 @@ viewAppRenamingSection model app =
             (List.concat
                 [ [ Html.span [] [ Html.text "Auto-generated subdomains are often pretty cool, but sometimes you just like to put a chosen name on your project! It’s first come, first serve." ]
                   , View.AppList.inputRow
-                        { onSubmit = AuthenticatedMsg (DeleteAppClicked app) }
+                        { onSubmit = AuthenticatedMsg (RenameAppClicked app) }
                         [ View.Common.input
                             { placeholder = "your-subdomain"
-                            , value = model.repeatAppNameInput
-                            , onInput = AuthenticatedMsg << RepeatAppNameInput
+                            , value = model.renameAppInput
+                            , onInput = AuthenticatedMsg << RenameAppInput
                             , inErrorState = Maybe.isJust renaming.error
                             , disabled = renaming.loading
                             , style = View.Common.basicInputStyle
@@ -523,11 +559,7 @@ viewAppRenamingSection model app =
                   ]
                 , case renaming.error of
                     Just error ->
-                        [ View.Common.warning
-                            [ Html.text "There was an issue when trying to rename the app: "
-                            , Html.text error
-                            ]
-                        ]
+                        [ View.Common.warning [ Html.text error ] ]
 
                     _ ->
                         []
