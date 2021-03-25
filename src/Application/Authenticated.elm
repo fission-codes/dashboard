@@ -9,6 +9,7 @@ import Html.Styled as Html exposing (Html)
 import Json.Decode as Json
 import Json.Encode as E
 import List.Extra as List
+import Maybe.Extra as Maybe
 import Ports
 import Radix exposing (..)
 import Route exposing (Route)
@@ -251,6 +252,7 @@ viewAccount model =
                         { label = "Resend Verification Email"
                         , onClick = Just (AuthenticatedMsg EmailResendVerification)
                         , isLoading = model.resendingVerificationEmail
+                        , disabled = False
                         , style = View.Common.uppercaseButtonStyle
                         }
                     ]
@@ -378,6 +380,7 @@ viewUploadDropzone appName state =
                                 { label = "To the App Page"
                                 , onClick = Just (AuthenticatedMsg (DropzoneSuccessGoToApp determinedAppName))
                                 , isLoading = False
+                                , disabled = False
                                 , style = View.Common.uppercaseButtonStyle
                                 }
 
@@ -386,6 +389,7 @@ viewUploadDropzone appName state =
                                 { label = "Dismiss"
                                 , onClick = Just (AuthenticatedMsg DropzoneSuccessDismiss)
                                 , isLoading = False
+                                , disabled = False
                                 , style = View.Common.uppercaseButtonStyle
                                 }
                     ]
@@ -479,8 +483,57 @@ viewAppListAppLoaded model app =
             , viewUploadDropzone (Just app) model.uploadDropzoneState
             ]
         ]
+    , viewAppRenamingSection model app
     , viewAppDeletionSection model app
     ]
+
+
+viewAppRenamingSection : AuthenticatedModel -> App.Name -> Html Msg
+viewAppRenamingSection model app =
+    let
+        renaming =
+            { loading = False
+            , error = Nothing
+            }
+    in
+    View.Dashboard.section []
+        [ View.Dashboard.sectionTitle [] [ Html.text "Rename your App" ]
+        , View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
+            (List.concat
+                [ [ Html.span [] [ Html.text "Auto-generated subdomains are often pretty cool, but sometimes you just like to put a chosen name on your project! It’s first come, first serve." ]
+                  , View.AppList.inputRow
+                        { onSubmit = AuthenticatedMsg (DeleteAppClicked app) }
+                        [ View.Common.input
+                            { placeholder = "your-subdomain"
+                            , value = model.repeatAppNameInput
+                            , onInput = AuthenticatedMsg << RepeatAppNameInput
+                            , inErrorState = Maybe.isJust renaming.error
+                            , disabled = renaming.loading
+                            , style = View.Common.basicInputStyle
+                            }
+                        , View.AppList.appNameRest ".fission.app"
+                        , View.Common.button
+                            { isLoading = renaming.loading
+                            , disabled = Maybe.isJust renaming.error
+                            , onClick = Nothing
+                            , label = "Rename App"
+                            , style = View.Common.uppercaseButtonStyle
+                            }
+                        ]
+                  ]
+                , case renaming.error of
+                    Just error ->
+                        [ View.Common.warning
+                            [ Html.text "There was an issue when trying to rename the app: "
+                            , Html.text error
+                            ]
+                        ]
+
+                    _ ->
+                        []
+                ]
+            )
+        ]
 
 
 viewAppDeletionSection : AuthenticatedModel -> App.Name -> Html Msg
@@ -541,6 +594,7 @@ viewAppDeletionSection model app =
                             { isLoading = deletion.loading
                             , onClick = Nothing
                             , label = "Delete App"
+                            , disabled = False
                             , style = View.Common.dangerButtonStyle
                             }
                         ]
@@ -549,16 +603,16 @@ viewAppDeletionSection model app =
                     [ View.Common.warning
                         [ Html.text "Please confirm your deletion by typing in the correct app name." ]
                     ]
-                , deletion.error
-                    |> Maybe.map
-                        (\error ->
-                            [ View.Common.warning
-                                [ Html.text "There was an issue when trying to delete the app: "
-                                , Html.text error
-                                ]
+                , case deletion.error of
+                    Just error ->
+                        [ View.Common.warning
+                            [ Html.text "There was an issue when trying to delete the app: "
+                            , Html.text error
                             ]
-                        )
-                    |> Maybe.withDefault []
+                        ]
+
+                    _ ->
+                        []
                 ]
             )
         ]

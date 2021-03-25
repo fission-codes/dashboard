@@ -261,7 +261,19 @@ inputRow element content =
         , css
             [ flex
             , flex_row
+            , items_center
             , space_x_3
             ]
         ]
         content
+
+
+appNameRest : String -> Html msg
+appNameRest content =
+    span
+        [ css
+            [ text_base
+            , font_mono
+            ]
+        ]
+        [ text content ]

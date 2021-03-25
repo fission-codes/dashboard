@@ -15,6 +15,7 @@
             "elm/time": "1.0.0",
             "elm/url": "1.0.0",
             "elm-community/list-extra": "8.2.4",
+            "elm-community/maybe-extra": "5.2.0",
             "feathericons/elm-feather": "1.5.0",
             "fission-suite/webnative-elm": "4.0.0",
             "icidasset/elm-material-icons": "5.0.0",
@@ -25,7 +26,6 @@
             "avh4/elm-color": "1.0.0",
             "elm/bytes": "1.0.8",
             "elm/virtual-dom": "1.0.2",
-            "elm-community/maybe-extra": "5.2.0",
             "rtfeldman/elm-hex": "1.0.0",
             "zwilias/elm-utf-tools": "2.0.1"
         }

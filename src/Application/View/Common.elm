@@ -186,30 +186,31 @@ dangerButtonStyle =
 
 button :
     { isLoading : Bool
+    , disabled : Bool
     , label : String
     , onClick : Maybe msg
     , style : Css.Style
     }
     -> Html msg
-button { isLoading, label, onClick, style } =
+button element =
     Html.button
-        [ case onClick of
+        [ case element.onClick of
             Just message ->
                 Events.onClick message
 
             Nothing ->
                 type_ "submit"
-        , disabled isLoading
+        , disabled (element.isLoading || element.disabled)
         , css
-            [ flex
+            [ element.style
+            , flex
             , flex_row
             , items_center
-            , style
             ]
         ]
         (List.concat
-            [ [ text label ]
-            , Common.when isLoading
+            [ [ text element.label ]
+            , Common.when element.isLoading
                 [ loadingAnimation Small [ css [ ml_3 ] ] ]
             ]
         )
@@ -218,7 +219,11 @@ button { isLoading, label, onClick, style } =
 basicInputStyle : Css.Style
 basicInputStyle =
     Css.batch
-        [ dark
+        [ Css.focus
+            [ dark [ border_gray_200 ]
+            , border_purple
+            ]
+        , dark
             [ text_gray_500
             , bg_gray_100
             , border_gray_200
@@ -233,7 +238,6 @@ basicInputStyle =
         , placeholder_gray_400
         , px_3
         , py_1
-        , ring_gray_500
         , rounded
         , text_base
         , text_center
