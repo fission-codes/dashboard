@@ -173,8 +173,16 @@ update navKey msg model =
                 )
 
         DeleteAppSucceeded ->
-            ( model
-            , Navigation.load (Route.toUrl (Route.DeveloperAppList Route.DeveloperAppListIndex))
+            ( { model
+                | deletionState = AppDeletionWaiting
+                , repeatAppNameInput = ""
+              }
+            , Navigation.load
+                (Route.toUrl
+                    (Route.DeveloperAppList
+                        Route.DeveloperAppListIndex
+                    )
+                )
             )
 
         DeleteAppFailed message ->
@@ -218,7 +226,10 @@ update navKey msg model =
         RenameAppSucceeded result ->
             case result of
                 Ok app ->
-                    ( model
+                    ( { model
+                        | renamingState = AppRenamingWaiting
+                        , renameAppInput = ""
+                      }
                     , Navigation.load
                         (Route.toUrl
                             (Route.DeveloperAppList
