@@ -64,6 +64,21 @@ commandsByRoute route =
             Cmd.none
 
 
+isProcessingSomething : AuthenticatedModel -> Bool
+isProcessingSomething model =
+    List.any ((==) True)
+        [ model.deletionState == AppDeletionInProgress
+        , model.renamingState == AppRenameInProgress
+        , case model.uploadDropzoneState of
+            DropzoneProgress _ ->
+                True
+
+            _ ->
+                False
+        , model.resendingVerificationEmail
+        ]
+
+
 update : Navigation.Key -> AuthenticatedMsg -> AuthenticatedModel -> ( AuthenticatedModel, Cmd Msg )
 update navKey msg model =
     case msg of

@@ -162,27 +162,30 @@ updateOther msg model =
 
 onUrlChange : Url -> Model -> ( Model, Cmd Msg )
 onUrlChange url model =
-    let
-        ( newState, commands ) =
-            case model.state of
-                Authenticated authenticatedModel ->
-                    case Route.fromUrl url of
-                        Just route ->
-                            Authenticated.onRouteChange route authenticatedModel
-                                |> Tuple.mapFirst Authenticated
+    case model.state of
+        Authenticated authenticatedModel ->
+            case Route.fromUrl url of
+                Just route ->
+                    if Authenticated.isProcessingSomething authenticatedModel then
+                        ( model, Cmd.none )
 
-                        _ ->
-                            ( model.state, Cmd.none )
+                    else
+                        let
+                            ( newState, commands ) =
+                                Authenticated.onRouteChange route authenticatedModel
+                        in
+                        ( { model
+                            | url = url
+                            , state = Authenticated newState
+                          }
+                        , commands
+                        )
 
                 _ ->
-                    ( model.state, Cmd.none )
-    in
-    ( { model
-        | url = url
-        , state = newState
-      }
-    , commands
-    )
+                    ( { model | url = url }, Cmd.none )
+
+        _ ->
+            ( { model | url = url }, Cmd.none )
 
 
 
