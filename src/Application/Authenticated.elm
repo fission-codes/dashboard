@@ -196,12 +196,43 @@ update navKey msg model =
                     String.trim model.renameAppInput
             in
             if Data.Validation.isValid trimmed then
-                ( model, Cmd.none )
+                ( { model | renamingState = AppRenameInProgress }
+                , Ports.webnativeAppRename
+                    (E.object
+                        [ ( "from", E.string (App.toString app) )
+                        , ( "to", E.string (App.toString (App.rename trimmed app)) )
+                        ]
+                    )
+                )
 
             else
                 ( { model | renamingState = AppRenamingInvalidName }
                 , Cmd.none
                 )
+
+        RenameAppFailed error ->
+            ( { model | renamingState = AppRenamingFailed ("Something went wrong when trying to rename: " ++ error ++ ". Please try to reload the application.") }
+            , Cmd.none
+            )
+
+        RenameAppSucceeded result ->
+            case result of
+                Ok app ->
+                    ( model
+                    , Navigation.load
+                        (Route.toUrl
+                            (Route.DeveloperAppList
+                                (Route.DeveloperAppListApp
+                                    app
+                                )
+                            )
+                        )
+                    )
+
+                Err error ->
+                    ( { model | renamingState = AppRenamingFailed "Something went wrong, please go back to the app list." }
+                    , Ports.log [ E.string "Error decoding renamed app name", E.string (Json.errorToString error) ]
+                    )
 
 
 view : AuthenticatedModel -> Browser.Document Msg
@@ -531,6 +562,16 @@ viewAppRenamingSection model app =
                     { loading = False
                     , error = Just "This is not a valid subdomain name. Make sure to only use alphanumeric, lowercase characters. You can split words with dashes or underscores."
                     }
+
+                AppRenameInProgress ->
+                    { loading = True
+                    , error = Nothing
+                    }
+
+                AppRenamingFailed error ->
+                    { loading = False
+                    , error = Just error
+                    }
     in
     View.Dashboard.section []
         [ View.Dashboard.sectionTitle [] [ Html.text "Rename your App" ]
@@ -664,6 +705,14 @@ subscriptions model =
             Sub.batch
                 [ Ports.webnativeAppDeleteFailed (AuthenticatedMsg << DeleteAppFailed)
                 , Ports.webnativeAppDeleteSucceeded (\_ -> AuthenticatedMsg DeleteAppSucceeded)
+                ]
+
+          else
+            Sub.none
+        , if model.renamingState == AppRenameInProgress then
+            Sub.batch
+                [ Ports.webnativeAppRenameFailed (AuthenticatedMsg << RenameAppFailed)
+                , Ports.webnativeAppRenameSucceeded (AuthenticatedMsg << RenameAppSucceeded << Json.decodeValue App.decoder)
                 ]
 
           else

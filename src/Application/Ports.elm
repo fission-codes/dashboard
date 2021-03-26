@@ -33,10 +33,18 @@ port webnativeVerificationEmailSent : ({} -> msg) -> Sub msg
 port webnativeError : (String -> msg) -> Sub msg
 
 
+
+-- App Index
+
+
 port webnativeAppIndexFetch : () -> Cmd msg
 
 
 port webnativeAppIndexFetched : (Json.Value -> msg) -> Sub msg
+
+
+
+-- App Delete
 
 
 port webnativeAppDelete : Json.Value -> Cmd msg
@@ -46,6 +54,23 @@ port webnativeAppDeleteSucceeded : ({} -> msg) -> Sub msg
 
 
 port webnativeAppDeleteFailed : (String -> msg) -> Sub msg
+
+
+
+-- App Rename
+
+
+port webnativeAppRename : Json.Value -> Cmd msg
+
+
+port webnativeAppRenameSucceeded : (Json.Value -> msg) -> Sub msg
+
+
+port webnativeAppRenameFailed : (String -> msg) -> Sub msg
+
+
+
+--
 
 
 port webnativeRedirectToLobby : () -> Cmd msg

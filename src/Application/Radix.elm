@@ -74,6 +74,8 @@ type AppDeletionState
 type AppRenamingState
     = AppRenamingWaiting
     | AppRenamingInvalidName
+    | AppRenameInProgress
+    | AppRenamingFailed String
 
 
 
@@ -114,3 +116,5 @@ type AuthenticatedMsg
     | DeleteAppFailed String
     | RenameAppInput String
     | RenameAppClicked App.Name
+    | RenameAppFailed String
+    | RenameAppSucceeded (Result Json.Error App.Name)

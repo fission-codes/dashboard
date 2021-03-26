@@ -65,6 +65,22 @@ webnative
       }
     })
 
+    elmApp.ports.webnativeAppRename.subscribe(async ({ from, to }) => {
+      try {
+        const fromPath = wnfsAppPath(appNameOnly(from))
+        const toPath = wnfsAppPath(appNameOnly(to))
+        const newApp = await webnative.apps.create(appNameOnly(to))
+        const cid = await getPublicPathCid(wnfsAppPublishPathInPublic(appNameOnly(from)))
+        await webnative.apps.publish(newApp.domain, cid)
+        await state.fs.mv(fromPath, toPath)
+        await webnative.apps.deleteByDomain(from)
+        elmApp.ports.webnativeAppRenameSucceeded.send(newApp.domain)
+      } catch (error) {
+        console.error(`Error while renaming an app from ${from} to ${to}`, error)
+        elmApp.ports.webnativeAppRenameFailed.send(error.message)
+      }
+    })
+
     // No need for filesystem operations at the moment
     webnativeElm.setup(elmApp, () => state.fs)
 
@@ -206,13 +222,9 @@ customElements.define("dashboard-upload-dropzone", class extends HTMLElement {
     return appDomain
   }
 
-  appNameOnly(appName) {
-    return appName.substring(0, appName.indexOf("."))
-  }
-
   async publishAppFiles(appDomain, files, getFilePath, getFileContent) {
-    const appName = this.appNameOnly(appDomain)
-    const appPath = `Apps/${appName}/Published`
+    const appName = appNameOnly(appDomain)
+    const appPath = wnfsAppPublishPathInPublic(appName)
 
     this.dispatchPublishAction("Preparing publish directory")
     if (await fs.exists(`public/${appPath}`)) {
@@ -244,10 +256,7 @@ customElements.define("dashboard-upload-dropzone", class extends HTMLElement {
       progress += 1
     }
 
-    const ipfs = await webnative.ipfs.get()
-    const rootCid = await fs.root.put()
-    const { cid } = await ipfs.files.stat(`/ipfs/${rootCid}/p/${appPath}/`)
-    return cid.toBaseEncodedString()
+    return await getPublicPathCid(appPath)
   }
 
 
@@ -318,4 +327,23 @@ async function listFiles(entry, files = []) {
     files.push(entry)
   }
   return files
+}
+
+async function getPublicPathCid(appPath) {
+  const ipfs = await webnative.ipfs.get()
+  const rootCid = await fs.root.put()
+  const { cid } = await ipfs.files.stat(`/ipfs/${rootCid}/p/${appPath}/`)
+  return cid.toBaseEncodedString()
+}
+
+function wnfsAppPublishPathInPublic(appName) {
+  return `${wnfsAppPath(appName)}/Published`
+}
+
+function wnfsAppPath(appName) {
+  return `public/Apps/${appName}`
+}
+
+function appNameOnly(appName) {
+  return appName.substring(0, appName.indexOf("."))
 }

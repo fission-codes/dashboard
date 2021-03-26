@@ -1,4 +1,4 @@
-module Data.App exposing (Name, decoder, encode, nameOnly, route, toString, toUrl)
+module Data.App exposing (Name, decoder, encode, nameOnly, rename, route, toString, toUrl)
 
 import Json.Decode as D
 import Json.Encode as E
@@ -70,6 +70,19 @@ nameOnly (Name { name }) =
 route : Url.Parser (Name -> a) a
 route =
     Url.custom "APPNAME" fromString
+
+
+{-| Rename only the name part of the App.
+
+For an app like `long-tulip.fission.app` it works like this:
+
+    toString (rename "my-app-name" app)
+    --> "my-app-name.fission.app"
+
+-}
+rename : String -> Name -> Name
+rename newName (Name { rest }) =
+    Name { name = newName, rest = rest }
 
 
 
