@@ -67,8 +67,8 @@ type LoadingAnimationType
     | Small
 
 
-loadingAnimation : LoadingAnimationType -> List (Attribute msg) -> Html msg
-loadingAnimation typ attributes =
+loadingAnimation : LoadingAnimationType -> List Css.Style -> Html msg
+loadingAnimation typ styles =
     FeatherIcons.loader
         |> FeatherIcons.withSize
             (case typ of
@@ -82,14 +82,14 @@ loadingAnimation typ attributes =
         |> fromUnstyled
         |> List.singleton
         |> span
-            (css
+            [ css
                 [ dark [ text_gray_500 ]
                 , animate_spin
                 , block
                 , text_gray_300
+                , Css.batch styles
                 ]
-                :: attributes
-            )
+            ]
 
 
 underlinedLink : List Css.Style -> { location : String } -> List (Html msg) -> Html msg
@@ -160,8 +160,10 @@ uppercaseButtonStyle =
             , bg_opacity_30
             , bg_gray_500
             ]
+        , sm [ py_1 ]
         , font_display
-        , p_2
+        , px_3
+        , py_2
         , rounded
         , text_purple
         , text_xs
@@ -174,13 +176,14 @@ dangerButtonStyle : Css.Style
 dangerButtonStyle =
     Css.batch
         [ dark [ bg_darkmode_red ]
+        , sm [ py_1 ]
         , font_body
         , text_gray_900
         , text_base
         , bg_red
         , rounded
         , px_3
-        , py_1
+        , py_2
         ]
 
 
@@ -190,6 +193,7 @@ button :
     , label : String
     , onClick : Maybe msg
     , style : Css.Style
+    , spinnerStyle : List Css.Style
     }
     -> Html msg
 button element =
@@ -209,9 +213,13 @@ button element =
             ]
         ]
         (List.concat
-            [ [ text element.label ]
+            [ [ span [ css [ text_center, mx_auto ] ] [ text element.label ] ]
             , Common.when element.isLoading
-                [ loadingAnimation Small [ css [ ml_3 ] ] ]
+                [ loadingAnimation Small
+                    [ Css.batch element.spinnerStyle
+                    , ml_3
+                    ]
+                ]
             ]
         )
 
@@ -228,6 +236,7 @@ basicInputStyle =
             , bg_gray_100
             , border_gray_200
             ]
+        , sm [ py_1 ]
         , bg_gray_900
         , border
         , border_gray_500
@@ -237,7 +246,7 @@ basicInputStyle =
         , min_w_0
         , placeholder_gray_400
         , px_3
-        , py_1
+        , py_2
         , rounded
         , text_base
         , text_center

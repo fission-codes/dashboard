@@ -379,9 +379,7 @@ sectionLoading content =
 
 sectionLoadingIndicator : Html msg
 sectionLoadingIndicator =
-    View.Common.loadingAnimation
-        View.Common.Small
-        [ css [ mx_auto ] ]
+    View.Common.loadingAnimation View.Common.Small [ mx_auto ]
 
 
 iconError : Html msg

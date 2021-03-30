@@ -15,6 +15,7 @@ import Maybe.Extra as Maybe
 import Ports
 import Radix exposing (..)
 import Route exposing (Route)
+import Tailwind.Utilities
 import Url exposing (Url)
 import View.Account
 import View.AppList
@@ -381,6 +382,7 @@ viewAccount model =
                         , isLoading = model.resendingVerificationEmail
                         , disabled = False
                         , style = View.Common.uppercaseButtonStyle
+                        , spinnerStyle = []
                         }
                     ]
                 }
@@ -509,6 +511,7 @@ viewUploadDropzone appName state =
                                 , isLoading = False
                                 , disabled = False
                                 , style = View.Common.uppercaseButtonStyle
+                                , spinnerStyle = []
                                 }
 
                         Just _ ->
@@ -518,6 +521,7 @@ viewUploadDropzone appName state =
                                 , isLoading = False
                                 , disabled = False
                                 , style = View.Common.uppercaseButtonStyle
+                                , spinnerStyle = []
                                 }
                     ]
                 ]
@@ -649,24 +653,28 @@ viewAppRenamingSection pageModel app =
             (List.concat
                 [ [ Html.span [] [ Html.text "Auto-generated subdomains are often pretty cool, but sometimes you just like to put a chosen name on your project! It’s first come, first serve." ]
                   , View.AppList.inputRow
-                        { onSubmit = AuthenticatedMsg (AppPageMsg app AppPageRenameAppClicked) }
-                        [ View.Common.input
-                            { placeholder = "your-subdomain"
-                            , value = pageModel.renameAppInput
-                            , onInput = AuthenticatedMsg << AppPageMsg app << AppPageRenameAppInput
-                            , inErrorState = Maybe.isJust renaming.error
-                            , disabled = renaming.loading
-                            , style = View.Common.basicInputStyle
-                            }
-                        , View.AppList.appNameRest ".fission.app"
-                        , View.Common.button
-                            { isLoading = renaming.loading
-                            , disabled = Maybe.isJust renaming.error
-                            , onClick = Nothing
-                            , label = "Rename App"
-                            , style = View.Common.uppercaseButtonStyle
-                            }
-                        ]
+                        { onSubmit = AuthenticatedMsg (AppPageMsg app AppPageRenameAppClicked)
+                        , input =
+                            [ View.Common.input
+                                { placeholder = "your-subdomain"
+                                , value = pageModel.renameAppInput
+                                , onInput = AuthenticatedMsg << AppPageMsg app << AppPageRenameAppInput
+                                , inErrorState = Maybe.isJust renaming.error
+                                , disabled = renaming.loading
+                                , style = View.Common.basicInputStyle
+                                }
+                            , View.AppList.appNameRest ".fission.app"
+                            ]
+                        , button =
+                            View.Common.button
+                                { isLoading = renaming.loading
+                                , disabled = Maybe.isJust renaming.error
+                                , onClick = Nothing
+                                , label = "Rename App"
+                                , style = View.Common.uppercaseButtonStyle
+                                , spinnerStyle = []
+                                }
+                        }
                   ]
                 , case renaming.error of
                     Just error ->
@@ -724,23 +732,27 @@ viewAppDeletionSection pageModel app =
                         , Html.text "."
                         ]
                   , View.AppList.inputRow
-                        { onSubmit = AuthenticatedMsg (AppPageMsg app AppPageDeleteAppClicked) }
-                        [ View.Common.input
-                            { placeholder = "please type " ++ App.nameOnly app ++ " to confirm"
-                            , value = pageModel.repeatAppNameInput
-                            , onInput = AuthenticatedMsg << AppPageMsg app << AppPageRepeatAppNameInput
-                            , inErrorState = deletion.failed
-                            , disabled = deletion.loading
-                            , style = View.Common.basicInputStyle
-                            }
-                        , View.Common.button
-                            { isLoading = deletion.loading
-                            , onClick = Nothing
-                            , label = "Delete App"
-                            , disabled = False
-                            , style = View.Common.dangerButtonStyle
-                            }
-                        ]
+                        { onSubmit = AuthenticatedMsg (AppPageMsg app AppPageDeleteAppClicked)
+                        , input =
+                            [ View.Common.input
+                                { placeholder = "please type " ++ App.nameOnly app ++ " to confirm"
+                                , value = pageModel.repeatAppNameInput
+                                , onInput = AuthenticatedMsg << AppPageMsg app << AppPageRepeatAppNameInput
+                                , inErrorState = deletion.failed
+                                , disabled = deletion.loading
+                                , style = View.Common.basicInputStyle
+                                }
+                            ]
+                        , button =
+                            View.Common.button
+                                { isLoading = deletion.loading
+                                , onClick = Nothing
+                                , label = "Delete App"
+                                , disabled = False
+                                , style = View.Common.dangerButtonStyle
+                                , spinnerStyle = [ Tailwind.Utilities.text_gray_500 ]
+                                }
+                        }
                   ]
                 , Common.when deletion.unconfirmed
                     [ View.Common.warning

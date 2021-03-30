@@ -50,7 +50,7 @@ loadingScreen { message } =
     splashscreenShell
         { styles = []
         , content =
-            [ View.Common.loadingAnimation View.Common.Normal [ css [ mt_16 ] ]
+            [ View.Common.loadingAnimation View.Common.Normal [ mt_16 ]
             , p
                 [ css
                     [ dark [ text_gray_500 ]

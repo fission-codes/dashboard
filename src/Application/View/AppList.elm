@@ -254,18 +254,35 @@ appListItem { name, url, link } =
         ]
 
 
-inputRow : { onSubmit : msg } -> List (Html msg) -> Html msg
-inputRow element content =
+inputRow : { onSubmit : msg, input : List (Html msg), button : Html msg } -> Html msg
+inputRow element =
     form
         [ Events.onSubmit element.onSubmit
         , css
-            [ flex
-            , flex_row
-            , items_center
-            , space_x_3
+            [ sm
+                [ flex_row
+                , space_x_3
+                , items_center
+                ]
+            , flex
+            , flex_col
+            , items_stretch
+            , space_y_3
             ]
         ]
-        content
+        [ div
+            [ css
+                [ flex
+                , flex_row
+                , flex_grow
+                , w_full
+                , items_center
+                , space_x_3
+                ]
+            ]
+            element.input
+        , element.button
+        ]
 
 
 appNameRest : String -> Html msg
