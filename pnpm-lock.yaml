@@ -4,6 +4,7 @@ dependencies:
   webnative: 0.23.0
   webnative-elm: 4.0.0-3_webnative@0.23.0
 devDependencies:
+  '@tailwindcss/aspect-ratio': 0.2.0
   autoprefixer: 10.2.4_postcss@8.2.6
   elm-live: 4.0.2
   elm-tailwind-css: 1.1.1_tailwindcss@2.0.3
@@ -13,7 +14,7 @@ devDependencies:
   postcss-import: 14.0.0_postcss@8.2.6
   workbox-cli: 6.1.0
   workbox-strategies: 6.1.0
-lockfileVersion: 5.2
+lockfileVersion: 5.1
 packages:
   /@babel/code-frame/7.12.13:
     dependencies:
@@ -1053,6 +1054,10 @@ packages:
       node: '>=6'
     resolution:
       integrity: sha512-XIB2XbzHTN6ieIjfIMV9hlVcfPU26s2vafYWQcZHWXHOxiaRZYEDKEwdl129Zyg50+foYV2jCgtrqSA6qNuNSA==
+  /@tailwindcss/aspect-ratio/0.2.0:
+    dev: true
+    resolution:
+      integrity: sha512-v5LyHkwXj/4lI74B06zUrmWEdmSqS43+jw717pkt3fAXqb7ALwu77A8t7j+Bej+ZbdlIIqNMYheGN7wSGV1A6w==
   /@types/estree/0.0.39:
     dev: true
     resolution:
@@ -6588,6 +6593,7 @@ packages:
       npm: '>=3.0.0'
     name: ipfs-message-port-client
     resolution:
+      registry: 'https://registry.npmjs.org/'
       tarball: 'https://ipfs.runfission.com/ipfs/bafybeigx6q4aezve7my76s5vvfuiinbxtepapqvmjf2jbgrozrut6cjape/p/ipfs-message-port-client.tar.gz'
     version: 0.5.0-fission
   '@ipfs.runfission.com/ipfs/bafybeigx6q4aezve7my76s5vvfuiinbxtepapqvmjf2jbgrozrut6cjape/p/ipfs-message-port-protocol.tar.gz':
@@ -6600,15 +6606,18 @@ packages:
       npm: '>=3.0.0'
     name: ipfs-message-port-protocol
     resolution:
+      registry: 'https://registry.npmjs.org/'
       tarball: 'https://ipfs.runfission.com/ipfs/bafybeigx6q4aezve7my76s5vvfuiinbxtepapqvmjf2jbgrozrut6cjape/p/ipfs-message-port-protocol.tar.gz'
     version: 0.6.0-fission
   github.com/fission-suite/kit/aed7844ccd76f6ca7feeca95981b47d4b1114a7c:
     dev: false
     name: fission-kit
     resolution:
+      registry: 'https://registry.npmjs.org/'
       tarball: 'https://codeload.github.com/fission-suite/kit/tar.gz/aed7844ccd76f6ca7feeca95981b47d4b1114a7c'
     version: 0.2.0
 specifiers:
+  '@tailwindcss/aspect-ratio': ^0.2.0
   autoprefixer: ^10.2.4
   elm-live: ^4.0.2
   elm-tailwind-css: ^1.1.1

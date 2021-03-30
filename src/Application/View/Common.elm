@@ -209,6 +209,7 @@ button element =
             [ element.style
             , flex
             , flex_row
+            , flex_shrink_0
             , items_center
             ]
         ]

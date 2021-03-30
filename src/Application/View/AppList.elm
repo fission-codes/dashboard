@@ -143,49 +143,49 @@ dropzoneProgressIndicator element =
 
 previewIframe : { url : String } -> Html msg
 previewIframe { url } =
-    let
-        previewWidth =
-            1440
-
-        previewHeight =
-            900
-    in
     div
         [ css
-            [ Css.width (px (previewWidth / 4))
-            , Css.height (px (previewHeight / 4))
-            , relative
-            , shadow
-            , overflow_hidden
+            [ max_w_md
             , inline_block
             ]
         ]
-        [ a
-            [ title ("Live preview of " ++ url)
-            , href url
-            , target "_blank"
-            , css
-                [ Css.property "width" "calc(400%)"
-                , Css.property "height" "calc(400%)"
-                , absolute
-                , transform
-                , scale_25
-                , origin_top_left
-                , bg_white
+        [ div
+            [ css
+                [ w_full
+                , aspect_w_16
+                , aspect_h_9
+                , shadow
+                , overflow_hidden
+                , inline_block
                 ]
             ]
-            [ iframe
-                [ src url
-                , attribute "frameborder" "0"
-                , attribute "focusable" "false"
-                , tabindex -1
+            [ a
+                [ title ("Live preview of " ++ url)
+                , href url
+                , target "_blank"
                 , css
-                    [ w_full
-                    , h_full
-                    , pointer_events_none
+                    [ Css.property "width" "calc(400%)"
+                    , Css.property "height" "calc(400%)"
+                    , absolute
+                    , transform
+                    , scale_25
+                    , origin_top_left
+                    , bg_white
                     ]
                 ]
-                []
+                [ iframe
+                    [ src url
+                    , attribute "frameborder" "0"
+                    , attribute "focusable" "false"
+                    , tabindex -1
+                    , css
+                        [ w_full
+                        , h_full
+                        , pointer_events_none
+                        ]
+                    ]
+                    []
+                ]
             ]
         ]
 
@@ -264,6 +264,7 @@ inputRow element =
             [ sm
                 [ flex_row
                 , space_x_3
+                , space_y_0
                 , items_center
                 ]
             , flex

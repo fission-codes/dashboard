@@ -5,6 +5,7 @@
   "author": "Steven Vandevelde <icid.asset@gmail.com>, Philipp Krüger <philipp.krueger1@gmail.com>",
   "type": "module",
   "devDependencies": {
+    "@tailwindcss/aspect-ratio": "^0.2.0",
     "autoprefixer": "^10.2.4",
     "elm-live": "^4.0.2",
     "elm-tailwind-css": "^1.1.1",

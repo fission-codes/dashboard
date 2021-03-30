@@ -1,6 +1,7 @@
 import * as kit from "fission-kit"
 import defaultTheme from "tailwindcss/defaultTheme.js"
 import textDecorationPlugin from "./text-decoration-plugin.js"
+import aspectRatioPlugin from "@tailwindcss/aspect-ratio"
 
 
 export default {
@@ -68,6 +69,7 @@ export default {
   variants: [], // We use variants like focus, hover, breakpoints etc. via elm-css
 
   plugins: [
-    textDecorationPlugin
+    textDecorationPlugin,
+    aspectRatioPlugin,
   ],
 }
