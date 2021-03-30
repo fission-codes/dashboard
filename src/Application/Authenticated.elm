@@ -229,7 +229,7 @@ updateAppPage app model msg =
                     ]
             then
                 ( { model | deletionState = AppDeletionInProgress }
-                , Ports.webnativeAppDelete (App.encode app)
+                , Ports.appDelete app
                 )
 
             else
@@ -270,12 +270,10 @@ updateAppPage app model msg =
             in
             if Data.Validation.isValid trimmed then
                 ( { model | renamingState = AppRenameInProgress }
-                , Ports.webnativeAppRename
-                    (E.object
-                        [ ( "from", E.string (App.toString app) )
-                        , ( "to", E.string (App.toString (App.rename trimmed app)) )
-                        ]
-                    )
+                , Ports.appRename
+                    { from = app
+                    , to = App.rename trimmed app
+                    }
                 )
 
             else
@@ -778,44 +776,23 @@ subscriptions model =
 
 appPageSubscriptions : AppPageModel -> Sub Msg
 appPageSubscriptions pageModel =
+    let
+        subError portName error =
+            LogError
+                [ E.string ("Error while parsing port " ++ portName ++ ":")
+                , E.string (Json.errorToString error)
+                ]
+    in
     Sub.batch
         [ case pageModel.deletionState of
             AppDeletionInProgress ->
                 Sub.batch
-                    [ Ports.webnativeAppDeleteFailed
-                        (\json ->
-                            case
-                                Json.decodeValue
-                                    (Json.map2
-                                        (\app error ->
-                                            AuthenticatedMsg (AppPageMsg app (AppPageDeleteAppFailed error))
-                                        )
-                                        (Json.field "app" App.decoder)
-                                        (Json.field "error" Json.string)
-                                    )
-                                    json
-                            of
-                                Ok msg ->
-                                    msg
-
-                                Err error ->
-                                    LogError
-                                        [ E.string "Error while parsing port webnativeAppDeleteFailed:"
-                                        , E.string (Json.errorToString error)
-                                        ]
-                        )
-                    , Ports.webnativeAppDeleteSucceeded
-                        (\json ->
-                            case Json.decodeValue (Json.field "app" App.decoder) json of
-                                Ok app ->
-                                    AuthenticatedMsg (AppPageMsg app AppPageDeleteAppSucceeded)
-
-                                Err error ->
-                                    LogError
-                                        [ E.string "Error while parsing port webnativeAppDeleteSucceeded:"
-                                        , E.string (Json.errorToString error)
-                                        ]
-                        )
+                    [ Ports.appDeleteFailed
+                        (\app error -> AuthenticatedMsg (AppPageMsg app (AppPageDeleteAppFailed error)))
+                        (subError "appDeleteFailed")
+                    , Ports.appDeleteSucceeded
+                        (\app -> AuthenticatedMsg (AppPageMsg app AppPageDeleteAppSucceeded))
+                        (subError "appDeleteSucceeded")
                     ]
 
             _ ->
@@ -823,50 +800,12 @@ appPageSubscriptions pageModel =
         , case pageModel.renamingState of
             AppRenameInProgress ->
                 Sub.batch
-                    [ Ports.webnativeAppRenameFailed
-                        (\json ->
-                            case
-                                Json.decodeValue
-                                    (Json.map2
-                                        (\app error ->
-                                            AuthenticatedMsg (AppPageMsg app (AppPageRenameAppFailed error))
-                                        )
-                                        (Json.field "app" App.decoder)
-                                        (Json.field "error" Json.string)
-                                    )
-                                    json
-                            of
-                                Ok msg ->
-                                    msg
-
-                                Err error ->
-                                    LogError
-                                        [ E.string "Error while parsing port webnativeAppRenameFailed:"
-                                        , E.string (Json.errorToString error)
-                                        ]
-                        )
-                    , Ports.webnativeAppRenameSucceeded
-                        (\json ->
-                            case
-                                Json.decodeValue
-                                    (Json.map2
-                                        (\app renamed ->
-                                            AuthenticatedMsg (AppPageMsg app (AppPageRenameAppSucceeded renamed))
-                                        )
-                                        (Json.field "app" App.decoder)
-                                        (Json.field "renamed" App.decoder)
-                                    )
-                                    json
-                            of
-                                Ok msg ->
-                                    msg
-
-                                Err error ->
-                                    LogError
-                                        [ E.string "Error while parsing port webnativeAppRenameSucceeded:"
-                                        , E.string (Json.errorToString error)
-                                        ]
-                        )
+                    [ Ports.appRenameFailed
+                        (\app error -> AuthenticatedMsg (AppPageMsg app (AppPageRenameAppFailed error)))
+                        (subError "appRenameFailed")
+                    , Ports.appRenameSucceeded
+                        (\{ app, renamed } -> AuthenticatedMsg (AppPageMsg app (AppPageRenameAppSucceeded renamed)))
+                        (subError "appRenameSucceeded")
                     ]
 
             _ ->

@@ -1,6 +1,8 @@
-port module Ports exposing (..)
+port module Ports exposing (appDelete, appDeleteFailed, appDeleteSucceeded, appRename, appRenameFailed, appRenameSucceeded, log, webnativeAppIndexFetch, webnativeAppIndexFetched, webnativeError, webnativeInitialized, webnativeRedirectToLobby, webnativeRequest, webnativeResendVerificationEmail, webnativeResponse, webnativeVerificationEmailSent)
 
+import Data.App as App
 import Json.Decode as Json
+import Json.Encode as E
 import Webnative
 
 
@@ -47,10 +49,48 @@ port webnativeAppIndexFetched : (Json.Value -> msg) -> Sub msg
 -- App Delete
 
 
+appDelete : App.Name -> Cmd msg
+appDelete app =
+    webnativeAppDelete (App.encode app)
+
+
 port webnativeAppDelete : Json.Value -> Cmd msg
 
 
+appDeleteSucceeded : (App.Name -> msg) -> (Json.Error -> msg) -> Sub msg
+appDeleteSucceeded onSuccess onError =
+    webnativeAppDeleteSucceeded
+        (\json ->
+            case Json.decodeValue (Json.field "app" App.decoder) json of
+                Ok app ->
+                    onSuccess app
+
+                Err error ->
+                    onError error
+        )
+
+
 port webnativeAppDeleteSucceeded : (Json.Value -> msg) -> Sub msg
+
+
+appDeleteFailed : (App.Name -> String -> msg) -> (Json.Error -> msg) -> Sub msg
+appDeleteFailed onSuccess onError =
+    webnativeAppDeleteFailed
+        (\json ->
+            case
+                Json.decodeValue
+                    (Json.map2 onSuccess
+                        (Json.field "app" App.decoder)
+                        (Json.field "error" Json.string)
+                    )
+                    json
+            of
+                Ok msg ->
+                    msg
+
+                Err error ->
+                    onError error
+        )
 
 
 port webnativeAppDeleteFailed : (Json.Value -> msg) -> Sub msg
@@ -60,10 +100,61 @@ port webnativeAppDeleteFailed : (Json.Value -> msg) -> Sub msg
 -- App Rename
 
 
+appRename : { from : App.Name, to : App.Name } -> Cmd msg
+appRename { from, to } =
+    webnativeAppRename
+        (E.object
+            [ ( "from", E.string (App.toString from) )
+            , ( "to", E.string (App.toString to) )
+            ]
+        )
+
+
 port webnativeAppRename : Json.Value -> Cmd msg
 
 
+appRenameSucceeded : ({ app : App.Name, renamed : App.Name } -> msg) -> (Json.Error -> msg) -> Sub msg
+appRenameSucceeded onSuccess onError =
+    webnativeAppRenameSucceeded
+        (\json ->
+            case
+                Json.decodeValue
+                    (Json.map2
+                        (\app renamed -> onSuccess { app = app, renamed = renamed })
+                        (Json.field "app" App.decoder)
+                        (Json.field "renamed" App.decoder)
+                    )
+                    json
+            of
+                Ok msg ->
+                    msg
+
+                Err error ->
+                    onError error
+        )
+
+
 port webnativeAppRenameSucceeded : (Json.Value -> msg) -> Sub msg
+
+
+appRenameFailed : (App.Name -> String -> msg) -> (Json.Error -> msg) -> Sub msg
+appRenameFailed onSuccess onError =
+    webnativeAppRenameFailed
+        (\json ->
+            case
+                Json.decodeValue
+                    (Json.map2 onSuccess
+                        (Json.field "app" App.decoder)
+                        (Json.field "error" Json.string)
+                    )
+                    json
+            of
+                Ok msg ->
+                    msg
+
+                Err error ->
+                    onError error
+        )
 
 
 port webnativeAppRenameFailed : (Json.Value -> msg) -> Sub msg
