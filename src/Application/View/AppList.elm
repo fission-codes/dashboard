@@ -165,7 +165,9 @@ previewIframe { url } =
             , href url
             , target "_blank"
             , css
-                [ absolute
+                [ Css.property "width" "calc(400%)"
+                , Css.property "height" "calc(400%)"
+                , absolute
                 , transform
                 , scale_25
                 , origin_top_left
@@ -178,8 +180,8 @@ previewIframe { url } =
                 , attribute "focusable" "false"
                 , tabindex -1
                 , css
-                    [ Css.width (px previewWidth)
-                    , Css.height (px previewHeight)
+                    [ w_full
+                    , h_full
                     , pointer_events_none
                     ]
                 ]
