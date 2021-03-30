@@ -3,6 +3,7 @@ module Radix exposing (..)
 import Browser exposing (UrlRequest)
 import Browser.Navigation
 import Data.App as App
+import Dict exposing (Dict)
 import Json.Decode as Json
 import Route exposing (Route)
 import Url exposing (Url)
@@ -47,9 +48,18 @@ type alias AuthenticatedModel =
     , resendingVerificationEmail : Bool
     , navigationExpanded : Bool
     , route : Route
+
+    -- App List
     , appList : Maybe (List App.Name)
-    , uploadDropzoneState : UploadDropzoneState
-    , repeatAppNameInput : String
+    , appListUploadState : UploadDropzoneState
+
+    -- App Page (Dict keys are App.Name toString's)
+    , appPageModels : Dict String AppPageModel
+    }
+
+
+type alias AppPageModel =
+    { repeatAppNameInput : String
     , deletionState : AppDeletionState
     , renamingState : AppRenamingState
     , renameAppInput : String
@@ -93,6 +103,8 @@ type Msg
     | GotWebnativeResponse Webnative.Response
     | GotWebnativeError String
     | RedirectToLobby
+      -- Other
+    | LogError (List Json.Value)
 
 
 type AuthenticatedMsg
@@ -110,11 +122,15 @@ type AuthenticatedMsg
     | DropzonePublishProgress { progress : Int, total : Int, info : String }
     | DropzoneSuccessDismiss
     | DropzoneSuccessGoToApp App.Name
-    | RepeatAppNameInput String
-    | DeleteAppClicked App.Name
-    | DeleteAppSucceeded
-    | DeleteAppFailed String
-    | RenameAppInput String
-    | RenameAppClicked App.Name
-    | RenameAppFailed String
-    | RenameAppSucceeded (Result Json.Error App.Name)
+    | AppPageMsg App.Name AppPageMsg
+
+
+type AppPageMsg
+    = AppPageRepeatAppNameInput String
+    | AppPageDeleteAppClicked
+    | AppPageDeleteAppSucceeded
+    | AppPageDeleteAppFailed String
+    | AppPageRenameAppInput String
+    | AppPageRenameAppClicked
+    | AppPageRenameAppFailed String
+    | AppPageRenameAppSucceeded App.Name

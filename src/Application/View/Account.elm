@@ -1,11 +1,9 @@
 module View.Account exposing (..)
 
-import Css
 import Css.Global
 import FeatherIcons
 import Html.Styled exposing (..)
-import Html.Styled.Attributes exposing (class, classList, css, placeholder, type_, value)
-import Html.Styled.Events as Events
+import Html.Styled.Attributes exposing (class, css)
 import Tailwind.Breakpoints exposing (..)
 import Tailwind.Utilities exposing (..)
 import View.Common exposing (dark, infoTextStyle)

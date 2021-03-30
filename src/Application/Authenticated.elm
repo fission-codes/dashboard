@@ -5,6 +5,7 @@ import Browser.Navigation as Navigation
 import Common
 import Data.App as App
 import Data.Validation
+import Dict
 import FeatherIcons
 import Html.Styled as Html exposing (Html)
 import Json.Decode as Json
@@ -34,11 +35,8 @@ init url username =
       , navigationExpanded = False
       , route = route
       , appList = Nothing
-      , uploadDropzoneState = DropzoneWaiting
-      , repeatAppNameInput = ""
-      , deletionState = AppDeletionWaiting
-      , renamingState = AppRenamingWaiting
-      , renameAppInput = ""
+      , appListUploadState = DropzoneWaiting
+      , appPageModels = Dict.empty
       }
     , commandsByRoute route
     )
@@ -67,9 +65,16 @@ commandsByRoute route =
 isProcessingSomething : AuthenticatedModel -> Bool
 isProcessingSomething model =
     List.any ((==) True)
-        [ model.deletionState == AppDeletionInProgress
-        , model.renamingState == AppRenameInProgress
-        , case model.uploadDropzoneState of
+        [ case getAppPageModel model of
+            Just pageModel ->
+                List.any ((==) True)
+                    [ pageModel.deletionState == AppDeletionInProgress
+                    , pageModel.renamingState == AppRenameInProgress
+                    ]
+
+            Nothing ->
+                False
+        , case model.appListUploadState of
             DropzoneProgress _ ->
                 True
 
@@ -77,6 +82,17 @@ isProcessingSomething model =
                 False
         , model.resendingVerificationEmail
         ]
+
+
+getAppPageModel : AuthenticatedModel -> Maybe AppPageModel
+getAppPageModel model =
+    case model.route of
+        Route.DeveloperAppList (Route.DeveloperAppListApp app) ->
+            model.appPageModels
+                |> Dict.get (App.toString app)
+
+        _ ->
+            Nothing
 
 
 update : Navigation.Key -> AuthenticatedMsg -> AuthenticatedModel -> ( AuthenticatedModel, Cmd Msg )
@@ -116,22 +132,22 @@ update navKey msg model =
                     )
 
         DropzonePublishStart ->
-            ( { model | uploadDropzoneState = DropzoneAction "" }
+            ( { model | appListUploadState = DropzoneAction "" }
             , Cmd.none
             )
 
         DropzonePublishEnd determinedAppName ->
-            ( { model | uploadDropzoneState = DropzoneSucceeded determinedAppName }
+            ( { model | appListUploadState = DropzoneSucceeded determinedAppName }
             , Ports.webnativeAppIndexFetch ()
             )
 
         DropzoneSuccessDismiss ->
-            ( { model | uploadDropzoneState = DropzoneWaiting }
+            ( { model | appListUploadState = DropzoneWaiting }
             , Cmd.none
             )
 
         DropzoneSuccessGoToApp determinedAppName ->
-            ( { model | uploadDropzoneState = DropzoneWaiting }
+            ( { model | appListUploadState = DropzoneWaiting }
             , Navigation.pushUrl navKey
                 (Route.toUrl
                     (Route.DeveloperAppList
@@ -143,21 +159,55 @@ update navKey msg model =
             )
 
         DropzonePublishFail ->
-            ( { model | uploadDropzoneState = DropzoneFailed }
+            ( { model | appListUploadState = DropzoneFailed }
             , Cmd.none
             )
 
         DropzonePublishAction info ->
-            ( { model | uploadDropzoneState = DropzoneAction info }
+            ( { model | appListUploadState = DropzoneAction info }
             , Cmd.none
             )
 
         DropzonePublishProgress info ->
-            ( { model | uploadDropzoneState = DropzoneProgress info }
+            ( { model | appListUploadState = DropzoneProgress info }
             , Cmd.none
             )
 
-        RepeatAppNameInput value ->
+        AppPageMsg app appPageMsg ->
+            let
+                key =
+                    App.toString app
+
+                pageModel =
+                    model.appPageModels
+                        |> Dict.get key
+                        |> Maybe.withDefault initAppPage
+
+                ( newPageModel, commands ) =
+                    updateAppPage app pageModel appPageMsg
+            in
+            ( { model
+                | appPageModels =
+                    model.appPageModels
+                        |> Dict.insert key newPageModel
+              }
+            , commands
+            )
+
+
+initAppPage : AppPageModel
+initAppPage =
+    { repeatAppNameInput = ""
+    , deletionState = AppDeletionWaiting
+    , renamingState = AppRenamingWaiting
+    , renameAppInput = ""
+    }
+
+
+updateAppPage : App.Name -> AppPageModel -> AppPageMsg -> ( AppPageModel, Cmd Msg )
+updateAppPage app model msg =
+    case msg of
+        AppPageRepeatAppNameInput value ->
             case model.deletionState of
                 AppDeletionInProgress ->
                     ( model, Cmd.none )
@@ -170,7 +220,7 @@ update navKey msg model =
                     , Cmd.none
                     )
 
-        DeleteAppClicked app ->
+        AppPageDeleteAppClicked ->
             if
                 List.any ((==) model.repeatAppNameInput)
                     [ App.nameOnly app
@@ -187,7 +237,7 @@ update navKey msg model =
                 , Cmd.none
                 )
 
-        DeleteAppSucceeded ->
+        AppPageDeleteAppSucceeded ->
             ( { model
                 | deletionState = AppDeletionWaiting
                 , repeatAppNameInput = ""
@@ -200,12 +250,12 @@ update navKey msg model =
                 )
             )
 
-        DeleteAppFailed message ->
+        AppPageDeleteAppFailed message ->
             ( { model | deletionState = AppDeletionFailed message }
             , Cmd.none
             )
 
-        RenameAppInput value ->
+        AppPageRenameAppInput value ->
             ( { model
                 | renameAppInput = value
                 , renamingState = AppRenamingWaiting
@@ -213,7 +263,7 @@ update navKey msg model =
             , Cmd.none
             )
 
-        RenameAppClicked app ->
+        AppPageRenameAppClicked ->
             let
                 trimmed =
                     String.trim model.renameAppInput
@@ -233,32 +283,25 @@ update navKey msg model =
                 , Cmd.none
                 )
 
-        RenameAppFailed error ->
+        AppPageRenameAppFailed error ->
             ( { model | renamingState = AppRenamingFailed ("Something went wrong when trying to rename: " ++ error ++ ". Please try to reload the application.") }
             , Cmd.none
             )
 
-        RenameAppSucceeded result ->
-            case result of
-                Ok app ->
-                    ( { model
-                        | renamingState = AppRenamingWaiting
-                        , renameAppInput = ""
-                      }
-                    , Navigation.load
-                        (Route.toUrl
-                            (Route.DeveloperAppList
-                                (Route.DeveloperAppListApp
-                                    app
-                                )
-                            )
+        AppPageRenameAppSucceeded renamedApp ->
+            ( { model
+                | renamingState = AppRenamingWaiting
+                , renameAppInput = ""
+              }
+            , Navigation.load
+                (Route.toUrl
+                    (Route.DeveloperAppList
+                        (Route.DeveloperAppListApp
+                            renamedApp
                         )
                     )
-
-                Err error ->
-                    ( { model | renamingState = AppRenamingFailed "Something went wrong, please go back to the app list." }
-                    , Ports.log [ E.string "Error decoding renamed app name", E.string (Json.errorToString error) ]
-                    )
+                )
+            )
 
 
 view : AuthenticatedModel -> Browser.Document Msg
@@ -354,7 +397,7 @@ viewAppList model =
             [ View.Dashboard.sectionTitle [] [ Html.text "Create a new App" ]
             , View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
                 [ Html.text "Upload a folder with HTML, CSS and javascript files:"
-                , viewUploadDropzone Nothing model.uploadDropzoneState
+                , viewUploadDropzone Nothing model.appListUploadState
                 ]
             , View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
                 [ Html.span []
@@ -519,7 +562,10 @@ viewAppListApp model appName =
                 Just appList ->
                     case List.find ((==) appName) appList of
                         Just app ->
-                            viewAppListAppLoaded model app
+                            viewAppListAppLoaded
+                                model
+                                (getAppPageModel model |> Maybe.withDefault initAppPage)
+                                app
 
                         Nothing ->
                             [ viewAppListAppNotFound appName ]
@@ -551,8 +597,8 @@ viewAppListAppNotFound appName =
         ]
 
 
-viewAppListAppLoaded : AuthenticatedModel -> App.Name -> List (Html Msg)
-viewAppListAppLoaded model app =
+viewAppListAppLoaded : AuthenticatedModel -> AppPageModel -> App.Name -> List (Html Msg)
+viewAppListAppLoaded model pageModel app =
     [ View.Dashboard.section []
         [ View.Dashboard.sectionTitle []
             [ Html.text "Preview of "
@@ -566,19 +612,19 @@ viewAppListAppLoaded model app =
         [ View.Dashboard.sectionTitle [] [ Html.text "Update your App" ]
         , View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
             [ Html.text "Upload a folder with HTML, CSS and javascript files:"
-            , viewUploadDropzone (Just app) model.uploadDropzoneState
+            , viewUploadDropzone (Just app) model.appListUploadState
             ]
         ]
-    , viewAppRenamingSection model app
-    , viewAppDeletionSection model app
+    , viewAppRenamingSection pageModel app
+    , viewAppDeletionSection pageModel app
     ]
 
 
-viewAppRenamingSection : AuthenticatedModel -> App.Name -> Html Msg
-viewAppRenamingSection model app =
+viewAppRenamingSection : AppPageModel -> App.Name -> Html Msg
+viewAppRenamingSection pageModel app =
     let
         renaming =
-            case model.renamingState of
+            case pageModel.renamingState of
                 AppRenamingWaiting ->
                     { loading = False
                     , error = Nothing
@@ -605,11 +651,11 @@ viewAppRenamingSection model app =
             (List.concat
                 [ [ Html.span [] [ Html.text "Auto-generated subdomains are often pretty cool, but sometimes you just like to put a chosen name on your project! It’s first come, first serve." ]
                   , View.AppList.inputRow
-                        { onSubmit = AuthenticatedMsg (RenameAppClicked app) }
+                        { onSubmit = AuthenticatedMsg (AppPageMsg app AppPageRenameAppClicked) }
                         [ View.Common.input
                             { placeholder = "your-subdomain"
-                            , value = model.renameAppInput
-                            , onInput = AuthenticatedMsg << RenameAppInput
+                            , value = pageModel.renameAppInput
+                            , onInput = AuthenticatedMsg << AppPageMsg app << AppPageRenameAppInput
                             , inErrorState = Maybe.isJust renaming.error
                             , disabled = renaming.loading
                             , style = View.Common.basicInputStyle
@@ -635,11 +681,11 @@ viewAppRenamingSection model app =
         ]
 
 
-viewAppDeletionSection : AuthenticatedModel -> App.Name -> Html Msg
-viewAppDeletionSection model app =
+viewAppDeletionSection : AppPageModel -> App.Name -> Html Msg
+viewAppDeletionSection pageModel app =
     let
         deletion =
-            case model.deletionState of
+            case pageModel.deletionState of
                 AppDeletionWaiting ->
                     { loading = False
                     , failed = False
@@ -680,11 +726,11 @@ viewAppDeletionSection model app =
                         , Html.text "."
                         ]
                   , View.AppList.inputRow
-                        { onSubmit = AuthenticatedMsg (DeleteAppClicked app) }
+                        { onSubmit = AuthenticatedMsg (AppPageMsg app AppPageDeleteAppClicked) }
                         [ View.Common.input
                             { placeholder = "please type " ++ App.nameOnly app ++ " to confirm"
-                            , value = model.repeatAppNameInput
-                            , onInput = AuthenticatedMsg << RepeatAppNameInput
+                            , value = pageModel.repeatAppNameInput
+                            , onInput = AuthenticatedMsg << AppPageMsg app << AppPageRepeatAppNameInput
                             , inErrorState = deletion.failed
                             , disabled = deletion.loading
                             , style = View.Common.basicInputStyle
@@ -727,22 +773,104 @@ subscriptions model =
           else
             Sub.none
         , Ports.webnativeAppIndexFetched (AuthenticatedMsg << FetchedAppList)
-        , if model.deletionState == AppDeletionInProgress then
-            Sub.batch
-                [ Ports.webnativeAppDeleteFailed (AuthenticatedMsg << DeleteAppFailed)
-                , Ports.webnativeAppDeleteSucceeded (\_ -> AuthenticatedMsg DeleteAppSucceeded)
-                ]
+        ]
 
-          else
-            Sub.none
-        , if model.renamingState == AppRenameInProgress then
-            Sub.batch
-                [ Ports.webnativeAppRenameFailed (AuthenticatedMsg << RenameAppFailed)
-                , Ports.webnativeAppRenameSucceeded (AuthenticatedMsg << RenameAppSucceeded << Json.decodeValue App.decoder)
-                ]
 
-          else
-            Sub.none
+appPageSubscriptions : AppPageModel -> Sub Msg
+appPageSubscriptions pageModel =
+    Sub.batch
+        [ case pageModel.deletionState of
+            AppDeletionInProgress ->
+                Sub.batch
+                    [ Ports.webnativeAppDeleteFailed
+                        (\json ->
+                            case
+                                Json.decodeValue
+                                    (Json.map2
+                                        (\app error ->
+                                            AuthenticatedMsg (AppPageMsg app (AppPageDeleteAppFailed error))
+                                        )
+                                        (Json.field "app" App.decoder)
+                                        (Json.field "error" Json.string)
+                                    )
+                                    json
+                            of
+                                Ok msg ->
+                                    msg
+
+                                Err error ->
+                                    LogError
+                                        [ E.string "Error while parsing port webnativeAppDeleteFailed:"
+                                        , E.string (Json.errorToString error)
+                                        ]
+                        )
+                    , Ports.webnativeAppDeleteSucceeded
+                        (\json ->
+                            case Json.decodeValue (Json.field "app" App.decoder) json of
+                                Ok app ->
+                                    AuthenticatedMsg (AppPageMsg app AppPageDeleteAppSucceeded)
+
+                                Err error ->
+                                    LogError
+                                        [ E.string "Error while parsing port webnativeAppDeleteSucceeded:"
+                                        , E.string (Json.errorToString error)
+                                        ]
+                        )
+                    ]
+
+            _ ->
+                Sub.none
+        , case pageModel.renamingState of
+            AppRenameInProgress ->
+                Sub.batch
+                    [ Ports.webnativeAppRenameFailed
+                        (\json ->
+                            case
+                                Json.decodeValue
+                                    (Json.map2
+                                        (\app error ->
+                                            AuthenticatedMsg (AppPageMsg app (AppPageRenameAppFailed error))
+                                        )
+                                        (Json.field "app" App.decoder)
+                                        (Json.field "error" Json.string)
+                                    )
+                                    json
+                            of
+                                Ok msg ->
+                                    msg
+
+                                Err error ->
+                                    LogError
+                                        [ E.string "Error while parsing port webnativeAppRenameFailed:"
+                                        , E.string (Json.errorToString error)
+                                        ]
+                        )
+                    , Ports.webnativeAppRenameSucceeded
+                        (\json ->
+                            case
+                                Json.decodeValue
+                                    (Json.map2
+                                        (\app renamed ->
+                                            AuthenticatedMsg (AppPageMsg app (AppPageRenameAppSucceeded renamed))
+                                        )
+                                        (Json.field "app" App.decoder)
+                                        (Json.field "renamed" App.decoder)
+                                    )
+                                    json
+                            of
+                                Ok msg ->
+                                    msg
+
+                                Err error ->
+                                    LogError
+                                        [ E.string "Error while parsing port webnativeAppRenameSucceeded:"
+                                        , E.string (Json.errorToString error)
+                                        ]
+                        )
+                    ]
+
+            _ ->
+                Sub.none
         ]
 
 

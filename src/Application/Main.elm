@@ -154,6 +154,12 @@ updateOther msg model =
                     )
 
         -----------------------------------------
+        -- Errors
+        -----------------------------------------
+        LogError messages ->
+            ( model, Ports.log messages )
+
+        -----------------------------------------
         -- Message/Model desync
         -----------------------------------------
         AuthenticatedMsg _ ->

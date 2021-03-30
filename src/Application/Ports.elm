@@ -50,10 +50,10 @@ port webnativeAppIndexFetched : (Json.Value -> msg) -> Sub msg
 port webnativeAppDelete : Json.Value -> Cmd msg
 
 
-port webnativeAppDeleteSucceeded : ({} -> msg) -> Sub msg
+port webnativeAppDeleteSucceeded : (Json.Value -> msg) -> Sub msg
 
 
-port webnativeAppDeleteFailed : (String -> msg) -> Sub msg
+port webnativeAppDeleteFailed : (Json.Value -> msg) -> Sub msg
 
 
 
@@ -66,7 +66,7 @@ port webnativeAppRename : Json.Value -> Cmd msg
 port webnativeAppRenameSucceeded : (Json.Value -> msg) -> Sub msg
 
 
-port webnativeAppRenameFailed : (String -> msg) -> Sub msg
+port webnativeAppRenameFailed : (Json.Value -> msg) -> Sub msg
 
 
 

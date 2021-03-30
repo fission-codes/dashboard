@@ -60,10 +60,10 @@ webnative
         try {
           await webnative.apps.deleteByDomain(appUrl)
         } catch (_) { /* FIXME Ignoring CORS errors for now */ }
-        elmApp.ports.webnativeAppDeleteSucceeded.send({})
+        elmApp.ports.webnativeAppDeleteSucceeded.send({ app: appUrl })
       } catch (error) {
         console.error("Error while fetching the app index", error)
-        elmApp.ports.webnativeAppDeleteFailed.send(error.message)
+        elmApp.ports.webnativeAppDeleteFailed.send({ app: appUrl, error: error.message })
       }
     })
 
@@ -78,10 +78,10 @@ webnative
         try {
           await webnative.apps.deleteByDomain(from)
         } catch (_) { /* FIXME Ignoring CORS errors for now */ }
-        elmApp.ports.webnativeAppRenameSucceeded.send(newApp.domain)
+        elmApp.ports.webnativeAppRenameSucceeded.send({ app: from, renamed: newApp.domain })
       } catch (error) {
         console.error(`Error while renaming an app from ${from} to ${to}`, error)
-        elmApp.ports.webnativeAppRenameFailed.send(error.message)
+        elmApp.ports.webnativeAppRenameFailed.send({ app: from, error: error.message })
       }
     })
 
