@@ -1,12 +1,10 @@
 import * as kit from "fission-kit"
 import defaultTheme from "tailwindcss/defaultTheme.js"
 import textDecorationPlugin from "./text-decoration-plugin.js"
+import aspectRatioPlugin from "@tailwindcss/aspect-ratio"
 
 
 export default {
-
-  darkMode: "media",
-
 
   /////////////////////////////////////////
   // THEME ////////////////////////////////
@@ -49,11 +47,19 @@ export default {
       maxWidth: {
         "xxs": "16rem",
       },
+
+      minHeight: {
+        "120px": "7.5rem",
+      },
       
       boxShadow: {
         "inner-outline": "inset 0 0 0 2px rgba(100, 70, 250, .2)", // purple 20%
         "outline": "0 0 0 2px rgba(100, 70, 250, 0.4)", // purple 40%
         "outline-light": "0 0 0 2px rgba(255, 255, 255, 0.8)",
+      },
+
+      scale: {
+        "25": ".25",
       },
       
     },
@@ -63,6 +69,7 @@ export default {
   variants: [], // We use variants like focus, hover, breakpoints etc. via elm-css
 
   plugins: [
-    textDecorationPlugin
+    textDecorationPlugin,
+    aspectRatioPlugin,
   ],
 }

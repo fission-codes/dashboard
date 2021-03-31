@@ -19,7 +19,7 @@ workbox_config := "./src/Javascript/workbox.config.cjs"
 	just hot-server & \
 	just watch-css & \
 	just watch-html & \
-	just watch-javascript
+	just watch-javascript-dev
 
 
 
@@ -51,9 +51,9 @@ workbox_config := "./src/Javascript/workbox.config.cjs"
 @elm-production:
 	echo "🌳  Compiling Elm (optimised)"
 	elm make \
+		src/Application/Main.elm \
 		--output {{dist}}/application.js \
-		--optimize \
-		src/Application/Main.elm
+		--optimize
 
 
 @favicons:
@@ -80,8 +80,17 @@ workbox_config := "./src/Javascript/workbox.config.cjs"
 	cp -RT src/Images/ {{dist}}/images/
 
 
-@javascript:
+@javascript-dev:
 	echo "⚙️  Bundling javascript"
+	{{node_bin}}/esbuild \
+		--bundle \
+		--sourcemap \
+		--outfile={{dist}}/bundle.min.js \
+		src/Javascript/index.js
+
+
+@javascript-prod:
+	echo "⚙️  Bundling minified javascript"
 	{{node_bin}}/esbuild \
 		--bundle \
 		--minify \
@@ -105,10 +114,10 @@ workbox_config := "./src/Javascript/workbox.config.cjs"
 	mkdir -p {{dist}}
 
 
-@dev-build: clean html css javascript elm-dev fonts favicons manifests images
+@dev-build: clean html css javascript-dev elm-dev fonts favicons manifests images
 
 
-@production-build: clean html css elm-production javascript fonts favicons manifests images production-service-worker
+@production-build: clean html css elm-production javascript-prod fonts favicons manifests images production-service-worker
 
 
 @production-service-worker:
@@ -144,7 +153,7 @@ workbox_config := "./src/Javascript/workbox.config.cjs"
 	just watch-css & \
 	just watch-elm & \
 	just watch-html & \
-	just watch-javascript
+	just watch-javascript-dev
 
 
 @watch-css:
@@ -159,5 +168,5 @@ workbox_config := "./src/Javascript/workbox.config.cjs"
 	watchexec -p -w src -e html -- just html
 
 
-@watch-javascript:
-	watchexec -p -w src -e js -- just javascript
+@watch-javascript-dev:
+	watchexec -p -w src -e js -- just javascript-dev
