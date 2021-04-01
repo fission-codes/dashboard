@@ -47,8 +47,11 @@ logo { styles, imageStyles } =
             []
         , span
             [ css
-                [ dark [ bg_darkmode_purple ]
-                , bg_purple
+                [ dark
+                    [ bg_gray_500
+                    , text_darkness_above
+                    ]
+                , bg_gray_200
                 , font_display
                 , p_1
                 , rounded
