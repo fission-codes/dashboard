@@ -148,6 +148,8 @@ uppercaseButtonStyle =
                 [ text_gray_500
                 , bg_gray_300
                 ]
+            , bg_gray_200
+            , bg_opacity_30
             , Css.active [ bg_opacity_10 ]
             , text_darkmode_purple
             ]
@@ -160,7 +162,9 @@ uppercaseButtonStyle =
             , bg_opacity_30
             , bg_gray_500
             ]
-        , sm [ py_1 ]
+        , sm [ py_2 ]
+        , bg_purple_tint
+        , bg_opacity_10
         , font_display
         , px_3
         , py_2
