@@ -282,8 +282,8 @@ updateAppPage app model msg =
                 , Cmd.none
                 )
 
-        AppPageRenameAppFailed error ->
-            ( { model | renamingState = AppRenamingFailed ("Something went wrong when trying to rename: " ++ error ++ ". Please try to reload the application.") }
+        AppPageRenameAppFailed _ ->
+            ( { model | renamingState = AppRenamingFailed "Something went wrong when trying to rename. Maybe the app name is already taken? Please try to reload the website." }
             , Cmd.none
             )
 
@@ -772,6 +772,12 @@ subscriptions model =
           else
             Sub.none
         , Ports.webnativeAppIndexFetched (AuthenticatedMsg << FetchedAppList)
+        , case getAppPageModel model of
+            Just pageModel ->
+                appPageSubscriptions pageModel
+
+            Nothing ->
+                Sub.none
         ]
 
 
