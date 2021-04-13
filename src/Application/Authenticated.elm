@@ -368,25 +368,24 @@ viewNavItem model { route, icon, name } =
 
 viewAccount : AuthenticatedModel -> List (Html Msg)
 viewAccount model =
-    View.Account.workInProgressBanner
-        :: List.intersperse View.Common.sectionSpacer
-            [ View.Dashboard.heading [ Html.text "Your Account" ]
-            , View.Account.sectionUsername
-                { username = [ View.Account.settingText [ Html.text model.username ] ]
-                }
-            , View.Account.sectionEmail
-                { verificationStatus =
-                    [ View.Common.button
-                        { label = "Resend Verification Email"
-                        , onClick = Just (AuthenticatedMsg EmailResendVerification)
-                        , isLoading = model.resendingVerificationEmail
-                        , disabled = False
-                        , style = View.Common.uppercaseButtonStyle
-                        , spinnerStyle = []
-                        }
-                    ]
-                }
-            ]
+    List.intersperse View.Common.sectionSpacer
+        [ View.Dashboard.heading [ Html.text "Your Account" ]
+        , View.Account.sectionUsername
+            { username = [ View.Account.settingText [ Html.text model.username ] ]
+            }
+        , View.Account.sectionEmail
+            { verificationStatus =
+                [ View.Common.button
+                    { label = "Resend Verification Email"
+                    , onClick = Just (AuthenticatedMsg EmailResendVerification)
+                    , isLoading = model.resendingVerificationEmail
+                    , disabled = False
+                    , style = View.Common.uppercaseButtonStyle
+                    , spinnerStyle = []
+                    }
+                ]
+            }
+        ]
 
 
 viewAppList : AuthenticatedModel -> List (Html Msg)
