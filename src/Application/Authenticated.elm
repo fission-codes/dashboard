@@ -311,13 +311,7 @@ view model =
             { navigation =
                 { expanded = model.navigationExpanded
                 , onToggleExpanded = AuthenticatedMsg ToggleNavigationExpanded
-                , items =
-                    List.concat
-                        [ [ View.Navigation.header "Users" ]
-                        , navigationItems.users |> List.map (viewNavItem model)
-                        , [ View.Navigation.header "Developers" ]
-                        , navigationItems.developers |> List.map (viewNavItem model)
-                        ]
+                , items = navigationItems |> List.map (viewNavItem model)
                 }
             , main =
                 case model.route of
@@ -339,21 +333,17 @@ type alias NavItem =
     { route : Route, name : String, icon : FeatherIcons.Icon }
 
 
-navigationItems : { users : List NavItem, developers : List NavItem }
+navigationItems : List NavItem
 navigationItems =
-    { users =
-        [ { route = Route.Index
-          , name = "Account"
-          , icon = FeatherIcons.user
-          }
-        ]
-    , developers =
-        [ { route = Route.DeveloperAppList Route.DeveloperAppListIndex
-          , name = "App List"
-          , icon = FeatherIcons.code
-          }
-        ]
-    }
+    [ { route = Route.Index
+      , name = "Account"
+      , icon = FeatherIcons.user
+      }
+    , { route = Route.DeveloperAppList Route.DeveloperAppListIndex
+      , name = "Apps"
+      , icon = FeatherIcons.code
+      }
+    ]
 
 
 viewNavItem : AuthenticatedModel -> NavItem -> Html Msg
@@ -391,7 +381,7 @@ viewAccount model =
 viewAppList : AuthenticatedModel -> List (Html Msg)
 viewAppList model =
     List.intersperse View.Common.sectionSpacer
-        [ View.Dashboard.heading [ Html.text "Developed Apps" ]
+        [ View.Dashboard.heading [ Html.text "App Management" ]
         , View.Dashboard.section []
             [ View.Dashboard.sectionTitle [] [ Html.text "Create a new App" ]
             , View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
