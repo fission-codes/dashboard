@@ -282,8 +282,8 @@ updateAppPage app model msg =
                 , Cmd.none
                 )
 
-        AppPageRenameAppFailed error ->
-            ( { model | renamingState = AppRenamingFailed ("Something went wrong when trying to rename: " ++ error ++ ". Please try to reload the application.") }
+        AppPageRenameAppFailed _ ->
+            ( { model | renamingState = AppRenamingFailed "Something went wrong when trying to rename. Maybe the app name is already taken? Please try to reload the website." }
             , Cmd.none
             )
 
@@ -311,13 +311,7 @@ view model =
             { navigation =
                 { expanded = model.navigationExpanded
                 , onToggleExpanded = AuthenticatedMsg ToggleNavigationExpanded
-                , items =
-                    List.concat
-                        [ [ View.Navigation.header "Users" ]
-                        , navigationItems.users |> List.map (viewNavItem model)
-                        , [ View.Navigation.header "Developers" ]
-                        , navigationItems.developers |> List.map (viewNavItem model)
-                        ]
+                , items = navigationItems |> List.map (viewNavItem model)
                 }
             , main =
                 case model.route of
@@ -339,21 +333,17 @@ type alias NavItem =
     { route : Route, name : String, icon : FeatherIcons.Icon }
 
 
-navigationItems : { users : List NavItem, developers : List NavItem }
+navigationItems : List NavItem
 navigationItems =
-    { users =
-        [ { route = Route.Index
-          , name = "Account"
-          , icon = FeatherIcons.user
-          }
-        ]
-    , developers =
-        [ { route = Route.DeveloperAppList Route.DeveloperAppListIndex
-          , name = "App List"
-          , icon = FeatherIcons.code
-          }
-        ]
-    }
+    [ { route = Route.Index
+      , name = "Account"
+      , icon = FeatherIcons.user
+      }
+    , { route = Route.DeveloperAppList Route.DeveloperAppListIndex
+      , name = "Apps"
+      , icon = FeatherIcons.code
+      }
+    ]
 
 
 viewNavItem : AuthenticatedModel -> NavItem -> Html Msg
@@ -368,31 +358,30 @@ viewNavItem model { route, icon, name } =
 
 viewAccount : AuthenticatedModel -> List (Html Msg)
 viewAccount model =
-    View.Account.workInProgressBanner
-        :: List.intersperse View.Common.sectionSpacer
-            [ View.Dashboard.heading [ Html.text "Your Account" ]
-            , View.Account.sectionUsername
-                { username = [ View.Account.settingText [ Html.text model.username ] ]
-                }
-            , View.Account.sectionEmail
-                { verificationStatus =
-                    [ View.Common.button
-                        { label = "Resend Verification Email"
-                        , onClick = Just (AuthenticatedMsg EmailResendVerification)
-                        , isLoading = model.resendingVerificationEmail
-                        , disabled = False
-                        , style = View.Common.uppercaseButtonStyle
-                        , spinnerStyle = []
-                        }
-                    ]
-                }
-            ]
+    List.intersperse View.Common.sectionSpacer
+        [ View.Dashboard.heading [ Html.text "Your Account" ]
+        , View.Account.sectionUsername
+            { username = [ View.Account.settingText [ Html.text model.username ] ]
+            }
+        , View.Account.sectionEmail
+            { verificationStatus =
+                [ View.Common.button
+                    { label = "Resend Verification Email"
+                    , onClick = Just (AuthenticatedMsg EmailResendVerification)
+                    , isLoading = model.resendingVerificationEmail
+                    , disabled = False
+                    , style = View.Common.uppercaseButtonStyle
+                    , spinnerStyle = []
+                    }
+                ]
+            }
+        ]
 
 
 viewAppList : AuthenticatedModel -> List (Html Msg)
 viewAppList model =
     List.intersperse View.Common.sectionSpacer
-        [ View.Dashboard.heading [ Html.text "Developed Apps" ]
+        [ View.Dashboard.heading [ Html.text "App Management" ]
         , View.Dashboard.section []
             [ View.Dashboard.sectionTitle [] [ Html.text "Create a new App" ]
             , View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
@@ -783,6 +772,12 @@ subscriptions model =
           else
             Sub.none
         , Ports.webnativeAppIndexFetched (AuthenticatedMsg << FetchedAppList)
+        , case getAppPageModel model of
+            Just pageModel ->
+                appPageSubscriptions pageModel
+
+            Nothing ->
+                Sub.none
         ]
 
 

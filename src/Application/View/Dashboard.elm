@@ -4,7 +4,7 @@ import Css
 import Css.Global
 import FeatherIcons
 import Html.Styled exposing (..)
-import Html.Styled.Attributes exposing (classList, css, href, src)
+import Html.Styled.Attributes exposing (classList, css, href, src, target)
 import Html.Styled.Events as Events
 import Route exposing (Route)
 import Tailwind.Breakpoints exposing (..)
@@ -236,6 +236,25 @@ appHeader element =
 
 appFooter : List (Html msg)
 appFooter =
+    let
+        linkContainer content =
+            div
+                [ css
+                    [ lg
+                        [ flex
+                        , flex_col
+                        , flex_grow
+                        , space_y_2
+                        , space_x_0
+                        ]
+                    , flex_row
+                    , space_x_8
+                    , flex_grow_0
+                    , items_start
+                    ]
+                ]
+                content
+    in
     [ div
         [ css
             [ flex
@@ -243,6 +262,7 @@ appFooter =
             , items_center
             , py_6
             , space_x_8
+            , overflow_y_hidden
             ]
         ]
         [ img
@@ -250,43 +270,13 @@ appFooter =
             , css [ h_8 ]
             ]
             []
-        , div
-            [ css
-                [ md
-                    [ flex_row
-                    , space_y_0
-                    , space_x_8
-                    , flex_grow_0
-                    ]
-                , flex
-                , flex_col
-                , flex_grow
-                , items_start
-                , space_y_2
-                ]
+        , linkContainer
+            [ footerLink { styles = [], text = "Discord", url = "https://fission.codes/discord" }
+            , footerLink { styles = [], text = "Guide", url = "https://guide.fission.codes/accounts-and-dashboard/dashboard" }
             ]
-            [ footerLink { styles = [], text = "Discord", url = "https://discord.gg/daDMAjE" }
-            ]
-        , div
-            [ css
-                [ md
-                    [ flex_row
-                    , space_y_0
-                    , space_x_8
-                    , flex_grow_0
-                    ]
-                , flex
-                , flex_col
-                , flex_grow
-                , items_start
-                , space_y_2
-                ]
-            ]
+        , linkContainer
             [ footerLink { styles = [], text = "Forum", url = "https://talk.fission.codes/" }
-
-            -- TODO Should we even have Terms of Service or Privacy Policy in the Dashboard at all?
-            -- , footerLink [] { text = "Terms of Service", url = "#" }
-            -- , footerLink [] { text = "Privacy Policy", url = "#" }
+            , footerLink { styles = [], text = "Support", url = "https://fission.codes/support" }
             ]
         ]
     ]
@@ -303,6 +293,7 @@ footerLink element =
             , underline
             ]
         , href element.url
+        , target "_blank"
         ]
         [ text element.text ]
 
