@@ -57,9 +57,7 @@ webnative
 
     elmApp.ports.webnativeAppDelete.subscribe(async appUrl => {
       try {
-        try {
-          await webnative.apps.deleteByDomain(appUrl)
-        } catch (_) { /* FIXME Ignoring CORS errors for now */ }
+        await webnative.apps.deleteByDomain(appUrl)
         elmApp.ports.webnativeAppDeleteSucceeded.send({ app: appUrl })
       } catch (error) {
         console.error("Error while fetching the app index", error)
@@ -75,9 +73,7 @@ webnative
         const cid = await getPublicPathCid(wnfsAppPublishPathInPublic(appNameOnly(from)))
         await webnative.apps.publish(newApp.domain, cid)
         await state.fs.mv(fromPath, toPath)
-        try {
-          await webnative.apps.deleteByDomain(from)
-        } catch (_) { /* FIXME Ignoring CORS errors for now */ }
+        await webnative.apps.deleteByDomain(from)
         elmApp.ports.webnativeAppRenameSucceeded.send({ app: from, renamed: newApp.domain })
       } catch (error) {
         console.error(`Error while renaming an app from ${from} to ${to}`, error)
