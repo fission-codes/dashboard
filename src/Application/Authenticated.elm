@@ -19,6 +19,7 @@ import Tailwind.Utilities
 import Url exposing (Url)
 import View.Account
 import View.AppList
+import View.Backup
 import View.Common
 import View.Dashboard
 import View.Navigation
@@ -318,6 +319,9 @@ view model =
                     Route.Index ->
                         viewAccount model
 
+                    Route.Backup ->
+                        viewBackup model
+
                     Route.DeveloperAppList Route.DeveloperAppListIndex ->
                         viewAppList model
 
@@ -338,6 +342,10 @@ navigationItems =
     [ { route = Route.Index
       , name = "Account"
       , icon = FeatherIcons.user
+      }
+    , { route = Route.Backup
+      , name = "Backup"
+      , icon = FeatherIcons.key
       }
     , { route = Route.DeveloperAppList Route.DeveloperAppListIndex
       , name = "Apps"
@@ -375,6 +383,20 @@ viewAccount model =
                     }
                 ]
             }
+        ]
+
+
+viewBackup : AuthenticatedModel -> List (Html Msg)
+viewBackup model =
+    List.intersperse View.Common.sectionSpacer
+        [ View.Dashboard.heading [ Html.text "Backup your Account" ]
+        , View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
+            [ Html.text "Fission accounts don't need passwords, because we use the encryption built into your web browser to link devices."
+            , Html.br [] []
+            , Html.br [] []
+            , Html.text "In case you lose access to all the devices you have linked to Fission, you need to store these recovery codes in a safe place."
+            ]
+        , View.Backup.view
         ]
 
 

@@ -11,6 +11,7 @@ import Url.Parser exposing (..)
 
 type Route
     = Index
+    | Backup
     | DeveloperAppList DeveloperAppListRoute
 
 
@@ -62,6 +63,7 @@ routeParser : Parser (Route -> a) a
 routeParser =
     oneOf
         [ map DeveloperAppList (top </> s "developers" </> s "apps" </> developerAppListParser)
+        , map Backup (s "backup")
         , map Index top
         ]
 
@@ -80,6 +82,9 @@ toUrl r =
         Index ->
             "/"
 
+        Backup ->
+            "/#backup"
+
         DeveloperAppList DeveloperAppListIndex ->
             "/#developers/apps"
 
@@ -94,6 +99,12 @@ isSameFirstLevel routeOne routeTwo =
             True
 
         ( Index, _ ) ->
+            False
+
+        ( Backup, Backup ) ->
+            True
+
+        ( Backup, _ ) ->
             False
 
         ( DeveloperAppList _, DeveloperAppList _ ) ->
