@@ -17,6 +17,7 @@ import Radix exposing (..)
 import Route exposing (Route)
 import Tailwind.Utilities
 import Url exposing (Url)
+import Url.Builder
 import View.Account
 import View.AppList
 import View.Backup
@@ -116,6 +117,10 @@ update navKey msg model =
             ( { model | resendingVerificationEmail = False }
             , Cmd.none
             )
+
+        -- Backup
+        PromptedBrowserToSaveReadKey ->
+            ( model, Cmd.none )
 
         -- App list
         FetchedAppList value ->
@@ -395,8 +400,8 @@ viewBackup model =
             , Html.br [] []
             , Html.br [] []
             , Html.text "In case you lose access to all the devices you have linked to Fission, you need to store these recovery codes in a safe place."
+            , View.Backup.view (GotWebnativeError "WHAAAT")
             ]
-        , View.Backup.view
         ]
 
 

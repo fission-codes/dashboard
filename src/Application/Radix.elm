@@ -113,6 +113,8 @@ type AuthenticatedMsg
       -- Account
     | EmailResendVerification
     | VerificationEmailSent
+      -- Backup
+    | PromptedBrowserToSaveReadKey
       -- App List
     | FetchedAppList Json.Value
     | DropzonePublishStart
