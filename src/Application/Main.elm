@@ -255,7 +255,9 @@ view model =
                                 , Html.br [] []
                                 , Html.text "If you don't know what's up, feel free to "
                                 , View.Common.underlinedLink []
-                                    { location = "https://fission.codes/support" }
+                                    { location = "https://fission.codes/support"
+                                    , external = False
+                                    }
                                     [ Html.text "contact us" ]
                                 , Html.text "."
                                 ]
@@ -270,7 +272,9 @@ view model =
                                 , Html.br [] []
                                 , Html.text "If you've got any questions, please "
                                 , View.Common.underlinedLink []
-                                    { location = "https://fission.codes/support" }
+                                    { location = "https://fission.codes/support"
+                                    , external = False
+                                    }
                                     [ Html.text "contact us" ]
                                 , Html.text "."
                                 ]
@@ -285,7 +289,9 @@ view model =
                                 , Html.br [] []
                                 , Html.text "Please contact "
                                 , View.Common.underlinedLink []
-                                    { location = "https://fission.codes/support" }
+                                    { location = "https://fission.codes/support"
+                                    , external = False
+                                    }
                                     [ Html.text "our support" ]
                                 , Html.text " and tell us about this issue."
                                 ]
