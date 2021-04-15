@@ -92,18 +92,26 @@ loadingAnimation typ styles =
             ]
 
 
-underlinedLink : List Css.Style -> { location : String } -> List (Html msg) -> Html msg
-underlinedLink styles { location } =
+underlinedLink : List Css.Style -> { location : String, external : Bool } -> List (Html msg) -> Html msg
+underlinedLink styles { location, external } =
     a
-        [ href location
-        , css
-            [ Css.batch styles
-            , dark [ decoration_color_gray_800 ]
-            , underline
-            , decoration_color_purple
-            , decoration_thickness_1_dot_5
+        (List.concat
+            [ [ href location
+              , css
+                    [ Css.batch styles
+                    , dark [ decoration_color_gray_800 ]
+                    , underline
+                    , decoration_color_purple
+                    , decoration_thickness_1_dot_5
+                    ]
+              ]
+            , if external then
+                [ target "_blank" ]
+
+              else
+                []
             ]
-        ]
+        )
 
 
 linkMarkedExternal : List Css.Style -> { link : String } -> Html msg

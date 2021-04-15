@@ -401,7 +401,9 @@ viewAppList model =
                       -- ,
                       Html.text "Are you comfortable with a terminal? Use the "
                     , View.Common.underlinedLink []
-                        { location = "https://guide.fission.codes/developers/installation#installing-the-fission-cli" }
+                        { location = "https://guide.fission.codes/developers/installation#installing-the-fission-cli"
+                        , external = True
+                        }
                         [ Html.text "fission command line interface" ]
                     , Html.text "!"
                     ]
@@ -488,7 +490,9 @@ viewUploadDropzone appName state =
                     , View.Dashboard.sectionLoadingText
                         [ Html.text "Success! "
                         , View.Common.underlinedLink []
-                            { location = App.toUrl determinedAppName }
+                            { location = App.toUrl determinedAppName
+                            , external = True
+                            }
                             [ Html.text (App.toString determinedAppName) ]
                         , Html.text " is now live! 🚀"
                         ]
@@ -524,7 +528,9 @@ viewUploadDropzone appName state =
                         , Html.br [] []
                         , Html.text "If you're advanced, you can check the developer console for errors and "
                         , View.Common.underlinedLink []
-                            { location = "https://github.com/fission-suite/dashboard/issues" }
+                            { location = "https://github.com/fission-suite/dashboard/issues"
+                            , external = False
+                            }
                             [ Html.text "file an issue" ]
                         , Html.text "."
                         ]
