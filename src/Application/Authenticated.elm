@@ -3,7 +3,6 @@ module Authenticated exposing (..)
 import Browser
 import Browser.Navigation as Navigation
 import Common
-import Css
 import Data.App as App
 import Data.Validation
 import Dict
@@ -433,14 +432,7 @@ viewBackup model =
             , View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
                 [ Html.text "The dashboard will need access permissions to your private files to create a secure backup." ]
             , View.Backup.buttonGroup
-                [ View.Common.button
-                    { isLoading = False
-                    , disabled = False
-                    , label = "Give Permission for a Backup"
-                    , onClick = Just (AuthenticatedMsg BackupAskForPermission)
-                    , style = Css.batch [ Tailwind.Utilities.flex_grow_0, View.Common.primaryButtonStyle ]
-                    , spinnerStyle = [ View.Common.primaryButtonLoaderStyle ]
-                    }
+                [ View.Backup.askForPermissionButton (AuthenticatedMsg BackupAskForPermission)
                 ]
             ]
     ]

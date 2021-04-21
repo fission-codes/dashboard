@@ -1,15 +1,12 @@
 module View.Backup exposing (..)
 
 import Css
-import Css.Global
 import FeatherIcons
 import Html.Styled exposing (..)
-import Html.Styled.Attributes exposing (action, attribute, autocomplete, css, href, method, name, readonly, src, tabindex, target, title, type_, value)
-import Html.Styled.Events as Events
-import Route exposing (Route)
+import Html.Styled.Attributes exposing (css)
 import Tailwind.Breakpoints exposing (..)
 import Tailwind.Utilities exposing (..)
-import View.Common exposing (dark, px)
+import View.Common exposing (dark)
 import View.Dashboard
 
 
@@ -19,29 +16,37 @@ loggedInAs username =
         [ css
             [ View.Dashboard.sectionParagraphSpacings
             , flex
-            , flex_row
-            , space_x_2
             ]
         ]
-        [ View.Common.icon
-            { icon = FeatherIcons.user
-            , size = View.Common.Medium
-            , tag =
-                span
-                    [ css
-                        [ dark [ text_darkmode_purple ]
-                        , text_purple
-                        ]
-                    ]
-            }
-        , span
+        [ span
             [ css
-                [ dark [ text_gray_600 ]
-                , text_gray_300
+                [ sm [ ml_0 ]
+                , flex
+                , flex_row
+                , mx_auto
+                , space_x_2
                 ]
             ]
-            [ text "Logged in as "
-            , span [ css [ italic ] ] [ text username ]
+            [ View.Common.icon
+                { icon = FeatherIcons.user
+                , size = View.Common.Medium
+                , tag =
+                    span
+                        [ css
+                            [ dark [ text_darkmode_purple ]
+                            , text_purple
+                            ]
+                        ]
+                }
+            , span
+                [ css
+                    [ dark [ text_gray_600 ]
+                    , text_gray_300
+                    ]
+                ]
+                [ text "Logged in as "
+                , span [ css [ italic ] ] [ text username ]
+                ]
             ]
         ]
 
@@ -58,3 +63,20 @@ buttonGroup content =
             ]
         ]
         content
+
+
+askForPermissionButton : msg -> Html msg
+askForPermissionButton msg =
+    View.Common.button
+        { isLoading = False
+        , disabled = False
+        , label = "Give Permission for a Backup"
+        , onClick = Just msg
+        , style =
+            Css.batch
+                [ sm [ flex_grow_0 ]
+                , flex_grow
+                , View.Common.primaryButtonStyle
+                ]
+        , spinnerStyle = [ View.Common.primaryButtonLoaderStyle ]
+        }
