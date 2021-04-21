@@ -18,23 +18,24 @@ import Radix exposing (..)
 import Route exposing (Route)
 import Tailwind.Utilities
 import Url exposing (Url)
-import Url.Builder
 import View.Account
 import View.AppList
 import View.Backup
 import View.Common
 import View.Dashboard
 import View.Navigation
+import Webnative.Types
 
 
-init : Url -> String -> ( AuthenticatedModel, Cmd Msg )
-init url username =
+init : Url -> { username : String, permissions : Webnative.Types.Permissions } -> ( AuthenticatedModel, Cmd Msg )
+init url { username, permissions } =
     let
         route =
             Route.fromUrl url
                 |> Maybe.withDefault Route.Index
     in
     ( { username = username
+      , permissions = permissions
       , resendingVerificationEmail = False
       , navigationExpanded = False
       , route = route
@@ -406,29 +407,42 @@ viewAccount model =
 
 viewBackup : AuthenticatedModel -> List (Html Msg)
 viewBackup model =
+    let
+        hasPrivateFilesystemPermissions permissions =
+            case permissions.fs of
+                Just { privatePaths } ->
+                    privatePaths |> List.any ((==) "/")
+
+                _ ->
+                    False
+    in
     [ View.Dashboard.heading [ Html.text "Backup your Account" ]
     , View.Common.sectionSpacer
-    , View.Dashboard.section []
-        [ View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
-            [ Html.text "Fission accounts don't need passwords, because we use the encryption built into your web browser to link devices."
-            , Html.br [] []
-            , Html.br [] []
-            , Html.text "In case you lose access to all the devices you have linked to Fission, you need to store this secure backup in a safe place."
+    , if hasPrivateFilesystemPermissions model.permissions then
+        View.Dashboard.section [] []
+
+      else
+        View.Dashboard.section []
+            [ View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
+                [ Html.text "Fission accounts don't need passwords, because we use the encryption built into your web browser to link devices."
+                , Html.br [] []
+                , Html.br [] []
+                , Html.text "In case you lose access to all the devices you have linked to Fission, you need to store this secure backup in a safe place."
+                ]
+            , View.Backup.loggedInAs model.username
+            , View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
+                [ Html.text "The dashboard will need access permissions to your private files to create a secure backup." ]
+            , View.Backup.buttonGroup
+                [ View.Common.button
+                    { isLoading = False
+                    , disabled = False
+                    , label = "Give Permission for a Backup"
+                    , onClick = Just (AuthenticatedMsg BackupAskForPermission)
+                    , style = Css.batch [ Tailwind.Utilities.flex_grow_0, View.Common.primaryButtonStyle ]
+                    , spinnerStyle = [ View.Common.primaryButtonLoaderStyle ]
+                    }
+                ]
             ]
-        , View.Backup.loggedInAs model.username
-        , View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
-            [ Html.text "The dashboard will need access permissions to your private files to create a secure backup." ]
-        , View.Backup.buttonGroup
-            [ View.Common.button
-                { isLoading = False
-                , disabled = False
-                , label = "Give Permission for a Backup"
-                , onClick = Just (AuthenticatedMsg BackupAskForPermission)
-                , style = Css.batch [ Tailwind.Utilities.flex_grow_0, View.Common.primaryButtonStyle ]
-                , spinnerStyle = [ View.Common.primaryButtonLoaderStyle ]
-                }
-            ]
-        ]
     ]
 
 

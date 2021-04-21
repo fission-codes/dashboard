@@ -91,10 +91,20 @@ updateOther msg model =
             case result of
                 Ok webnativeState ->
                     let
-                        onAuthenticated username =
-                            Authenticated.init model.url username
-                                |> Tuple.mapFirst
-                                    (\state -> { model | state = Authenticated state })
+                        onAuthenticated username maybePermissions =
+                            case maybePermissions of
+                                Just permissions ->
+                                    Authenticated.init model.url
+                                        { username = username
+                                        , permissions = permissions
+                                        }
+                                        |> Tuple.mapFirst
+                                            (\state -> { model | state = Authenticated state })
+
+                                Nothing ->
+                                    ( { model | state = SigninScreen }
+                                    , Ports.log [ E.string "No permissions after webnative initialisation" ]
+                                    )
                     in
                     case webnativeState of
                         Webnative.Types.NotAuthorised _ ->
@@ -107,11 +117,11 @@ updateOther msg model =
                             , Cmd.none
                             )
 
-                        Webnative.Types.AuthSucceeded { username } ->
-                            onAuthenticated username
+                        Webnative.Types.AuthSucceeded { username, permissions } ->
+                            onAuthenticated username permissions
 
-                        Webnative.Types.Continuation { username } ->
-                            onAuthenticated username
+                        Webnative.Types.Continuation { username, permissions } ->
+                            onAuthenticated username permissions
 
                 Err error ->
                     ( model

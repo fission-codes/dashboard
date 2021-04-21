@@ -47,6 +47,7 @@ type WebnativeError
 
 type alias AuthenticatedModel =
     { username : String
+    , permissions : Webnative.Types.Permissions
     , resendingVerificationEmail : Bool
     , navigationExpanded : Bool
     , route : Route
