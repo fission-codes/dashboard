@@ -69,9 +69,7 @@ workbox_config := "./src/Javascript/workbox.config.cjs"
 
 @html:
 	echo "📜  Compiling HTML"
-	mustache \
-		config/default.yml src/Html/Main.html \
-		> {{dist}}/index.html
+	cp src/Html/Main.html {{dist}}/index.html
 
 
 @images:

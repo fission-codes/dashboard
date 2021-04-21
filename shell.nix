@@ -11,8 +11,8 @@ in
       # Dev Tools
       pkgs.devd
       pkgs.just
-      pkgs.mustache-go
       pkgs.watchexec
+      pkgs.jq
 
       # Language Specific
       pkgs.elmPackages.elm
