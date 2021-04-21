@@ -64,6 +64,8 @@ const savePermissionsWanted = json => saveLocalStorage(permissionsWantedKey, jso
 const url = new URL(window.location.href)
 if (url.searchParams.get("cancelled") != null) {
   savePermissionsWanted(null)
+  url.searchParams.delete("cancelled")
+  history.replaceState(null, document.title, url.toString())
 }
 
 const permissionsConfirmed = lookupPermissionsConfirmed() || {}
