@@ -135,6 +135,10 @@ update navKey msg model =
                 }
             )
 
+        BackupStart ->
+            -- TODO
+            ( model, Cmd.none )
+
         -- App list
         FetchedAppList value ->
             case Json.decodeValue appsIndexDecoder value of
@@ -362,7 +366,7 @@ navigationItems =
       , icon = FeatherIcons.user
       }
     , { route = Route.Backup
-      , name = "Backup"
+      , name = "Secure Backup"
       , icon = FeatherIcons.key
       }
     , { route = Route.DeveloperAppList Route.DeveloperAppListIndex
@@ -415,26 +419,32 @@ viewBackup model =
                 _ ->
                     False
     in
-    [ View.Dashboard.heading [ Html.text "Backup your Account" ]
+    [ View.Dashboard.heading [ Html.text "Secure Backup" ]
     , View.Common.sectionSpacer
-    , if hasPrivateFilesystemPermissions model.permissions then
-        View.Dashboard.section [] []
-
-      else
-        View.Dashboard.section []
-            [ View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
-                [ Html.text "Fission accounts don't need passwords, because we use the encryption built into your web browser to link devices."
-                , Html.br [] []
-                , Html.br [] []
-                , Html.text "In case you lose access to all the devices you have linked to Fission, you need to store this secure backup in a safe place."
+    , View.Dashboard.section []
+        (List.concat
+            [ [ View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
+                    [ Html.text "Fission accounts don't need passwords, because we use the encryption built into your web browser to link devices."
+                    , Html.br [] []
+                    , Html.br [] []
+                    , Html.text "In case you lose access to all the devices you have linked to Fission, you need to store this secure backup in a safe place."
+                    ]
+              , View.Backup.loggedInAs model.username
+              ]
+            , if hasPrivateFilesystemPermissions model.permissions then
+                [ View.Backup.buttonGroup
+                    [ View.Backup.secureBackupButton (AuthenticatedMsg BackupStart) ]
                 ]
-            , View.Backup.loggedInAs model.username
-            , View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
-                [ Html.text "The dashboard will need access permissions to your private files to create a secure backup." ]
-            , View.Backup.buttonGroup
-                [ View.Backup.askForPermissionButton (AuthenticatedMsg BackupAskForPermission)
+
+              else
+                [ View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
+                    [ Html.text "The dashboard will need access permissions to your private files to create a secure backup." ]
+                , View.Backup.buttonGroup
+                    [ View.Backup.askForPermissionButton (AuthenticatedMsg BackupAskForPermission)
+                    ]
                 ]
             ]
+        )
     ]
 
 

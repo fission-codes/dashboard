@@ -118,6 +118,7 @@ type AuthenticatedMsg
     | VerificationEmailSent
       -- Backup
     | BackupAskForPermission
+    | BackupStart
       -- App List
     | FetchedAppList Json.Value
     | DropzonePublishStart

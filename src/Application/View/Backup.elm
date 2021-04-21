@@ -80,3 +80,20 @@ askForPermissionButton msg =
                 ]
         , spinnerStyle = [ View.Common.primaryButtonLoaderStyle ]
         }
+
+
+secureBackupButton : msg -> Html msg
+secureBackupButton msg =
+    View.Common.button
+        { isLoading = False
+        , disabled = False
+        , label = "Secure Backup"
+        , onClick = Just msg
+        , style =
+            Css.batch
+                [ sm [ flex_grow_0 ]
+                , flex_grow
+                , View.Common.primaryButtonStyle
+                ]
+        , spinnerStyle = [ View.Common.primaryButtonLoaderStyle ]
+        }

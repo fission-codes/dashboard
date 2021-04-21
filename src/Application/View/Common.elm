@@ -247,7 +247,6 @@ primaryButtonStyle =
         , text_white
         , tracking_wider
         , transition_colors
-        , uppercase
 
         --
         , duration_300

@@ -136,6 +136,7 @@ signinButton styles { onClick } =
         [ css
             [ Css.batch styles
             , View.Common.primaryButtonStyle
+            , uppercase
             , mt_5
             ]
         , Events.onClick onClick
