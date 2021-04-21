@@ -1,6 +1,7 @@
 # Variables
 # =========
 
+config := "production"
 dist := "build"
 node_bin := "./node_modules/.bin"
 workbox_config := "./src/Javascript/workbox.config.cjs"
@@ -11,15 +12,15 @@ workbox_config := "./src/Javascript/workbox.config.cjs"
 # =====
 
 @default: dev-build
-	just dev-server & just watch
+	just config={{config}} dev-server & just config={{config}} watch
 
 
 @hot:
-	just dev-build
-	just hot-server & \
-	just watch-css & \
-	just watch-html & \
-	just watch-javascript-dev
+	just config={{config}} dev-build
+	just config={{config}} hot-server & \
+	just config={{config}} watch-css & \
+	just config={{config}} watch-html & \
+	just config={{config}} watch-javascript-dev
 
 
 
@@ -68,7 +69,7 @@ workbox_config := "./src/Javascript/workbox.config.cjs"
 
 
 @html:
-	echo "📜  Compiling HTML"
+	echo "📜  Copying HTML"
 	cp src/Html/Main.html {{dist}}/index.html
 
 
@@ -81,6 +82,10 @@ workbox_config := "./src/Javascript/workbox.config.cjs"
 @javascript-dev:
 	echo "⚙️  Bundling javascript"
 	{{node_bin}}/esbuild \
+		--define:CONFIG_ENVIRONMENT="\"{{config}}\"" \
+		--define:CONFIG_API_ENDPOINT="$(jq .API_ENDPOINT config/{{config}}.json)" \
+		--define:CONFIG_LOBBY="$(jq .LOBBY config/{{config}}.json)" \
+		--define:CONFIG_USER="$(jq .USER config/{{config}}.json)" \
 		--bundle \
 		--sourcemap \
 		--outfile={{dist}}/bundle.min.js \
@@ -90,6 +95,10 @@ workbox_config := "./src/Javascript/workbox.config.cjs"
 @javascript-prod:
 	echo "⚙️  Bundling minified javascript"
 	{{node_bin}}/esbuild \
+		--define:CONFIG_ENVIRONMENT="\"{{config}}\"" \
+		--define:CONFIG_API_ENDPOINT="$(jq .API_ENDPOINT config/{{config}}.json)" \
+		--define:CONFIG_LOBBY="$(jq .LOBBY config/{{config}}.json)" \
+		--define:CONFIG_USER="$(jq .USER config/{{config}}.json)" \
 		--bundle \
 		--minify \
 		--sourcemap \
@@ -115,7 +124,8 @@ workbox_config := "./src/Javascript/workbox.config.cjs"
 @dev-build: clean html css javascript-dev elm-dev fonts favicons manifests images
 
 
-@production-build: clean html css elm-production javascript-prod fonts favicons manifests images production-service-worker
+@production-build:
+	just config=production clean html css elm-production javascript-prod fonts favicons manifests images production-service-worker
 
 
 @production-service-worker:
@@ -148,23 +158,23 @@ workbox_config := "./src/Javascript/workbox.config.cjs"
 
 @watch:
 	echo "👀  Watching for changes"
-	just watch-css & \
-	just watch-elm & \
-	just watch-html & \
-	just watch-javascript-dev
+	just config={{config}} watch-css & \
+	just config={{config}} watch-elm & \
+	just config={{config}} watch-html & \
+	just config={{config}} watch-javascript-dev
 
 
 @watch-css:
-	watchexec -p -w src -f "*/Css/**/*.*" -i build -- just css
+	watchexec -p -w src -f "*/Css/**/*.*" -i build -- just config={{config}} css
 
 
 @watch-elm:
-	watchexec -p -w src -e elm -- just elm-dev
+	watchexec -p -w src -e elm -- just config={{config}} elm-dev
 
 
 @watch-html:
-	watchexec -p -w src -e html -- just html
+	watchexec -p -w src -e html -- just config={{config}} html
 
 
 @watch-javascript-dev:
-	watchexec -p -w src -e js -- just javascript-dev
+	watchexec -p -w src -e js -- just config={{config}} javascript-dev

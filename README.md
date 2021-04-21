@@ -29,9 +29,13 @@ We recommend using [`lorri`](https://github.com/target/lorri) for something a be
 
 ## Run
 
-```
+```sh
 $ just install-deps
-$ just
+$ just config=staging
+# Or, running a hot-reloading server
+$ just config=staging hot
+# Or, run against production
+$ just config=production
 ```
 
 Now there is a development server running on http://localhost:8004. Open that link in your browser to see the running app.

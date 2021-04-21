@@ -4,6 +4,26 @@ import lodashMerge from "lodash/merge"
 
 
 //----------------------------------------
+// GLOBALS / CONFIG
+//----------------------------------------
+
+window.environment = CONFIG_ENVIRONMENT
+
+console.log(`Running in ${window.environment} environment`)
+
+window.endpoints = {
+  api: CONFIG_API_ENDPOINT,
+  lobby: CONFIG_LOBBY,
+  user: CONFIG_USER,
+}
+
+window.webnative = webnative
+
+webnative.setup.debug({ enabled: true })
+webnative.setup.endpoints(window.endpoints)
+
+
+//----------------------------------------
 // PERMISSIONS
 //----------------------------------------
 
@@ -33,11 +53,11 @@ function saveLocalStorage(key, json) {
   localStorage.setItem(key, JSON.stringify(json, null, 2))
 }
 
-const permissionsConfirmedKey = "permissions-confirmed-v1"
+const permissionsConfirmedKey = `permissions-confirmed-v1-${window.endpoints.api}`
 const lookupPermissionsConfirmed = () => lookupLocalStorage(permissionsConfirmedKey)
 const savePermissionsConfirmed = json => saveLocalStorage(permissionsConfirmedKey, json)
 
-const permissionsWantedKey = "permissions-wanted-v1"
+const permissionsWantedKey = `permissions-wanted-v1-${window.endpoints.api}`
 const lookupPermissionsWanted = () => lookupLocalStorage(permissionsWantedKey)
 const savePermissionsWanted = json => saveLocalStorage(permissionsWantedKey, json)
 
@@ -125,14 +145,6 @@ elmApp.ports.webnativeAppRename.subscribe(async ({ from, to }) => {
 //----------------------------------------
 // WEBNATIVE
 //----------------------------------------
-
-webnative.setup.debug({ enabled: true })
-
-if (window.location.hostname === "localhost") {
-  setupInStaging()
-}
-
-window.webnative = webnative
 
 webnative
   .initialise({
@@ -369,17 +381,6 @@ customElements.define("dashboard-upload-dropzone", class extends HTMLElement {
 //----------------------------------------
 // UTILITIES
 //----------------------------------------
-
-function setupInStaging() {
-  // TODO Make this configurable via json. Use --define & jq & just config values
-  console.log("Running in staging environment")
-  webnative.setup.debug({ enabled: true })
-  webnative.setup.endpoints({
-    api: "https://runfission.net",
-    lobby: "https://auth.runfission.net",
-    user: "fissionuser.net"
-  })
-}
 
 function fileContent(file) {
   return new Promise((resolve, reject) => {
