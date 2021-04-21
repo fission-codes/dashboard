@@ -27,7 +27,7 @@ webnative.setup.endpoints(window.endpoints)
 // PERMISSIONS
 //----------------------------------------
 
-const permissionBaseline = {
+const permissionsBaseline = {
   app: {
     creator: "Fission",
     name: "Dashboard",
@@ -69,7 +69,7 @@ if (url.searchParams.get("cancelled") != null) {
 const permissionsConfirmed = lookupPermissionsConfirmed() || {}
 const permissionsWanted = lookupPermissionsWanted() || {}
 
-const permissions = lodashMerge(permissionBaseline, permissionsConfirmed, permissionsWanted)
+const permissions = lodashMerge(permissionsBaseline, permissionsConfirmed, permissionsWanted)
 
 console.log("Permissions Confirmed:", permissionsConfirmed)
 console.log("Permissions Wanted:", permissionsWanted)
@@ -81,7 +81,7 @@ console.log("Permissions now trying:", permissions)
 //----------------------------------------
 
 const elmApp = Elm.Main.init({
-  flags: { permissionBaseline }
+  flags: { permissionsBaseline }
 })
 
 elmApp.ports.webnativeRedirectToLobby.subscribe(async ({ permissions }) => {
