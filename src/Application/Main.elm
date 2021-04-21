@@ -36,13 +36,29 @@ main =
 
 
 init : Flags -> Url -> Navigation.Key -> ( Model, Cmd Msg )
-init _ url navKey =
-    ( { navKey = navKey
-      , url = url
-      , state = LoadingScreen
-      }
-    , Cmd.none
-    )
+init flags url navKey =
+    case Json.decodeValue Webnative.Types.decoderPermissions flags.defaultPermissions of
+        Ok defaultPermissions ->
+            ( { navKey = navKey
+              , url = url
+              , defaultPermissions = defaultPermissions
+              , state = LoadingScreen
+              }
+            , Cmd.none
+            )
+
+        Err error ->
+            ( { navKey = navKey
+              , url = url
+              , defaultPermissions =
+                    { app = Nothing
+                    , fs = Nothing
+                    , platform = Nothing
+                    }
+              , state = ErrorScreen (UnknownError "Initialisation error. See the console for more details.")
+              }
+            , Ports.log [ E.string "Error decoding flags", E.string (Json.errorToString error) ]
+            )
 
 
 
@@ -125,9 +141,9 @@ updateOther msg model =
                     , Cmd.none
                     )
 
-        RedirectToLobby ->
+        RedirectToLobby permissions ->
             ( model
-            , Ports.webnativeRedirectToLobby ()
+            , Ports.redirectToLobby { permissions = permissions }
             )
 
         -----------------------------------------
@@ -227,7 +243,8 @@ view model =
             { title = "Fission Dashboard"
             , body =
                 [ View.AuthFlow.signinScreen
-                    { onSignIn = RedirectToLobby }
+                    -- We're not signed in, so we request the baseline of permissions
+                    { onSignIn = RedirectToLobby model.defaultPermissions }
                     |> Html.toUnstyled
                 ]
             }

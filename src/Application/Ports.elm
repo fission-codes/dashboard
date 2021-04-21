@@ -1,9 +1,27 @@
-port module Ports exposing (appDelete, appDeleteFailed, appDeleteSucceeded, appRename, appRenameFailed, appRenameSucceeded, log, webnativeAppIndexFetch, webnativeAppIndexFetched, webnativeError, webnativeInitialized, webnativeRedirectToLobby, webnativeRequest, webnativeResendVerificationEmail, webnativeResponse, webnativeVerificationEmailSent)
+port module Ports exposing
+    ( appDelete
+    , appDeleteFailed
+    , appDeleteSucceeded
+    , appRename
+    , appRenameFailed
+    , appRenameSucceeded
+    , log
+    , redirectToLobby
+    , webnativeAppIndexFetch
+    , webnativeAppIndexFetched
+    , webnativeError
+    , webnativeInitialized
+    , webnativeRequest
+    , webnativeResendVerificationEmail
+    , webnativeResponse
+    , webnativeVerificationEmailSent
+    )
 
 import Data.App as App
 import Json.Decode as Json
 import Json.Encode as E
 import Webnative
+import Webnative.Types
 
 
 port log : List Json.Value -> Cmd msg
@@ -164,4 +182,9 @@ port webnativeAppRenameFailed : (Json.Value -> msg) -> Sub msg
 --
 
 
-port webnativeRedirectToLobby : () -> Cmd msg
+redirectToLobby : { permissions : Webnative.Types.Permissions } -> Cmd msg
+redirectToLobby { permissions } =
+    webnativeRedirectToLobby { permissions = Webnative.Types.encodePermissions permissions }
+
+
+port webnativeRedirectToLobby : { permissions : Json.Value } -> Cmd msg

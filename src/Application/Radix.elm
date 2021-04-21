@@ -16,7 +16,8 @@ import Webnative.Types
 
 
 type alias Flags =
-    {}
+    { defaultPermissions : Json.Value
+    }
 
 
 
@@ -27,6 +28,7 @@ type alias Model =
     { navKey : Browser.Navigation.Key
     , url : Url
     , state : State
+    , defaultPermissions : Webnative.Types.Permissions
     }
 
 
@@ -102,7 +104,7 @@ type Msg
     | InitializedWebnative (Result Json.Error Webnative.Types.State)
     | GotWebnativeResponse Webnative.Response
     | GotWebnativeError String
-    | RedirectToLobby
+    | RedirectToLobby Webnative.Types.Permissions
       -- Other
     | LogError (List Json.Value)
 
@@ -114,7 +116,7 @@ type AuthenticatedMsg
     | EmailResendVerification
     | VerificationEmailSent
       -- Backup
-    | PromptedBrowserToSaveReadKey
+    | BackupAskForPermission
       -- App List
     | FetchedAppList Json.Value
     | DropzonePublishStart

@@ -104,7 +104,7 @@ icon element =
                 Big ->
                     32
             )
-        |> FeatherIcons.toHtml [ Html.Attributes.style "display" "inline" ]
+        |> FeatherIcons.toHtml []
         |> fromUnstyled
         |> List.singleton
         |> element.tag
@@ -150,11 +150,12 @@ linkMarkedExternal styles { link } =
             ]
         ]
         [ text link
-        , icon
-            { icon = FeatherIcons.externalLink
-            , size = Small
-            , tag = span [ css [ ml_1 ] ]
-            }
+        , FeatherIcons.externalLink
+            |> FeatherIcons.withSize 16
+            |> FeatherIcons.toHtml [ Html.Attributes.style "display" "inline" ]
+            |> fromUnstyled
+            |> List.singleton
+            |> span [ css [ ml_1 ] ]
         ]
 
 
@@ -212,6 +213,51 @@ dangerButtonStyle =
         , px_3
         , py_2
         ]
+
+
+primaryButtonStyle : Css.Style
+primaryButtonStyle =
+    Css.batch
+        [ dark [ bg_darkmode_purple ]
+        , Css.disabled
+            [ dark
+                [ bg_gray_200
+                , text_gray_400
+                ]
+            , text_gray_600
+            , bg_gray_400
+            ]
+        , Css.active
+            [ transform_gpu
+            , scale_105
+            ]
+
+        --
+        , antialiased
+        , appearance_none
+        , bg_purple
+        , font_semibold
+        , inline_block
+        , leading_normal
+        , px_5
+        , py_3
+        , relative
+        , rounded
+        , text_sm
+        , text_white
+        , tracking_wider
+        , transition_colors
+        , uppercase
+
+        --
+        , duration_300
+        , ease_out
+        ]
+
+
+primaryButtonLoaderStyle : Css.Style
+primaryButtonLoaderStyle =
+    text_white
 
 
 button :

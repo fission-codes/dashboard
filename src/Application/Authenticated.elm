@@ -3,6 +3,7 @@ module Authenticated exposing (..)
 import Browser
 import Browser.Navigation as Navigation
 import Common
+import Css
 import Data.App as App
 import Data.Validation
 import Dict
@@ -119,8 +120,20 @@ update navKey msg model =
             )
 
         -- Backup
-        PromptedBrowserToSaveReadKey ->
-            ( model, Cmd.none )
+        BackupAskForPermission ->
+            ( model
+            , Ports.redirectToLobby
+                { permissions =
+                    { app = Nothing
+                    , platform = Nothing
+                    , fs =
+                        Just
+                            { publicPaths = []
+                            , privatePaths = [ "/" ]
+                            }
+                    }
+                }
+            )
 
         -- App list
         FetchedAppList value ->
@@ -393,17 +406,30 @@ viewAccount model =
 
 viewBackup : AuthenticatedModel -> List (Html Msg)
 viewBackup model =
-    List.intersperse View.Common.sectionSpacer
-        [ View.Dashboard.heading [ Html.text "Backup your Account" ]
-        , View.Dashboard.sectionParagraph [ View.Common.infoTextStyle, Tailwind.Utilities.max_w_3xl ]
+    [ View.Dashboard.heading [ Html.text "Backup your Account" ]
+    , View.Common.sectionSpacer
+    , View.Dashboard.section []
+        [ View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
             [ Html.text "Fission accounts don't need passwords, because we use the encryption built into your web browser to link devices."
             , Html.br [] []
             , Html.br [] []
             , Html.text "In case you lose access to all the devices you have linked to Fission, you need to store this secure backup in a safe place."
-            , View.Backup.loggedInAs model.username
-            , View.Backup.view (AuthenticatedMsg PromptedBrowserToSaveReadKey)
+            ]
+        , View.Backup.loggedInAs model.username
+        , View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
+            [ Html.text "The dashboard will need access permissions to your private files to create a secure backup." ]
+        , View.Backup.buttonGroup
+            [ View.Common.button
+                { isLoading = False
+                , disabled = False
+                , label = "Give Permission for a Backup"
+                , onClick = Just (AuthenticatedMsg BackupAskForPermission)
+                , style = Css.batch [ Tailwind.Utilities.flex_grow_0, View.Common.primaryButtonStyle ]
+                , spinnerStyle = [ View.Common.primaryButtonLoaderStyle ]
+                }
             ]
         ]
+    ]
 
 
 viewAppList : AuthenticatedModel -> List (Html Msg)

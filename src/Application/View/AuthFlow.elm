@@ -135,31 +135,8 @@ signinButton styles { onClick } =
     button
         [ css
             [ Css.batch styles
-
-            --
-            , antialiased
-            , appearance_none
-            , bg_purple
-            , font_semibold
-            , inline_block
-            , leading_normal
-            , mt_8
-            , mx_auto
-            , px_5
-            , py_3
-            , relative
-            , rounded
-            , text_sm
-            , text_white
-            , tracking_wider
-            , transition_colors
-
-            --
-            , duration_500
-            , ease_out
-
-            --
-            , Css.focus [ shadow_outline ]
+            , View.Common.primaryButtonStyle
+            , mt_5
             ]
         , Events.onClick onClick
         ]
