@@ -395,12 +395,13 @@ viewBackup : AuthenticatedModel -> List (Html Msg)
 viewBackup model =
     List.intersperse View.Common.sectionSpacer
         [ View.Dashboard.heading [ Html.text "Backup your Account" ]
-        , View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
+        , View.Dashboard.sectionParagraph [ View.Common.infoTextStyle, Tailwind.Utilities.max_w_3xl ]
             [ Html.text "Fission accounts don't need passwords, because we use the encryption built into your web browser to link devices."
             , Html.br [] []
             , Html.br [] []
-            , Html.text "In case you lose access to all the devices you have linked to Fission, you need to store these recovery codes in a safe place."
-            , View.Backup.view (GotWebnativeError "WHAAAT")
+            , Html.text "In case you lose access to all the devices you have linked to Fission, you need to store this secure backup in a safe place."
+            , View.Backup.loggedInAs model.username
+            , View.Backup.view (AuthenticatedMsg PromptedBrowserToSaveReadKey)
             ]
         ]
 

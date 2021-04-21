@@ -164,18 +164,18 @@ headingSubLevel { link, label } =
 
 headingSeparator : Html msg
 headingSeparator =
-    FeatherIcons.chevronRight
-        |> FeatherIcons.withSize 32
-        |> FeatherIcons.toHtml []
-        |> fromUnstyled
-        |> List.singleton
-        |> span
-            [ css
-                [ md [ mx_5 ]
-                , text_gray_400
-                , mx_2
+    View.Common.icon
+        { icon = FeatherIcons.chevronRight
+        , size = View.Common.Big
+        , tag =
+            span
+                [ css
+                    [ md [ mx_5 ]
+                    , text_gray_400
+                    , mx_2
+                    ]
                 ]
-            ]
+        }
 
 
 headingSubItem : String -> Html msg
@@ -210,26 +210,26 @@ appHeader element =
                 { styles = []
                 , imageStyles = [ h_8 ]
                 }
-            , button
-                [ Events.onClick element.onToggle
-                , css
-                    [ lg [ hidden ]
-                    , dark [ text_gray_400 ]
-                    , ml_auto
-                    , rounded
-                    , text_gray_300
-                    ]
-                ]
-                [ (if element.menuExpanded then
-                    FeatherIcons.x
+            , View.Common.icon
+                { icon =
+                    if element.menuExpanded then
+                        FeatherIcons.x
 
-                   else
-                    FeatherIcons.menu
-                  )
-                    |> FeatherIcons.withSize 32
-                    |> FeatherIcons.toHtml []
-                    |> fromUnstyled
-                ]
+                    else
+                        FeatherIcons.menu
+                , size = View.Common.Big
+                , tag =
+                    button
+                        [ Events.onClick element.onToggle
+                        , css
+                            [ lg [ hidden ]
+                            , dark [ text_gray_400 ]
+                            , ml_auto
+                            , rounded
+                            , text_gray_300
+                            ]
+                        ]
+                }
             ]
         ]
 
@@ -375,34 +375,34 @@ sectionLoadingIndicator =
 
 iconError : Html msg
 iconError =
-    FeatherIcons.alertTriangle
-        |> FeatherIcons.withSize 24
-        |> FeatherIcons.toHtml []
-        |> fromUnstyled
-        |> List.singleton
-        |> span
-            [ css
-                [ dark [ text_darkmode_red ]
-                , text_red
-                , inline
+    View.Common.icon
+        { icon = FeatherIcons.alertTriangle
+        , size = View.Common.Normal
+        , tag =
+            span
+                [ css
+                    [ dark [ text_darkmode_red ]
+                    , text_red
+                    , inline
+                    ]
                 ]
-            ]
+        }
 
 
 iconSuccess : Html msg
 iconSuccess =
-    FeatherIcons.check
-        |> FeatherIcons.withSize 24
-        |> FeatherIcons.toHtml []
-        |> fromUnstyled
-        |> List.singleton
-        |> span
-            [ css
-                [ dark [ text_darkmode_purple ]
-                , text_purple
-                , inline
+    View.Common.icon
+        { icon = FeatherIcons.check
+        , size = View.Common.Normal
+        , tag =
+            span
+                [ css
+                    [ dark [ text_darkmode_purple ]
+                    , text_purple
+                    , inline
+                    ]
                 ]
-            ]
+        }
 
 
 sectionLoadingText : List (Html msg) -> Html msg

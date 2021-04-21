@@ -3,7 +3,7 @@ module View.Backup exposing (..)
 import Css
 import Css.Global
 import Html.Styled exposing (..)
-import Html.Styled.Attributes exposing (action, attribute, autocomplete, css, href, method, name, src, tabindex, target, title, type_, value)
+import Html.Styled.Attributes exposing (action, attribute, autocomplete, css, href, method, name, readonly, src, tabindex, target, title, type_, value)
 import Html.Styled.Events as Events
 import Route exposing (Route)
 import Tailwind.Breakpoints exposing (..)
@@ -15,20 +15,30 @@ import View.Dashboard
 view : msg -> Html msg
 view msg =
     form
-        [ css [ flex, flex_col ]
+        [ css [ flex, flex_col, max_w_3xl ]
         , action (Route.toUrl Route.Backup)
-        , method "GET"
+        , method "POST"
+        , Events.onSubmit msg
         ]
         [ input
             [ css [ hidden ]
-            , type_ "username"
-            , value "matheus23-drive2"
+            , type_ "text"
+            , attribute "autocomplete" "username"
+            , value "matheus23-fast"
             ]
             []
         , input
-            [ css [ opacity_0, h_0 ]
+            [ css [ View.Common.basicInputStyle ]
+            , readonly True
+            , type_ "text"
+            , attribute "autocomplete" "off"
+            , value "x0lmNjRlZjBlNDkxZmRlMjY4NzNhMDBhMDk1ZmY0MDAM="
+            ]
+            []
+        , input
+            [ css [ View.Common.basicInputStyle ]
             , type_ "password"
-            , autocomplete True
+            , attribute "autocomplete" "new-password"
             , value "x0lmNjRlZjBlNDkxZmRlMjY4NzNhMDBhMDk1ZmY0MDAM="
             ]
             []
@@ -68,3 +78,15 @@ view msg =
                 [ text "Store Recovery Key in Browser" ]
             ]
         ]
+
+
+loggedInAs : String -> Html msg
+loggedInAs username =
+    p
+        [ css
+            [ flex
+            , flex_row
+            , space_x_2
+            ]
+        ]
+        []

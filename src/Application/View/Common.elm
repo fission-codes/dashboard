@@ -62,34 +62,52 @@ logo { styles, imageStyles } =
         ]
 
 
-type LoadingAnimationType
+type IconSize
     = Normal
     | Small
+    | Medium
+    | Big
 
 
-loadingAnimation : LoadingAnimationType -> List Css.Style -> Html msg
-loadingAnimation typ styles =
-    FeatherIcons.loader
+loadingAnimation : IconSize -> List Css.Style -> Html msg
+loadingAnimation size styles =
+    icon
+        { icon = FeatherIcons.loader
+        , tag =
+            span
+                [ css
+                    [ dark [ text_gray_500 ]
+                    , animate_spin
+                    , block
+                    , text_gray_300
+                    , Css.batch styles
+                    ]
+                ]
+        , size = size
+        }
+
+
+icon : { tag : List (Html msg) -> Html msg, size : IconSize, icon : FeatherIcons.Icon } -> Html msg
+icon element =
+    element.icon
         |> FeatherIcons.withSize
-            (case typ of
+            (case element.size of
                 Normal ->
                     24
 
                 Small ->
                     16
+
+                Medium ->
+                    20
+
+                Big ->
+                    32
             )
-        |> FeatherIcons.toHtml []
+        |> FeatherIcons.toHtml [ Html.Attributes.style "display" "inline" ]
         |> fromUnstyled
         |> List.singleton
-        |> span
-            [ css
-                [ dark [ text_gray_500 ]
-                , animate_spin
-                , block
-                , text_gray_300
-                , Css.batch styles
-                ]
-            ]
+        |> element.tag
 
 
 underlinedLink : List Css.Style -> { location : String, external : Bool } -> List (Html msg) -> Html msg
@@ -132,12 +150,11 @@ linkMarkedExternal styles { link } =
             ]
         ]
         [ text link
-        , FeatherIcons.externalLink
-            |> FeatherIcons.withSize 16
-            |> FeatherIcons.toHtml [ Html.Attributes.style "display" "inline" ]
-            |> fromUnstyled
-            |> List.singleton
-            |> span [ css [ ml_1 ] ]
+        , icon
+            { icon = FeatherIcons.externalLink
+            , size = Small
+            , tag = span [ css [ ml_1 ] ]
+            }
         ]
 
 
@@ -354,23 +371,20 @@ warning : List (Html msg) -> Html msg
 warning content =
     span
         [ css
-            [ dark
-                [ text_darkmode_red
-                ]
+            [ dark [ text_darkmode_red ]
             , flex
             , flex_row
             , items_center
+            , space_x_2
             , text_red
             , text_sm
-            , space_x_2
             ]
         ]
-        [ FeatherIcons.alertTriangle
-            |> FeatherIcons.withSize 16
-            |> FeatherIcons.toHtml []
-            |> fromUnstyled
-            |> List.singleton
-            |> span []
+        [ icon
+            { icon = FeatherIcons.alertTriangle
+            , size = Small
+            , tag = span []
+            }
         , span
             [ css [ font_display ] ]
             content

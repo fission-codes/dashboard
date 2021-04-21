@@ -65,28 +65,28 @@ item styles element =
             , items_center
             ]
         ]
-        [ element.icon
-            |> FeatherIcons.withSize 16
-            |> FeatherIcons.toHtml []
-            |> fromUnstyled
-            |> List.singleton
-            |> span
-                [ classList
-                    [ ( "active", element.active ) ]
-                , css
-                    [ Css.Global.withClass "active"
-                        [ dark [ text_gray_600 ]
-                        , text_purple
-                        ]
-                    , dark [ text_gray_400 ]
+        [ View.Common.icon
+            { icon = element.icon
+            , size = View.Common.Small
+            , tag =
+                span
+                    [ classList
+                        [ ( "active", element.active ) ]
+                    , css
+                        [ Css.Global.withClass "active"
+                            [ dark [ text_gray_600 ]
+                            , text_purple
+                            ]
+                        , dark [ text_gray_400 ]
 
-                    --
-                    , flex_shrink_0
-                    , pl_5
-                    , pr_3
-                    , text_gray_300
+                        --
+                        , flex_shrink_0
+                        , pl_5
+                        , pr_3
+                        , text_gray_300
+                        ]
                     ]
-                ]
+            }
         , span
             [ classList
                 [ ( "active", element.active ) ]
@@ -105,24 +105,24 @@ item styles element =
                 ]
             ]
             [ text element.label ]
-        , FeatherIcons.chevronRight
-            |> FeatherIcons.withSize 16
-            |> FeatherIcons.toHtml []
-            |> fromUnstyled
-            |> List.singleton
-            |> span
-                [ classList
-                    [ ( "active", element.active ) ]
-                , css
-                    [ Css.Global.withClass "active"
-                        [ dark [ text_gray_600 ]
-                        , block
-                        , text_purple
+        , View.Common.icon
+            { icon = FeatherIcons.chevronRight
+            , size = View.Common.Small
+            , tag =
+                span
+                    [ classList
+                        [ ( "active", element.active ) ]
+                    , css
+                        [ Css.Global.withClass "active"
+                            [ dark [ text_gray_600 ]
+                            , block
+                            , text_purple
+                            ]
+                        , flex_shrink_0
+                        , hidden
+                        , ml_auto
+                        , pr_2
                         ]
-                    , flex_shrink_0
-                    , hidden
-                    , ml_auto
-                    , pr_2
                     ]
-                ]
+            }
         ]

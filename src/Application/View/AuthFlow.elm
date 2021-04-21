@@ -5,7 +5,7 @@ import FeatherIcons
 import Html.Styled exposing (..)
 import Html.Styled.Attributes exposing (css)
 import Html.Styled.Events as Events
-import Svg exposing (svg)
+import Svg exposing (Svg, svg)
 import Svg.Attributes as SvgA
 import Tailwind.Breakpoints exposing (..)
 import Tailwind.Utilities exposing (..)
@@ -72,19 +72,19 @@ errorScreen { message } =
     splashscreenShell
         { styles = []
         , content =
-            [ span
-                [ css
-                    [ dark [ text_darkmode_red ]
-                    , block
-                    , mt_16
-                    , text_red
-                    ]
-                ]
-                [ FeatherIcons.alertTriangle
-                    |> FeatherIcons.withSize 32
-                    |> FeatherIcons.toHtml []
-                    |> fromUnstyled
-                ]
+            [ View.Common.icon
+                { icon = FeatherIcons.alertTriangle
+                , size = View.Common.Big
+                , tag =
+                    span
+                        [ css
+                            [ dark [ text_darkmode_red ]
+                            , block
+                            , mt_16
+                            , text_red
+                            ]
+                        ]
+                }
             , p
                 [ css
                     [ dark [ text_gray_500 ]
@@ -130,11 +130,6 @@ splashscreenShell { styles, content } =
         )
 
 
-{-| This is basically copied together from the drive codebase.
-
-Should maybe become a component common to both drive and the dashboard at some point.
-
--}
 signinButton : List Css.Style -> { onClick : msg } -> Html msg
 signinButton styles { onClick } =
     button
@@ -158,7 +153,6 @@ signinButton styles { onClick } =
             , text_white
             , tracking_wider
             , transition_colors
-            , uppercase
 
             --
             , duration_500
@@ -184,25 +178,28 @@ signinButton styles { onClick } =
                     , w_4
                     ]
                 ]
-                [ fromUnstyled
-                    (svg
-                        [ SvgA.height "100%"
-                        , SvgA.width "100%"
-                        , SvgA.viewBox "0 0 98 94"
-                        ]
-                        [ Svg.path
-                            [ SvgA.d "M30 76a12 12 0 110 11H18a18 18 0 010-37h26l-4-6H18a18 18 0 010-37c6 0 11 2 15 7l3 5 10 14h33a8 8 0 000-15H68a12 12 0 110-11h11a18 18 0 010 37H53l4 6h22a18 18 0 11-14 30l-3-4-10-15H18a8 8 0 000 15h12zm41-6l2 4 6 2a8 8 0 000-15H65l6 9zM27 25l-3-5-6-2a8 8 0 000 15h15l-6-8z"
-
-                            --
-                            , SvgA.fill "currentColor"
-
-                            --
-                            , SvgA.fillRule "nonzero"
-                            ]
-                            []
-                        ]
-                    )
+                [ fromUnstyled smallFissionLogo
                 ]
-            , text "Sign in with Fission"
+            , text "SIGN IN WITH FISSION"
             ]
+        ]
+
+
+smallFissionLogo : Svg msg
+smallFissionLogo =
+    svg
+        [ SvgA.height "100%"
+        , SvgA.width "100%"
+        , SvgA.viewBox "0 0 98 94"
+        ]
+        [ Svg.path
+            [ SvgA.d "M30 76a12 12 0 110 11H18a18 18 0 010-37h26l-4-6H18a18 18 0 010-37c6 0 11 2 15 7l3 5 10 14h33a8 8 0 000-15H68a12 12 0 110-11h11a18 18 0 010 37H53l4 6h22a18 18 0 11-14 30l-3-4-10-15H18a8 8 0 000 15h12zm41-6l2 4 6 2a8 8 0 000-15H65l6 9zM27 25l-3-5-6-2a8 8 0 000 15h15l-6-8z"
+
+            --
+            , SvgA.fill "currentColor"
+
+            --
+            , SvgA.fillRule "nonzero"
+            ]
+            []
         ]
