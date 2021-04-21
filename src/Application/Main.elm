@@ -37,11 +37,11 @@ main =
 
 init : Flags -> Url -> Navigation.Key -> ( Model, Cmd Msg )
 init flags url navKey =
-    case Json.decodeValue Webnative.Types.decoderPermissions flags.defaultPermissions of
-        Ok defaultPermissions ->
+    case Json.decodeValue Webnative.Types.decoderPermissions flags.permissionsBaseline of
+        Ok permissionsBaseline ->
             ( { navKey = navKey
               , url = url
-              , defaultPermissions = defaultPermissions
+              , permissionsBaseline = permissionsBaseline
               , state = LoadingScreen
               }
             , Cmd.none
@@ -50,7 +50,7 @@ init flags url navKey =
         Err error ->
             ( { navKey = navKey
               , url = url
-              , defaultPermissions =
+              , permissionsBaseline =
                     { app = Nothing
                     , fs = Nothing
                     , platform = Nothing
@@ -244,7 +244,7 @@ view model =
             , body =
                 [ View.AuthFlow.signinScreen
                     -- We're not signed in, so we request the baseline of permissions
-                    { onSignIn = RedirectToLobby model.defaultPermissions }
+                    { onSignIn = RedirectToLobby model.permissionsBaseline }
                     |> Html.toUnstyled
                 ]
             }

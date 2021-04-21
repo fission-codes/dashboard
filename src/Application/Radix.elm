@@ -16,7 +16,7 @@ import Webnative.Types
 
 
 type alias Flags =
-    { defaultPermissions : Json.Value
+    { permissionsBaseline : Json.Value
     }
 
 
@@ -28,7 +28,7 @@ type alias Model =
     { navKey : Browser.Navigation.Key
     , url : Url
     , state : State
-    , defaultPermissions : Webnative.Types.Permissions
+    , permissionsBaseline : Webnative.Types.Permissions
     }
 
 
