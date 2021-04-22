@@ -519,7 +519,7 @@ viewBackupPermissioned : AuthenticatedModel -> List (Html Msg)
 viewBackupPermissioned model =
     case model.backupState of
         BackupFetchedKey key ->
-            viewBackupKey model key
+            viewBackupShowingKey model key
 
         _ ->
             List.concat
@@ -551,8 +551,8 @@ backupKeyInputFieldId =
     "backup-key"
 
 
-viewBackupKey : AuthenticatedModel -> String -> List (Html Msg)
-viewBackupKey model key =
+viewBackupShowingKey : AuthenticatedModel -> String -> List (Html Msg)
+viewBackupShowingKey model key =
     [ View.Dashboard.sectionParagraph
         [ Html.text "This is your secure backup."
         , Html.br [] []
@@ -561,7 +561,7 @@ viewBackupKey model key =
         , Html.strong [] [ Html.text "Anyone with this backup will have read access to your files" ]
         , Html.text " and "
         , Html.strong [] [ Html.text "losing it will mean you won’t be able to recover your account" ]
-        , Html.text " in case you lose all your linked devices. You can create a backup at any point with a logged in account."
+        , Html.text " in case you lose all your linked devices. You can create a backup at any point when logged in."
         , Html.br [] []
         , Html.br [] []
         , Html.text "The fission team will never ask you to share your read key."
@@ -572,11 +572,17 @@ viewBackupKey model key =
             , key = key
             , onCopyToClipboard = AuthenticatedMsg BackupCopyToClipboard
             }
-        , View.Backup.storeInBrowserButton
-            { username = model.username
-            , key = key
-            , onStore = AuthenticatedMsg BackupStoreInBrowser
-            }
+        , View.Backup.twoOptions
+            (View.Backup.storeInBrowserButton
+                { username = model.username
+                , key = key
+                , onStore = AuthenticatedMsg BackupStoreInBrowser
+                }
+            )
+            (View.Backup.downloadKeyButton
+                { key = key
+                }
+            )
         ]
     ]
 

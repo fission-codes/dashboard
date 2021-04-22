@@ -3,7 +3,7 @@ module View.Backup exposing (..)
 import Css
 import FeatherIcons
 import Html.Styled exposing (..)
-import Html.Styled.Attributes exposing (attribute, css, id, readonly, type_, value)
+import Html.Styled.Attributes exposing (attribute, css, download, href, id, readonly, type_, value)
 import Html.Styled.Events as Events
 import Tailwind.Breakpoints exposing (..)
 import Tailwind.Utilities exposing (..)
@@ -168,10 +168,51 @@ keyTextField element =
         ]
 
 
+twoOptions : Html msg -> Html msg -> Html msg
+twoOptions option1 option2 =
+    div
+        [ css
+            [ sm
+                [ flex_row
+                , space_x_5
+                , space_y_0
+                ]
+            , flex
+            , flex_col
+            , flex_grow
+            , items_center
+            , space_y_5
+            ]
+        ]
+        [ option1
+        , span
+            [ css
+                [ dark [ text_gray_600 ]
+                , sm [ inline ]
+                , italic
+                , text_gray_300
+                , hidden
+                ]
+            ]
+            [ text "- or -" ]
+        , option2
+        ]
+
+
 storeInBrowserButton : { onStore : msg, username : String, key : String } -> Html msg
 storeInBrowserButton element =
     form
-        [ Events.onSubmit element.onStore ]
+        [ css
+            [ sm
+                [ flex_grow_0
+                , w_auto
+                ]
+            , flex
+            , flex_grow
+            , w_full
+            ]
+        , Events.onSubmit element.onStore
+        ]
         [ input
             [ css [ hidden ]
             , type_ "text"
@@ -195,4 +236,36 @@ storeInBrowserButton element =
                 ]
             ]
             [ text "Store in Browser" ]
+        ]
+
+
+downloadKeyButton : { key : String } -> Html msg
+downloadKeyButton element =
+    a
+        [ css
+            [ sm
+                [ flex_grow_0
+                , w_auto
+                ]
+            , View.Common.primaryButtonStyle
+            , flex
+            , flex_row
+            , flex_grow
+            , items_center
+            , w_full
+            ]
+        , href
+            (String.concat
+                [ "data:,"
+                , element.key
+                ]
+            )
+        , download "FissionSecureBackup.txt"
+        ]
+        [ View.Common.icon
+            { icon = FeatherIcons.download
+            , size = View.Common.Small
+            , tag = span [ css [ ml_auto, text_white ] ]
+            }
+        , span [ css [ ml_2, mr_auto ] ] [ text "Download" ]
         ]
