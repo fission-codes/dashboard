@@ -521,14 +521,11 @@ viewBackup model =
     [ View.Dashboard.heading
         (List.append [ Html.span [] [ Html.text "Secure Backup" ] ]
             (case model.backupState of
-                BackupFetchingKey ->
-                    [ View.Backup.buttonBackupCancel (AuthenticatedMsg BackupCancel) ]
-
-                BackupFetchedKey _ ->
-                    [ View.Backup.buttonBackupCancel (AuthenticatedMsg BackupCancel) ]
+                BackupWaiting ->
+                    []
 
                 _ ->
-                    []
+                    [ View.Backup.buttonBackupCancel (AuthenticatedMsg BackupCancel) ]
             )
         )
     , View.Common.sectionSpacer
