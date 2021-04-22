@@ -305,6 +305,7 @@ section styles content =
             [ Css.batch styles
             , my_8
             , max_w_3xl
+            , space_y_5
             ]
         ]
         content
@@ -326,12 +327,23 @@ sectionTitle styles content =
         content
 
 
-sectionParagraph : List Css.Style -> List (Html msg) -> Html msg
-sectionParagraph styles content =
+sectionParagraph : List (Html msg) -> Html msg
+sectionParagraph content =
     p
         [ css
+            [ View.Common.infoTextStyle
+            , sectionGroupSpacings
+            ]
+        ]
+        content
+
+
+sectionGroup : List Css.Style -> List (Html msg) -> Html msg
+sectionGroup styles content =
+    div
+        [ css
             [ Css.batch styles
-            , sectionParagraphSpacings
+            , sectionGroupSpacings
             , flex
             , flex_col
             , space_y_5
@@ -340,18 +352,17 @@ sectionParagraph styles content =
         content
 
 
-sectionParagraphSpacings : Css.Style
-sectionParagraphSpacings =
+sectionGroupSpacings : Css.Style
+sectionGroupSpacings =
     Css.batch
         [ lg [ px_10 ]
-        , mt_5
         , px_5
         ]
 
 
 sectionLoading : List (Html msg) -> Html msg
 sectionLoading content =
-    sectionParagraph
+    sectionGroup
         [ View.Common.infoTextStyle
         , min_h_120px
         ]

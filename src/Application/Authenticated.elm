@@ -468,7 +468,7 @@ viewBackup model =
          else
             List.concat
                 [ viewBackupInfo model
-                , [ View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
+                , [ View.Dashboard.sectionParagraph
                         [ Html.text "The dashboard will need access permissions to your private files to create a secure backup." ]
                   , View.Backup.buttonGroup
                         [ View.Backup.askForPermissionButton (AuthenticatedMsg BackupAskForPermission)
@@ -481,7 +481,7 @@ viewBackup model =
 
 viewBackupInfo : AuthenticatedModel -> List (Html msg)
 viewBackupInfo model =
-    [ View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
+    [ View.Dashboard.sectionParagraph
         [ Html.text "Fission accounts don't need passwords, because we use the encryption built into your web browser to link devices."
         , Html.br [] []
         , Html.br [] []
@@ -498,50 +498,48 @@ viewBackupPermissioned model =
             viewBackupKey model key
 
         _ ->
-            let
-                { error, isLoading } =
-                    case model.backupState of
-                        BackupWaiting ->
-                            { error = [], isLoading = False }
-
-                        BackupFetchingKey ->
-                            { error = [], isLoading = True }
-
-                        BackupError ->
-                            { error =
-                                [ View.Common.warning
-                                    [ Html.text "Something went wrong while trying to create a backup. Please reload the page and try again or contact "
-                                    , View.Common.underlinedLink []
-                                        { location = "https://fission.codes/support"
-                                        , external = False
-                                        }
-                                        [ Html.text "our support" ]
-                                    , Html.text "."
-                                    ]
-                                ]
-                            , isLoading = False
-                            }
-
-                        -- Impossible
-                        _ ->
-                            { error = [], isLoading = False }
-            in
             List.concat
                 [ viewBackupInfo model
                 , [ View.Backup.buttonGroup
-                        [ View.Backup.secureBackupButton
-                            { isLoading = isLoading
-                            , onClick = AuthenticatedMsg BackupStart
-                            }
+                        [ View.Backup.secureBackupButton (AuthenticatedMsg BackupStart)
                         ]
                   ]
-                , error
+                , case model.backupState of
+                    BackupError ->
+                        [ View.Common.warning
+                            [ Html.text "Something went wrong while trying to create a backup. Please reload the page and try again or contact "
+                            , View.Common.underlinedLink []
+                                { location = "https://fission.codes/support"
+                                , external = False
+                                }
+                                [ Html.text "our support" ]
+                            , Html.text "."
+                            ]
+                        ]
+
+                    _ ->
+                        []
                 ]
 
 
 viewBackupKey : AuthenticatedModel -> String -> List (Html msg)
 viewBackupKey model key =
-    [ Html.text key ]
+    [ View.Dashboard.sectionParagraph
+        [ Html.text "This is your secure backup."
+        , Html.br [] []
+        , Html.br [] []
+        , Html.text "Store it somewhere safe. "
+        , Html.strong [] [ Html.text "Anyone with this backup will have read access to your files" ]
+        , Html.text " and "
+        , Html.strong [] [ Html.text "losing it will mean you won’t be able to recover your account" ]
+        , Html.text " in case you lose all your linked devices. You can create a backup at any point with a logged in account."
+        , Html.br [] []
+        , Html.br [] []
+        , Html.text "The fission team will never ask you to share your read key."
+        ]
+    , View.Dashboard.sectionGroup []
+        [ View.Backup.keyTextField key ]
+    ]
 
 
 viewAppList : AuthenticatedModel -> List (Html Msg)
@@ -550,11 +548,11 @@ viewAppList model =
         [ View.Dashboard.heading [ Html.text "App Management" ]
         , View.Dashboard.section []
             [ View.Dashboard.sectionTitle [] [ Html.text "Create a new App" ]
-            , View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
+            , View.Dashboard.sectionGroup [ View.Common.infoTextStyle ]
                 [ Html.text "Upload a folder with HTML, CSS and javascript files:"
                 , viewUploadDropzone Nothing model.appListUploadState
                 ]
-            , View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
+            , View.Dashboard.sectionParagraph
                 [ Html.span []
                     [ -- TODO: Add back when the generator is published and can create apps
                       --   Html.text "Don’t know how to get started? Start with the "
@@ -767,13 +765,13 @@ viewAppListAppLoaded model pageModel app =
             [ Html.text "Preview of "
             , View.Common.linkMarkedExternal [] { link = App.toUrl app }
             ]
-        , View.Dashboard.sectionParagraph []
+        , View.Dashboard.sectionGroup []
             [ View.AppList.previewIframe { url = App.toUrl app }
             ]
         ]
     , View.Dashboard.section []
         [ View.Dashboard.sectionTitle [] [ Html.text "Update your App" ]
-        , View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
+        , View.Dashboard.sectionGroup [ View.Common.infoTextStyle ]
             [ Html.text "Upload a folder with HTML, CSS and javascript files:"
             , viewUploadDropzone (Just app) model.appListUploadState
             ]
@@ -810,7 +808,7 @@ viewAppRenamingSection pageModel app =
     in
     View.Dashboard.section []
         [ View.Dashboard.sectionTitle [] [ Html.text "Rename your App" ]
-        , View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
+        , View.Dashboard.sectionGroup [ View.Common.infoTextStyle ]
             (List.concat
                 [ [ Html.span [] [ Html.text "Auto-generated subdomains are often pretty cool, but sometimes you just like to put a chosen name on your project! It’s first come, first serve." ]
                   , View.AppList.inputRow
@@ -883,7 +881,7 @@ viewAppDeletionSection pageModel app =
     in
     View.Dashboard.section []
         [ View.Dashboard.sectionTitle [] [ Html.text "Delete your App" ]
-        , View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
+        , View.Dashboard.sectionGroup [ View.Common.infoTextStyle ]
             (List.concat
                 [ [ Html.span []
                         [ Html.text "This will make the app unaccessible at "

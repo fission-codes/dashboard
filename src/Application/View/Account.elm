@@ -26,7 +26,7 @@ sectionUsername : { username : List (Html msg) } -> Html msg
 sectionUsername element =
     View.Dashboard.section []
         [ View.Dashboard.sectionTitle [] [ text "Username" ]
-        , View.Dashboard.sectionParagraph []
+        , View.Dashboard.sectionGroup []
             [ responsiveGroup
                 [ span
                     [ css
@@ -55,7 +55,7 @@ sectionEmail :
 sectionEmail element =
     View.Dashboard.section []
         [ View.Dashboard.sectionTitle [] [ text "Email" ]
-        , View.Dashboard.sectionParagraph []
+        , View.Dashboard.sectionGroup []
             [ responsiveGroup
                 [ span
                     [ css
