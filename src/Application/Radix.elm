@@ -68,6 +68,7 @@ type BackupState
     = BackupWaiting
     | BackupFetchingKey
     | BackupFetchedKey { key : String, visible : Bool }
+    | BackupStoredInPasswordManager { key : String }
     | BackupError
 
 

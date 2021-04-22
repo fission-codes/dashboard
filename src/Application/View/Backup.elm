@@ -309,3 +309,20 @@ downloadKeyButton element =
             }
         , span [ css [ ml_2, mr_auto ] ] [ text "Download" ]
         ]
+
+
+buttonTryAnotherBackupMethod : msg -> Html msg
+buttonTryAnotherBackupMethod msg =
+    View.Common.button
+        { label = "Try Another Backup Method"
+        , isLoading = False
+        , disabled = False
+        , onClick = Just msg
+        , style =
+            Css.batch
+                [ View.Common.primaryButtonStyle
+                , sm [ w_auto ]
+                , w_full
+                ]
+        , spinnerStyle = []
+        }

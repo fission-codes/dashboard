@@ -58,7 +58,13 @@ onRouteChange route model =
     ( { model
         | route = route
         , navigationExpanded = False
-        , backupState = BackupWaiting
+        , backupState =
+            case model.backupState of
+                BackupStoredInPasswordManager _ ->
+                    model.backupState
+
+                _ ->
+                    BackupWaiting
       }
     , commandsByRoute route
     )
@@ -167,6 +173,12 @@ update navKey msg globalModel model =
                     , Cmd.none
                     )
 
+                -- If the user wanted to try something else again
+                BackupStoredInPasswordManager _ ->
+                    ( { model | backupState = BackupFetchedKey { key = key, visible = False } }
+                    , Cmd.none
+                    )
+
                 _ ->
                     ( model
                     , Cmd.none
@@ -198,8 +210,8 @@ update navKey msg globalModel model =
 
         BackupStoreInBrowser ->
             case model.backupState of
-                BackupFetchedKey _ ->
-                    ( model
+                BackupFetchedKey backup ->
+                    ( { model | backupState = BackupStoredInPasswordManager { key = backup.key } }
                     , Navigation.pushUrl navKey (Url.toString globalModel.url)
                     )
 
@@ -536,8 +548,25 @@ viewBackupInfo model =
 viewBackupPermissioned : AuthenticatedModel -> List (Html Msg)
 viewBackupPermissioned model =
     case model.backupState of
-        BackupFetchedKey key ->
-            viewBackupShowingKey model key
+        BackupFetchedKey backup ->
+            viewBackupShowingKey model backup
+
+        BackupStoredInPasswordManager backup ->
+            [ View.Dashboard.sectionParagraph
+                [ Html.text "Your browser's password manager should've prompted you to save the backup. "
+                , Html.strong [] [ Html.text "Did that work?" ]
+                , Html.br [] []
+                , Html.text "If not, we're sorry. Browsers are hard!"
+                , Html.br [] []
+                , Html.text "You can try to look at your browser's password manager settings. Did you disable password prompts or accidentally create an exception for this site?"
+                , Html.br [] []
+                , Html.br [] []
+                , Html.text "In any case, you can still go back and try again."
+                ]
+            , View.Backup.buttonGroup
+                [ View.Backup.buttonTryAnotherBackupMethod (AuthenticatedMsg (BackupReceivedKey backup.key))
+                ]
+            ]
 
         _ ->
             List.concat
