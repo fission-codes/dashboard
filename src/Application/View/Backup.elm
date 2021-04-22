@@ -239,8 +239,8 @@ twoOptions option1 option2 =
         ]
 
 
-storeInBrowserButton : { onStore : msg, username : String, key : String } -> Html msg
-storeInBrowserButton element =
+storeInPasswordManagerButton : { onStore : msg, username : String, key : String } -> Html msg
+storeInPasswordManagerButton element =
     form
         [ css
             [ sm
@@ -275,7 +275,7 @@ storeInBrowserButton element =
                 , View.Common.primaryButtonStyle
                 ]
             ]
-            [ text "Store in Browser" ]
+            [ text "Store in Password Manager" ]
         ]
 
 

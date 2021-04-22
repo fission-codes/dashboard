@@ -593,7 +593,7 @@ viewBackupShowingKey model backup =
             , onToggleVisibility = AuthenticatedMsg (BackupToggleKeyVisibility (not backup.visible))
             }
         , View.Backup.twoOptions
-            (View.Backup.storeInBrowserButton
+            (View.Backup.storeInPasswordManagerButton
                 { username = model.username
                 , key = backup.key
                 , onStore = AuthenticatedMsg BackupStoreInBrowser
