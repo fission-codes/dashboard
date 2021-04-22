@@ -3,7 +3,7 @@ module View.Backup exposing (..)
 import Css
 import FeatherIcons
 import Html.Styled exposing (..)
-import Html.Styled.Attributes exposing (css, id, readonly, value)
+import Html.Styled.Attributes exposing (attribute, css, id, readonly, type_, value)
 import Html.Styled.Events as Events
 import Tailwind.Breakpoints exposing (..)
 import Tailwind.Utilities exposing (..)
@@ -165,4 +165,34 @@ keyTextField element =
                         ]
                 }
             ]
+        ]
+
+
+storeInBrowserButton : { onStore : msg, username : String, key : String } -> Html msg
+storeInBrowserButton element =
+    form
+        [ Events.onSubmit element.onStore ]
+        [ input
+            [ css [ hidden ]
+            , type_ "text"
+            , attribute "autocomplete" "username"
+            , value element.username
+            ]
+            []
+        , input
+            [ css [ hidden ]
+            , type_ "password"
+            , attribute "autocomplete" "password"
+            , value element.key
+            ]
+            []
+        , button
+            [ type_ "submit"
+            , css
+                [ sm [ flex_grow_0 ]
+                , flex_grow
+                , View.Common.primaryButtonStyle
+                ]
+            ]
+            [ text "Store in Browser" ]
         ]

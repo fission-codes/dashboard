@@ -107,8 +107,8 @@ getAppPageModel model =
             Nothing
 
 
-update : Navigation.Key -> AuthenticatedMsg -> AuthenticatedModel -> ( AuthenticatedModel, Cmd Msg )
-update navKey msg model =
+update : Navigation.Key -> AuthenticatedMsg -> Model -> AuthenticatedModel -> ( AuthenticatedModel, Cmd Msg )
+update navKey msg globalModel model =
     case msg of
         -- Mobile Navigation
         ToggleNavigationExpanded ->
@@ -184,6 +184,18 @@ update navKey msg model =
                 BackupFetchedKey _ ->
                     ( model
                     , Ports.copyElementToClipboard backupKeyInputFieldId
+                    )
+
+                _ ->
+                    ( model
+                    , Cmd.none
+                    )
+
+        BackupStoreInBrowser ->
+            case model.backupState of
+                BackupFetchedKey _ ->
+                    ( model
+                    , Navigation.pushUrl navKey (Url.toString globalModel.url)
                     )
 
                 _ ->
@@ -559,6 +571,11 @@ viewBackupKey model key =
             { id = backupKeyInputFieldId
             , key = key
             , onCopyToClipboard = AuthenticatedMsg BackupCopyToClipboard
+            }
+        , View.Backup.storeInBrowserButton
+            { username = model.username
+            , key = key
+            , onStore = AuthenticatedMsg BackupStoreInBrowser
             }
         ]
     ]

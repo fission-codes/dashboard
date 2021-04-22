@@ -132,6 +132,7 @@ type AuthenticatedMsg
     | BackupReceivedKey String
     | BackupFetchKeyError String
     | BackupCopyToClipboard
+    | BackupStoreInBrowser
       -- App List
     | FetchedAppList Json.Value
     | DropzonePublishStart
