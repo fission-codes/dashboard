@@ -121,8 +121,9 @@ type Msg
 
 
 type AuthenticatedMsg
-    = -- Mobile Navigation
-      ToggleNavigationExpanded
+    = Logout
+      -- Mobile Navigation
+    | ToggleNavigationExpanded
       -- Account
     | EmailResendVerification
     | VerificationEmailSent

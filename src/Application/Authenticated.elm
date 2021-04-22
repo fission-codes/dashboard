@@ -110,6 +110,11 @@ getAppPageModel model =
 update : Navigation.Key -> AuthenticatedMsg -> Model -> AuthenticatedModel -> ( AuthenticatedModel, Cmd Msg )
 update navKey msg globalModel model =
     case msg of
+        Logout ->
+            ( model
+            , Ports.logout ()
+            )
+
         -- Mobile Navigation
         ToggleNavigationExpanded ->
             ( { model | navigationExpanded = not model.navigationExpanded }
@@ -399,6 +404,7 @@ view model =
                 { expanded = model.navigationExpanded
                 , onToggleExpanded = AuthenticatedMsg ToggleNavigationExpanded
                 , items = navigationItems |> List.map (viewNavItem model)
+                , onLogout = AuthenticatedMsg Logout
                 }
             , main =
                 case model.route of

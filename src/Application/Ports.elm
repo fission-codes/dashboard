@@ -10,6 +10,7 @@ port module Ports exposing
     , fetchReadKeyError
     , fetchedReadKey
     , log
+    , logout
     , redirectToLobby
     , webnativeAppIndexFetch
     , webnativeAppIndexFetched
@@ -55,6 +56,22 @@ port webnativeVerificationEmailSent : ({} -> msg) -> Sub msg
 
 
 port webnativeError : (String -> msg) -> Sub msg
+
+
+
+-- Secure Backup
+
+
+port fetchReadKey : () -> Cmd msg
+
+
+port fetchedReadKey : (String -> msg) -> Sub msg
+
+
+port fetchReadKeyError : (String -> msg) -> Sub msg
+
+
+port copyElementToClipboard : String -> Cmd msg
 
 
 
@@ -194,17 +211,4 @@ redirectToLobby { permissions } =
 port webnativeRedirectToLobby : { permissions : Json.Value } -> Cmd msg
 
 
-
--- Secure Backup
-
-
-port fetchReadKey : () -> Cmd msg
-
-
-port fetchedReadKey : (String -> msg) -> Sub msg
-
-
-port fetchReadKeyError : (String -> msg) -> Sub msg
-
-
-port copyElementToClipboard : String -> Cmd msg
+port logout : () -> Cmd msg
