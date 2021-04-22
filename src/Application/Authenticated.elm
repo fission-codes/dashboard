@@ -58,7 +58,13 @@ onRouteChange route model =
     ( { model
         | route = route
         , navigationExpanded = False
-        , backupState = BackupWaiting
+        , backupState =
+            case model.backupState of
+                BackupStoredInPasswordManager _ ->
+                    model.backupState
+
+                _ ->
+                    BackupWaiting
       }
     , commandsByRoute route
     )
@@ -160,10 +166,21 @@ update navKey msg globalModel model =
                     , Cmd.none
                     )
 
+        BackupCancel ->
+            ( { model | backupState = BackupWaiting }
+            , Cmd.none
+            )
+
         BackupReceivedKey key ->
             case model.backupState of
                 BackupFetchingKey ->
-                    ( { model | backupState = BackupFetchedKey key }
+                    ( { model | backupState = BackupFetchedKey { key = key, visible = False } }
+                    , Cmd.none
+                    )
+
+                -- If the user wanted to try something else again
+                BackupStoredInPasswordManager _ ->
+                    ( { model | backupState = BackupFetchedKey { key = key, visible = False } }
                     , Cmd.none
                     )
 
@@ -198,9 +215,21 @@ update navKey msg globalModel model =
 
         BackupStoreInBrowser ->
             case model.backupState of
-                BackupFetchedKey _ ->
-                    ( model
+                BackupFetchedKey backup ->
+                    ( { model | backupState = BackupStoredInPasswordManager { key = backup.key } }
                     , Navigation.pushUrl navKey (Url.toString globalModel.url)
+                    )
+
+                _ ->
+                    ( model
+                    , Cmd.none
+                    )
+
+        BackupToggleKeyVisibility to ->
+            case model.backupState of
+                BackupFetchedKey backup ->
+                    ( { model | backupState = BackupFetchedKey { backup | visible = to } }
+                    , Cmd.none
                     )
 
                 _ ->
@@ -489,7 +518,16 @@ viewBackup model =
                 _ ->
                     False
     in
-    [ View.Dashboard.heading [ Html.text "Secure Backup" ]
+    [ View.Dashboard.heading
+        (List.append [ Html.span [] [ Html.text "Secure Backup" ] ]
+            (case model.backupState of
+                BackupWaiting ->
+                    []
+
+                _ ->
+                    [ View.Backup.buttonBackupCancel (AuthenticatedMsg BackupCancel) ]
+            )
+        )
     , View.Common.sectionSpacer
     , View.Dashboard.section []
         (if hasPrivateFilesystemPermissions model.permissions then
@@ -501,7 +539,7 @@ viewBackup model =
                 , [ View.Dashboard.sectionParagraph
                         [ Html.text "The dashboard will need access permissions to your private files to create a secure backup." ]
                   , View.Backup.buttonGroup
-                        [ View.Backup.askForPermissionButton (AuthenticatedMsg BackupAskForPermission)
+                        [ View.Backup.buttonAskForPermission (AuthenticatedMsg BackupAskForPermission)
                         ]
                   ]
                 ]
@@ -524,14 +562,31 @@ viewBackupInfo model =
 viewBackupPermissioned : AuthenticatedModel -> List (Html Msg)
 viewBackupPermissioned model =
     case model.backupState of
-        BackupFetchedKey key ->
-            viewBackupShowingKey model key
+        BackupFetchedKey backup ->
+            viewBackupShowingKey model backup
+
+        BackupStoredInPasswordManager backup ->
+            [ View.Dashboard.sectionParagraph
+                [ Html.text "Your browser's password manager should've prompted you to save the backup. "
+                , Html.strong [] [ Html.text "Did that work?" ]
+                , Html.br [] []
+                , Html.text "If not, we're sorry. Browsers are hard!"
+                , Html.br [] []
+                , Html.text "You can try to look at your browser's password manager settings. Did you disable password prompts or accidentally create an exception for this site?"
+                , Html.br [] []
+                , Html.br [] []
+                , Html.text "In any case, you can still go back and try again."
+                ]
+            , View.Backup.buttonGroup
+                [ View.Backup.buttonTryAnotherBackupMethod (AuthenticatedMsg (BackupReceivedKey backup.key))
+                ]
+            ]
 
         _ ->
             List.concat
                 [ viewBackupInfo model
                 , [ View.Backup.buttonGroup
-                        [ View.Backup.secureBackupButton (AuthenticatedMsg BackupStart)
+                        [ View.Backup.buttonSecureBackup (AuthenticatedMsg BackupStart)
                         ]
                   ]
                 , case model.backupState of
@@ -557,8 +612,8 @@ backupKeyInputFieldId =
     "backup-key"
 
 
-viewBackupShowingKey : AuthenticatedModel -> String -> List (Html Msg)
-viewBackupShowingKey model key =
+viewBackupShowingKey : AuthenticatedModel -> { key : String, visible : Bool } -> List (Html Msg)
+viewBackupShowingKey model backup =
     [ View.Dashboard.sectionParagraph
         [ Html.text "This is your secure backup."
         , Html.br [] []
@@ -575,18 +630,20 @@ viewBackupShowingKey model key =
     , View.Dashboard.sectionGroup []
         [ View.Backup.keyTextField
             { id = backupKeyInputFieldId
-            , key = key
+            , key = backup.key
+            , keyVisible = backup.visible
             , onCopyToClipboard = AuthenticatedMsg BackupCopyToClipboard
+            , onToggleVisibility = AuthenticatedMsg (BackupToggleKeyVisibility (not backup.visible))
             }
         , View.Backup.twoOptions
-            (View.Backup.storeInBrowserButton
+            (View.Backup.buttonStoreInPasswordManager
                 { username = model.username
-                , key = key
+                , key = backup.key
                 , onStore = AuthenticatedMsg BackupStoreInBrowser
                 }
             )
-            (View.Backup.downloadKeyButton
-                { key = key
+            (View.Backup.buttonDownloadKey
+                { key = backup.key
                 }
             )
         ]
