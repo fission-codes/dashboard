@@ -26,7 +26,7 @@ sectionUsername : { username : List (Html msg) } -> Html msg
 sectionUsername element =
     View.Dashboard.section []
         [ View.Dashboard.sectionTitle [] [ text "Username" ]
-        , View.Dashboard.sectionParagraph []
+        , View.Dashboard.sectionGroup []
             [ responsiveGroup
                 [ span
                     [ css
@@ -55,7 +55,7 @@ sectionEmail :
 sectionEmail element =
     View.Dashboard.section []
         [ View.Dashboard.sectionTitle [] [ text "Email" ]
-        , View.Dashboard.sectionParagraph []
+        , View.Dashboard.sectionGroup []
             [ responsiveGroup
                 [ span
                     [ css
@@ -142,18 +142,17 @@ verificationStatus status =
             NotVerified ->
                 class "not-verified"
         ]
-        [ (case status of
-            Verified ->
-                FeatherIcons.check
+        [ View.Common.icon
+            { icon =
+                case status of
+                    Verified ->
+                        FeatherIcons.check
 
-            NotVerified ->
-                FeatherIcons.alertTriangle
-          )
-            |> FeatherIcons.withSize 20
-            |> FeatherIcons.toHtml []
-            |> fromUnstyled
-            |> List.singleton
-            |> span []
+                    NotVerified ->
+                        FeatherIcons.alertTriangle
+            , size = View.Common.Medium
+            , tag = span []
+            }
         , span [ css [ font_display ] ]
             [ case status of
                 Verified ->
@@ -162,29 +161,4 @@ verificationStatus status =
                 NotVerified ->
                     text "Not Verified"
             ]
-        ]
-
-
-warning : List (Html msg) -> Html msg
-warning content =
-    span
-        [ css
-            [ dark [ text_darkmode_red ]
-            , flex
-            , flex_row
-            , items_center
-            , space_x_2
-            , text_red
-            , text_sm
-            ]
-        ]
-        [ FeatherIcons.alertTriangle
-            |> FeatherIcons.withSize 16
-            |> FeatherIcons.toHtml []
-            |> fromUnstyled
-            |> List.singleton
-            |> span []
-        , span
-            [ css [ font_display ] ]
-            content
         ]

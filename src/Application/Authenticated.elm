@@ -19,24 +19,34 @@ import Tailwind.Utilities
 import Url exposing (Url)
 import View.Account
 import View.AppList
+import View.Backup
 import View.Common
 import View.Dashboard
 import View.Navigation
+import Webnative.Types
 
 
-init : Url -> String -> ( AuthenticatedModel, Cmd Msg )
-init url username =
+init : Url -> { username : String, permissions : Webnative.Types.Permissions } -> ( AuthenticatedModel, Cmd Msg )
+init url { username, permissions } =
     let
         route =
             Route.fromUrl url
                 |> Maybe.withDefault Route.Index
     in
     ( { username = username
+      , permissions = permissions
       , resendingVerificationEmail = False
       , navigationExpanded = False
       , route = route
+
+      -- Backup
+      , backupState = BackupWaiting
+
+      -- App List
       , appList = Nothing
       , appListUploadState = DropzoneWaiting
+
+      -- Individual App Pages
       , appPageModels = Dict.empty
       }
     , commandsByRoute route
@@ -48,6 +58,7 @@ onRouteChange route model =
     ( { model
         | route = route
         , navigationExpanded = False
+        , backupState = BackupWaiting
       }
     , commandsByRoute route
     )
@@ -96,8 +107,8 @@ getAppPageModel model =
             Nothing
 
 
-update : Navigation.Key -> AuthenticatedMsg -> AuthenticatedModel -> ( AuthenticatedModel, Cmd Msg )
-update navKey msg model =
+update : Navigation.Key -> AuthenticatedMsg -> Model -> AuthenticatedModel -> ( AuthenticatedModel, Cmd Msg )
+update navKey msg globalModel model =
     case msg of
         -- Mobile Navigation
         ToggleNavigationExpanded ->
@@ -115,6 +126,82 @@ update navKey msg model =
             ( { model | resendingVerificationEmail = False }
             , Cmd.none
             )
+
+        -- Backup
+        BackupAskForPermission ->
+            ( model
+            , Ports.redirectToLobby
+                { permissions =
+                    { app = Nothing
+                    , platform = Nothing
+                    , fs =
+                        Just
+                            { publicPaths = []
+                            , privatePaths = [ "/" ]
+                            }
+                    }
+                }
+            )
+
+        BackupStart ->
+            case model.backupState of
+                BackupWaiting ->
+                    ( { model | backupState = BackupFetchingKey }
+                    , Ports.fetchReadKey ()
+                    )
+
+                _ ->
+                    ( model
+                    , Cmd.none
+                    )
+
+        BackupReceivedKey key ->
+            case model.backupState of
+                BackupFetchingKey ->
+                    ( { model | backupState = BackupFetchedKey key }
+                    , Cmd.none
+                    )
+
+                _ ->
+                    ( model
+                    , Cmd.none
+                    )
+
+        BackupFetchKeyError _ ->
+            case model.backupState of
+                BackupFetchingKey ->
+                    ( { model | backupState = BackupError }
+                    , Cmd.none
+                    )
+
+                _ ->
+                    ( model
+                    , Cmd.none
+                    )
+
+        BackupCopyToClipboard ->
+            case model.backupState of
+                BackupFetchedKey _ ->
+                    ( model
+                    , Ports.copyElementToClipboard backupKeyInputFieldId
+                    )
+
+                _ ->
+                    ( model
+                    , Cmd.none
+                    )
+
+        BackupStoreInBrowser ->
+            case model.backupState of
+                BackupFetchedKey _ ->
+                    ( model
+                    , Navigation.pushUrl navKey (Url.toString globalModel.url)
+                    )
+
+                _ ->
+                    ( model
+                    , Cmd.none
+                    )
 
         -- App list
         FetchedAppList value ->
@@ -318,6 +405,9 @@ view model =
                     Route.Index ->
                         viewAccount model
 
+                    Route.Backup ->
+                        viewBackup model
+
                     Route.DeveloperAppList Route.DeveloperAppListIndex ->
                         viewAppList model
 
@@ -338,6 +428,10 @@ navigationItems =
     [ { route = Route.Index
       , name = "Account"
       , icon = FeatherIcons.user
+      }
+    , { route = Route.Backup
+      , name = "Secure Backup"
+      , icon = FeatherIcons.key
       }
     , { route = Route.DeveloperAppList Route.DeveloperAppListIndex
       , name = "Apps"
@@ -378,17 +472,132 @@ viewAccount model =
         ]
 
 
+viewBackup : AuthenticatedModel -> List (Html Msg)
+viewBackup model =
+    let
+        hasPrivateFilesystemPermissions permissions =
+            case permissions.fs of
+                Just { privatePaths } ->
+                    privatePaths |> List.any ((==) "/")
+
+                _ ->
+                    False
+    in
+    [ View.Dashboard.heading [ Html.text "Secure Backup" ]
+    , View.Common.sectionSpacer
+    , View.Dashboard.section []
+        (if hasPrivateFilesystemPermissions model.permissions then
+            viewBackupPermissioned model
+
+         else
+            List.concat
+                [ viewBackupInfo model
+                , [ View.Dashboard.sectionParagraph
+                        [ Html.text "The dashboard will need access permissions to your private files to create a secure backup." ]
+                  , View.Backup.buttonGroup
+                        [ View.Backup.askForPermissionButton (AuthenticatedMsg BackupAskForPermission)
+                        ]
+                  ]
+                ]
+        )
+    ]
+
+
+viewBackupInfo : AuthenticatedModel -> List (Html msg)
+viewBackupInfo model =
+    [ View.Dashboard.sectionParagraph
+        [ Html.text "Fission accounts don't need passwords, because we use the encryption built into your web browser to link devices."
+        , Html.br [] []
+        , Html.br [] []
+        , Html.text "In case you lose access to all the devices you have linked to Fission, you need to store this secure backup in a safe place."
+        ]
+    , View.Backup.loggedInAs model.username
+    ]
+
+
+viewBackupPermissioned : AuthenticatedModel -> List (Html Msg)
+viewBackupPermissioned model =
+    case model.backupState of
+        BackupFetchedKey key ->
+            viewBackupShowingKey model key
+
+        _ ->
+            List.concat
+                [ viewBackupInfo model
+                , [ View.Backup.buttonGroup
+                        [ View.Backup.secureBackupButton (AuthenticatedMsg BackupStart)
+                        ]
+                  ]
+                , case model.backupState of
+                    BackupError ->
+                        [ View.Common.warning
+                            [ Html.text "Something went wrong while trying to create a backup. Please reload the page and try again or contact "
+                            , View.Common.underlinedLink []
+                                { location = "https://fission.codes/support"
+                                , external = False
+                                }
+                                [ Html.text "our support" ]
+                            , Html.text "."
+                            ]
+                        ]
+
+                    _ ->
+                        []
+                ]
+
+
+backupKeyInputFieldId : String
+backupKeyInputFieldId =
+    "backup-key"
+
+
+viewBackupShowingKey : AuthenticatedModel -> String -> List (Html Msg)
+viewBackupShowingKey model key =
+    [ View.Dashboard.sectionParagraph
+        [ Html.text "This is your secure backup."
+        , Html.br [] []
+        , Html.br [] []
+        , Html.text "Store it somewhere safe. "
+        , Html.strong [] [ Html.text "Anyone with this backup will have read access to your files" ]
+        , Html.text " and "
+        , Html.strong [] [ Html.text "losing it will mean you won’t be able to recover your account" ]
+        , Html.text " in case you lose all your linked devices. You can create a backup at any point when logged in."
+        , Html.br [] []
+        , Html.br [] []
+        , Html.text "The fission team will never ask you to share your read key."
+        ]
+    , View.Dashboard.sectionGroup []
+        [ View.Backup.keyTextField
+            { id = backupKeyInputFieldId
+            , key = key
+            , onCopyToClipboard = AuthenticatedMsg BackupCopyToClipboard
+            }
+        , View.Backup.twoOptions
+            (View.Backup.storeInBrowserButton
+                { username = model.username
+                , key = key
+                , onStore = AuthenticatedMsg BackupStoreInBrowser
+                }
+            )
+            (View.Backup.downloadKeyButton
+                { key = key
+                }
+            )
+        ]
+    ]
+
+
 viewAppList : AuthenticatedModel -> List (Html Msg)
 viewAppList model =
     List.intersperse View.Common.sectionSpacer
         [ View.Dashboard.heading [ Html.text "App Management" ]
         , View.Dashboard.section []
             [ View.Dashboard.sectionTitle [] [ Html.text "Create a new App" ]
-            , View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
+            , View.Dashboard.sectionGroup [ View.Common.infoTextStyle ]
                 [ Html.text "Upload a folder with HTML, CSS and javascript files:"
                 , viewUploadDropzone Nothing model.appListUploadState
                 ]
-            , View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
+            , View.Dashboard.sectionParagraph
                 [ Html.span []
                     [ -- TODO: Add back when the generator is published and can create apps
                       --   Html.text "Don’t know how to get started? Start with the "
@@ -601,13 +810,13 @@ viewAppListAppLoaded model pageModel app =
             [ Html.text "Preview of "
             , View.Common.linkMarkedExternal [] { link = App.toUrl app }
             ]
-        , View.Dashboard.sectionParagraph []
+        , View.Dashboard.sectionGroup []
             [ View.AppList.previewIframe { url = App.toUrl app }
             ]
         ]
     , View.Dashboard.section []
         [ View.Dashboard.sectionTitle [] [ Html.text "Update your App" ]
-        , View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
+        , View.Dashboard.sectionGroup [ View.Common.infoTextStyle ]
             [ Html.text "Upload a folder with HTML, CSS and javascript files:"
             , viewUploadDropzone (Just app) model.appListUploadState
             ]
@@ -644,7 +853,7 @@ viewAppRenamingSection pageModel app =
     in
     View.Dashboard.section []
         [ View.Dashboard.sectionTitle [] [ Html.text "Rename your App" ]
-        , View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
+        , View.Dashboard.sectionGroup [ View.Common.infoTextStyle ]
             (List.concat
                 [ [ Html.span [] [ Html.text "Auto-generated subdomains are often pretty cool, but sometimes you just like to put a chosen name on your project! It’s first come, first serve." ]
                   , View.AppList.inputRow
@@ -717,7 +926,7 @@ viewAppDeletionSection pageModel app =
     in
     View.Dashboard.section []
         [ View.Dashboard.sectionTitle [] [ Html.text "Delete your App" ]
-        , View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
+        , View.Dashboard.sectionGroup [ View.Common.infoTextStyle ]
             (List.concat
                 [ [ Html.span []
                         [ Html.text "This will make the app unaccessible at "
@@ -777,6 +986,15 @@ subscriptions model =
 
           else
             Sub.none
+        , case model.backupState of
+            BackupFetchingKey ->
+                Sub.batch
+                    [ Ports.fetchedReadKey (AuthenticatedMsg << BackupReceivedKey)
+                    , Ports.fetchReadKeyError (AuthenticatedMsg << BackupFetchKeyError)
+                    ]
+
+            _ ->
+                Sub.none
         , Ports.webnativeAppIndexFetched (AuthenticatedMsg << FetchedAppList)
         , case getAppPageModel model of
             Just pageModel ->

@@ -16,7 +16,8 @@ import Webnative.Types
 
 
 type alias Flags =
-    {}
+    { permissionsBaseline : Json.Value
+    }
 
 
 
@@ -27,6 +28,7 @@ type alias Model =
     { navKey : Browser.Navigation.Key
     , url : Url
     , state : State
+    , permissionsBaseline : Webnative.Types.Permissions
     }
 
 
@@ -45,17 +47,28 @@ type WebnativeError
 
 type alias AuthenticatedModel =
     { username : String
+    , permissions : Webnative.Types.Permissions
     , resendingVerificationEmail : Bool
     , navigationExpanded : Bool
     , route : Route
+
+    -- Secure Backup
+    , backupState : BackupState
 
     -- App List
     , appList : Maybe (List App.Name)
     , appListUploadState : UploadDropzoneState
 
-    -- App Page (Dict keys are App.Name toString's)
+    -- Individual App Pages (Dict keys are App.Name toString's)
     , appPageModels : Dict String AppPageModel
     }
+
+
+type BackupState
+    = BackupWaiting
+    | BackupFetchingKey
+    | BackupFetchedKey String
+    | BackupError
 
 
 type alias AppPageModel =
@@ -102,7 +115,7 @@ type Msg
     | InitializedWebnative (Result Json.Error Webnative.Types.State)
     | GotWebnativeResponse Webnative.Response
     | GotWebnativeError String
-    | RedirectToLobby
+    | RedirectToLobby Webnative.Types.Permissions
       -- Other
     | LogError (List Json.Value)
 
@@ -113,6 +126,13 @@ type AuthenticatedMsg
       -- Account
     | EmailResendVerification
     | VerificationEmailSent
+      -- Backup
+    | BackupAskForPermission
+    | BackupStart
+    | BackupReceivedKey String
+    | BackupFetchKeyError String
+    | BackupCopyToClipboard
+    | BackupStoreInBrowser
       -- App List
     | FetchedAppList Json.Value
     | DropzonePublishStart

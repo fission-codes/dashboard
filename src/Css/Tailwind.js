@@ -58,6 +58,10 @@ export default {
         "outline-light": "0 0 0 2px rgba(255, 255, 255, 0.8)",
       },
 
+      borderRadius: {
+        "none": "0",
+      },
+
       scale: {
         "25": ".25",
       },

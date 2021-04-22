@@ -36,13 +36,29 @@ main =
 
 
 init : Flags -> Url -> Navigation.Key -> ( Model, Cmd Msg )
-init _ url navKey =
-    ( { navKey = navKey
-      , url = url
-      , state = LoadingScreen
-      }
-    , Cmd.none
-    )
+init flags url navKey =
+    case Json.decodeValue Webnative.Types.decoderPermissions flags.permissionsBaseline of
+        Ok permissionsBaseline ->
+            ( { navKey = navKey
+              , url = url
+              , permissionsBaseline = permissionsBaseline
+              , state = LoadingScreen
+              }
+            , Cmd.none
+            )
+
+        Err error ->
+            ( { navKey = navKey
+              , url = url
+              , permissionsBaseline =
+                    { app = Nothing
+                    , fs = Nothing
+                    , platform = Nothing
+                    }
+              , state = ErrorScreen (UnknownError "Initialisation error. See the console for more details.")
+              }
+            , Ports.log [ E.string "Error decoding flags", E.string (Json.errorToString error) ]
+            )
 
 
 
@@ -55,7 +71,7 @@ update msg model =
         ( Authenticated authenticatedModel, AuthenticatedMsg authenticatedMsg ) ->
             let
                 ( newModel, cmds ) =
-                    Authenticated.update model.navKey authenticatedMsg authenticatedModel
+                    Authenticated.update model.navKey authenticatedMsg model authenticatedModel
             in
             ( { model | state = Authenticated newModel }
             , cmds
@@ -75,10 +91,20 @@ updateOther msg model =
             case result of
                 Ok webnativeState ->
                     let
-                        onAuthenticated username =
-                            Authenticated.init model.url username
-                                |> Tuple.mapFirst
-                                    (\state -> { model | state = Authenticated state })
+                        onAuthenticated username maybePermissions =
+                            case maybePermissions of
+                                Just permissions ->
+                                    Authenticated.init model.url
+                                        { username = username
+                                        , permissions = permissions
+                                        }
+                                        |> Tuple.mapFirst
+                                            (\state -> { model | state = Authenticated state })
+
+                                Nothing ->
+                                    ( { model | state = SigninScreen }
+                                    , Ports.log [ E.string "No permissions after webnative initialisation" ]
+                                    )
                     in
                     case webnativeState of
                         Webnative.Types.NotAuthorised _ ->
@@ -91,11 +117,11 @@ updateOther msg model =
                             , Cmd.none
                             )
 
-                        Webnative.Types.AuthSucceeded { username } ->
-                            onAuthenticated username
+                        Webnative.Types.AuthSucceeded { username, permissions } ->
+                            onAuthenticated username permissions
 
-                        Webnative.Types.Continuation { username } ->
-                            onAuthenticated username
+                        Webnative.Types.Continuation { username, permissions } ->
+                            onAuthenticated username permissions
 
                 Err error ->
                     ( model
@@ -125,9 +151,9 @@ updateOther msg model =
                     , Cmd.none
                     )
 
-        RedirectToLobby ->
+        RedirectToLobby permissions ->
             ( model
-            , Ports.webnativeRedirectToLobby ()
+            , Ports.redirectToLobby { permissions = permissions }
             )
 
         -----------------------------------------
@@ -227,7 +253,8 @@ view model =
             { title = "Fission Dashboard"
             , body =
                 [ View.AuthFlow.signinScreen
-                    { onSignIn = RedirectToLobby }
+                    -- We're not signed in, so we request the baseline of permissions
+                    { onSignIn = RedirectToLobby model.permissionsBaseline }
                     |> Html.toUnstyled
                 ]
             }

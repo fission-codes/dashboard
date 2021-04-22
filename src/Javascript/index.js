@@ -1,9 +1,33 @@
 import * as webnative from "webnative"
 import * as webnativeElm from "webnative-elm"
+import lodashMerge from "lodash/merge"
 
-const elmApp = Elm.Main.init()
 
-const permissions = {
+//----------------------------------------
+// GLOBALS / CONFIG
+//----------------------------------------
+
+window.environment = CONFIG_ENVIRONMENT
+
+console.log(`Running in ${window.environment} environment`)
+
+window.endpoints = {
+  api: CONFIG_API_ENDPOINT,
+  lobby: CONFIG_LOBBY,
+  user: CONFIG_USER,
+}
+
+window.webnative = webnative
+
+webnative.setup.debug({ enabled: true })
+webnative.setup.endpoints(window.endpoints)
+
+
+//----------------------------------------
+// PERMISSIONS
+//----------------------------------------
+
+const permissionsBaseline = {
   app: {
     creator: "Fission",
     name: "Dashboard",
@@ -16,15 +40,55 @@ const permissions = {
   },
 }
 
-webnative.setup.debug({ enabled: true })
-
-if (window.location.hostname === "localhost") {
-  setupInStaging()
+function lookupLocalStorage(key) {
+  const saved = localStorage.getItem(key)
+  try {
+    return JSON.parse(saved)
+  } catch (_) {
+    return null
+  }
 }
 
-window.webnative = webnative
+function saveLocalStorage(key, json) {
+  localStorage.setItem(key, JSON.stringify(json, null, 2))
+}
 
-elmApp.ports.webnativeRedirectToLobby.subscribe(async () => {
+const permissionsConfirmedKey = `permissions-confirmed-v1-${window.endpoints.api}`
+const lookupPermissionsConfirmed = () => lookupLocalStorage(permissionsConfirmedKey)
+const savePermissionsConfirmed = json => saveLocalStorage(permissionsConfirmedKey, json)
+
+const permissionsWantedKey = `permissions-wanted-v1-${window.endpoints.api}`
+const lookupPermissionsWanted = () => lookupLocalStorage(permissionsWantedKey)
+const savePermissionsWanted = json => saveLocalStorage(permissionsWantedKey, json)
+
+const url = new URL(window.location.href)
+if (url.searchParams.get("cancelled") != null) {
+  savePermissionsWanted(null)
+  url.searchParams.delete("cancelled")
+  history.replaceState(null, document.title, url.toString())
+}
+
+const permissionsConfirmed = lookupPermissionsConfirmed() || {}
+const permissionsWanted = lookupPermissionsWanted() || {}
+
+const permissions = lodashMerge(permissionsBaseline, permissionsConfirmed, permissionsWanted)
+
+console.log("Permissions Confirmed:", permissionsConfirmed)
+console.log("Permissions Wanted:", permissionsWanted)
+console.log("Permissions now trying:", permissions)
+
+
+//----------------------------------------
+// SETUP ELM APP
+//----------------------------------------
+
+const elmApp = Elm.Main.init({
+  flags: { permissionsBaseline }
+})
+
+elmApp.ports.webnativeRedirectToLobby.subscribe(async ({ permissions }) => {
+  console.log("Requesting permissions", permissions)
+  savePermissionsWanted(permissions)
   await webnative.redirectToLobby(permissions)
 })
 
@@ -32,58 +96,87 @@ elmApp.ports.log.subscribe(messages => {
   console.log.apply(console, messages)
 })
 
+elmApp.ports.webnativeResendVerificationEmail.subscribe(async () => {
+  try {
+    await webnative.lobby.resendVerificationEmail()
+  } finally {
+    elmApp.ports.webnativeVerificationEmailSent.send({})
+  }
+})
+
+elmApp.ports.webnativeAppIndexFetch.subscribe(async () => {
+  try {
+    const index = await webnative.apps.index()
+    elmApp.ports.webnativeAppIndexFetched.send(index)
+  } catch (error) {
+    console.error("Error while fetching the app index", error)
+  }
+})
+
+elmApp.ports.webnativeAppDelete.subscribe(async appUrl => {
+  try {
+    try {
+      await webnative.apps.deleteByDomain(appUrl)
+    } catch (_) { /* TODO FIXME Ignoring CORS errors for now */ }
+    elmApp.ports.webnativeAppDeleteSucceeded.send({ app: appUrl })
+  } catch (error) {
+    console.error("Error while fetching the app index", error)
+    elmApp.ports.webnativeAppDeleteFailed.send({ app: appUrl, error: error.message })
+  }
+})
+
+elmApp.ports.webnativeAppRename.subscribe(async ({ from, to }) => {
+  try {
+    const fromPath = wnfsAppPath(appNameOnly(from))
+    const toPath = wnfsAppPath(appNameOnly(to))
+    const newApp = await webnative.apps.create(appNameOnly(to))
+    const cid = await getPublicPathCid(wnfsAppPublishPathInPublic(appNameOnly(from)))
+    await webnative.apps.publish(newApp.domain, cid)
+    await state.fs.mv(fromPath, toPath)
+    try {
+      await webnative.apps.deleteByDomain(from)
+    } catch (_) { /* TODO FIXME Ignoring CORS errors for now */ }
+    elmApp.ports.webnativeAppRenameSucceeded.send({ app: from, renamed: newApp.domain })
+  } catch (error) {
+    console.error(`Error while renaming an app from ${from} to ${to}`, error)
+    elmApp.ports.webnativeAppRenameFailed.send({ app: from, error: error.message })
+  }
+})
+
+elmApp.ports.fetchReadKey.subscribe(async () => {
+  try {
+    const privateHash = await webnative.keystore.sha256Str("/private")
+    const readKey = await webnative.keystore.getKeyByName(`wnfs__readKey__${privateHash}`)
+    elmApp.ports.fetchedReadKey.send(readKey)
+  } catch (error) {
+    console.error(`Error while trying to fetch the readKey for backup`, error)
+    elmApp.ports.fetchReadKeyError.send(error.message)
+  }
+})
+
+elmApp.ports.copyElementToClipboard.subscribe(id => {
+  document.getElementById(id).select()
+  document.execCommand("copy")
+})
+
+
+//----------------------------------------
+// WEBNATIVE
+//----------------------------------------
+
 webnative
   .initialise({
     permissions
   })
   .then(state => {
-    // Subscribe to ports first, so we make sure to never miss any Elm commands.
-    elmApp.ports.webnativeResendVerificationEmail.subscribe(async () => {
-      try {
-        await webnative.lobby.resendVerificationEmail()
-      } finally {
-        elmApp.ports.webnativeVerificationEmailSent.send({})
-      }
-    })
-
-    elmApp.ports.webnativeAppIndexFetch.subscribe(async () => {
-      try {
-        const index = await webnative.apps.index()
-        elmApp.ports.webnativeAppIndexFetched.send(index)
-      } catch (error) {
-        console.error("Error while fetching the app index", error)
-      }
-    })
-
-    elmApp.ports.webnativeAppDelete.subscribe(async appUrl => {
-      try {
-        try {
-          await webnative.apps.deleteByDomain(appUrl)
-        } catch (_) { /* FIXME Ignoring CORS errors for now */ }
-        elmApp.ports.webnativeAppDeleteSucceeded.send({ app: appUrl })
-      } catch (error) {
-        console.error("Error while fetching the app index", error)
-        elmApp.ports.webnativeAppDeleteFailed.send({ app: appUrl, error: error.message })
-      }
-    })
-
-    elmApp.ports.webnativeAppRename.subscribe(async ({ from, to }) => {
-      try {
-        const fromPath = wnfsAppPath(appNameOnly(from))
-        const toPath = wnfsAppPath(appNameOnly(to))
-        const newApp = await webnative.apps.create(appNameOnly(to))
-        const cid = await getPublicPathCid(wnfsAppPublishPathInPublic(appNameOnly(from)))
-        await webnative.apps.publish(newApp.domain, cid)
-        await state.fs.mv(fromPath, toPath)
-        try {
-          await webnative.apps.deleteByDomain(from)
-        } catch (_) { /* FIXME Ignoring CORS errors for now */ }
-        elmApp.ports.webnativeAppRenameSucceeded.send({ app: from, renamed: newApp.domain })
-      } catch (error) {
-        console.error(`Error while renaming an app from ${from} to ${to}`, error)
-        elmApp.ports.webnativeAppRenameFailed.send({ app: from, error: error.message })
-      }
-    })
+    if (state.authenticated) {
+      savePermissionsConfirmed(permissions)
+    } else {
+      savePermissionsConfirmed(null)
+    }
+    // There should be no further permissions we want to request in the future.
+    // We either just got them, or we've got them denied. In any case we stop trying.
+    savePermissionsWanted(null)
 
     // No need for filesystem operations at the moment
     webnativeElm.setup(elmApp, () => state.fs)
@@ -98,12 +191,20 @@ webnative
   });
 
 
+//----------------------------------------
+// SERVICE WORKER
+//----------------------------------------
+
 if ("serviceWorker" in navigator && window.location.hostname !== "localhost") {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("service-worker.js")
   })
 }
 
+
+//----------------------------------------
+// CUSTOM ELEMENTS
+//----------------------------------------
 
 customElements.define("dashboard-upload-dropzone", class extends HTMLElement {
   constructor() {
@@ -294,17 +395,10 @@ customElements.define("dashboard-upload-dropzone", class extends HTMLElement {
 })
 
 
-// Utilities
 
-function setupInStaging() {
-  console.log("Running in staging environment")
-  webnative.setup.debug({ enabled: true })
-  webnative.setup.endpoints({
-    api: "https://runfission.net",
-    lobby: "https://auth.runfission.net",
-    user: "fissionuser.net"
-  })
-}
+//----------------------------------------
+// UTILITIES
+//----------------------------------------
 
 function fileContent(file) {
   return new Promise((resolve, reject) => {

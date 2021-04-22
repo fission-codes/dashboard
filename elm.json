@@ -19,6 +19,7 @@
             "feathericons/elm-feather": "1.5.0",
             "fission-suite/webnative-elm": "4.0.0",
             "icidasset/elm-material-icons": "5.0.0",
+            "miniBill/elm-codec": "2.0.0",
             "rtfeldman/elm-css": "16.1.0"
         },
         "indirect": {

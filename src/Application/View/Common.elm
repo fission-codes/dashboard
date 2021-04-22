@@ -62,34 +62,52 @@ logo { styles, imageStyles } =
         ]
 
 
-type LoadingAnimationType
+type IconSize
     = Normal
     | Small
+    | Medium
+    | Big
 
 
-loadingAnimation : LoadingAnimationType -> List Css.Style -> Html msg
-loadingAnimation typ styles =
-    FeatherIcons.loader
+loadingAnimation : IconSize -> List Css.Style -> Html msg
+loadingAnimation size styles =
+    icon
+        { icon = FeatherIcons.loader
+        , tag =
+            span
+                [ css
+                    [ dark [ text_gray_500 ]
+                    , animate_spin
+                    , block
+                    , text_gray_300
+                    , Css.batch styles
+                    ]
+                ]
+        , size = size
+        }
+
+
+icon : { tag : List (Html msg) -> Html msg, size : IconSize, icon : FeatherIcons.Icon } -> Html msg
+icon element =
+    element.icon
         |> FeatherIcons.withSize
-            (case typ of
+            (case element.size of
                 Normal ->
                     24
 
                 Small ->
                     16
+
+                Medium ->
+                    20
+
+                Big ->
+                    32
             )
         |> FeatherIcons.toHtml []
         |> fromUnstyled
         |> List.singleton
-        |> span
-            [ css
-                [ dark [ text_gray_500 ]
-                , animate_spin
-                , block
-                , text_gray_300
-                , Css.batch styles
-                ]
-            ]
+        |> element.tag
 
 
 underlinedLink : List Css.Style -> { location : String, external : Bool } -> List (Html msg) -> Html msg
@@ -158,12 +176,10 @@ uppercaseButtonStyle =
                 ]
             , bg_gray_200
             , bg_opacity_30
-            , Css.active [ bg_opacity_10 ]
             , text_darkmode_purple
             ]
         , Css.active
-            [ bg_purple_tint
-            , bg_opacity_30
+            [ bg_opacity_10
             ]
         , Css.disabled
             [ text_gray_300
@@ -172,7 +188,7 @@ uppercaseButtonStyle =
             ]
         , sm [ py_2 ]
         , bg_purple_tint
-        , bg_opacity_10
+        , bg_opacity_30
         , font_display
         , px_3
         , py_2
@@ -197,6 +213,50 @@ dangerButtonStyle =
         , px_3
         , py_2
         ]
+
+
+primaryButtonStyle : Css.Style
+primaryButtonStyle =
+    Css.batch
+        [ dark [ bg_darkmode_purple ]
+        , Css.disabled
+            [ dark
+                [ bg_gray_200
+                , text_gray_400
+                ]
+            , text_gray_600
+            , bg_gray_400
+            ]
+        , Css.active
+            [ transform_gpu
+            , scale_105
+            ]
+
+        --
+        , antialiased
+        , appearance_none
+        , bg_purple
+        , font_semibold
+        , inline_block
+        , leading_normal
+        , px_5
+        , py_3
+        , relative
+        , rounded
+        , text_sm
+        , text_white
+        , tracking_wider
+        , transition_colors
+
+        --
+        , duration_300
+        , ease_out
+        ]
+
+
+primaryButtonLoaderStyle : Css.Style
+primaryButtonLoaderStyle =
+    text_white
 
 
 button :
@@ -356,23 +416,20 @@ warning : List (Html msg) -> Html msg
 warning content =
     span
         [ css
-            [ dark
-                [ text_darkmode_red
-                ]
+            [ dark [ text_darkmode_red ]
             , flex
             , flex_row
             , items_center
+            , space_x_2
             , text_red
             , text_sm
-            , space_x_2
             ]
         ]
-        [ FeatherIcons.alertTriangle
-            |> FeatherIcons.withSize 16
-            |> FeatherIcons.toHtml []
-            |> fromUnstyled
-            |> List.singleton
-            |> span []
+        [ icon
+            { icon = FeatherIcons.alertTriangle
+            , size = Small
+            , tag = span []
+            }
         , span
             [ css [ font_display ] ]
             content
