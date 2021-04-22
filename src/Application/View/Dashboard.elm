@@ -27,6 +27,7 @@ appShell :
         { items : List (Html msg)
         , expanded : Bool
         , onToggleExpanded : msg
+        , onLogout : msg
         }
     , main : List (Html msg)
     }
@@ -88,19 +89,53 @@ appShell element =
                     [ ( "expanded", element.navigation.expanded ) ]
                 , css
                     [ lg [ flex ]
-                    , Css.Global.withClass "expanded"
-                        [ flex ]
+                    , Css.Global.withClass "expanded" [ flex ]
                     , flex_col
                     , hidden
                     ]
                 ]
                 element.navigation.items
+            , div
+                [ classList
+                    [ ( "expanded", element.navigation.expanded ) ]
+                , css
+                    [ lg [ flex ]
+                    , Css.Global.withClass "expanded" [ flex ]
+                    , mt_auto
+                    , px_8
+                    , py_6
+                    , flex_col
+                    , items_start
+                    , hidden
+                    ]
+                ]
+                [ button
+                    [ Events.onClick element.navigation.onLogout
+                    , css
+                        [ Css.hover
+                            [ dark [ text_darkmode_purple ]
+                            , text_purple
+                            ]
+                        , dark [ text_gray_400 ]
+                        , flex
+                        , flex_row
+                        , items_center
+                        , text_gray_300
+                        ]
+                    ]
+                    [ View.Common.icon
+                        { icon = FeatherIcons.logOut
+                        , size = View.Common.Small
+                        , tag = span []
+                        }
+                    , span [ css [ ml_2 ] ] [ text "Logout" ]
+                    ]
+                ]
             , footer
                 [ css
                     [ lg [ flex ]
                     , hidden
                     , px_6
-                    , mt_auto
                     ]
                 ]
                 appFooter

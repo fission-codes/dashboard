@@ -50,6 +50,9 @@ function lookupLocalStorage(key) {
 }
 
 function saveLocalStorage(key, json) {
+  if (json == null) {
+    localStorage.removeItem(key)
+  }
   localStorage.setItem(key, JSON.stringify(json, null, 2))
 }
 
@@ -157,6 +160,13 @@ elmApp.ports.fetchReadKey.subscribe(async () => {
 elmApp.ports.copyElementToClipboard.subscribe(id => {
   document.getElementById(id).select()
   document.execCommand("copy")
+})
+
+elmApp.ports.logout.subscribe(async () => {
+  savePermissionsWanted(null)
+  savePermissionsConfirmed(null)
+  await webnative.leave({ withoutRedirect: true })
+  window.location.reload()
 })
 
 

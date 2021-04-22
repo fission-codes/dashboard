@@ -38,8 +38,7 @@ uploadDropzone element content =
     in
     View.UploadDropzone.view
         [ css
-            [ dark [ text_gray_300 ]
-            , flex
+            [ flex
             , text_gray_300
             , mt_4
             , min_h_120px
