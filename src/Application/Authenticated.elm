@@ -179,6 +179,18 @@ update navKey msg model =
                     , Cmd.none
                     )
 
+        BackupCopyToClipboard ->
+            case model.backupState of
+                BackupFetchedKey _ ->
+                    ( model
+                    , Ports.copyElementToClipboard backupKeyInputFieldId
+                    )
+
+                _ ->
+                    ( model
+                    , Cmd.none
+                    )
+
         -- App list
         FetchedAppList value ->
             case Json.decodeValue appsIndexDecoder value of
@@ -522,7 +534,12 @@ viewBackupPermissioned model =
                 ]
 
 
-viewBackupKey : AuthenticatedModel -> String -> List (Html msg)
+backupKeyInputFieldId : String
+backupKeyInputFieldId =
+    "backup-key"
+
+
+viewBackupKey : AuthenticatedModel -> String -> List (Html Msg)
 viewBackupKey model key =
     [ View.Dashboard.sectionParagraph
         [ Html.text "This is your secure backup."
@@ -538,7 +555,12 @@ viewBackupKey model key =
         , Html.text "The fission team will never ask you to share your read key."
         ]
     , View.Dashboard.sectionGroup []
-        [ View.Backup.keyTextField key ]
+        [ View.Backup.keyTextField
+            { id = backupKeyInputFieldId
+            , key = key
+            , onCopyToClipboard = AuthenticatedMsg BackupCopyToClipboard
+            }
+        ]
     ]
 
 

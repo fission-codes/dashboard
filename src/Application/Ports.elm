@@ -5,6 +5,7 @@ port module Ports exposing
     , appRename
     , appRenameFailed
     , appRenameSucceeded
+    , copyElementToClipboard
     , fetchReadKey
     , fetchReadKeyError
     , fetchedReadKey
@@ -204,3 +205,6 @@ port fetchedReadKey : (String -> msg) -> Sub msg
 
 
 port fetchReadKeyError : (String -> msg) -> Sub msg
+
+
+port copyElementToClipboard : String -> Cmd msg

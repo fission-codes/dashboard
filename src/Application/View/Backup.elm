@@ -3,7 +3,8 @@ module View.Backup exposing (..)
 import Css
 import FeatherIcons
 import Html.Styled exposing (..)
-import Html.Styled.Attributes exposing (css, readonly, value)
+import Html.Styled.Attributes exposing (css, id, readonly, value)
+import Html.Styled.Events as Events
 import Tailwind.Breakpoints exposing (..)
 import Tailwind.Utilities exposing (..)
 import View.Common exposing (dark)
@@ -99,8 +100,8 @@ secureBackupButton msg =
         }
 
 
-keyTextField : String -> Html msg
-keyTextField key =
+keyTextField : { id : String, key : String, onCopyToClipboard : msg } -> Html msg
+keyTextField element =
     div
         [ css
             [ sm [ h_10 ]
@@ -120,7 +121,8 @@ keyTextField key =
                 , rounded_r_none
                 ]
             , readonly True
-            , value key
+            , id element.id
+            , value element.key
             ]
             []
         , button
@@ -142,6 +144,7 @@ keyTextField key =
                 , rounded_r
                 , text_gray_300
                 ]
+            , Events.onClick element.onCopyToClipboard
             ]
             [ span
                 [ css

@@ -154,6 +154,11 @@ elmApp.ports.fetchReadKey.subscribe(async () => {
   }
 })
 
+elmApp.ports.copyElementToClipboard.subscribe(id => {
+  document.getElementById(id).select()
+  document.execCommand("copy")
+})
+
 
 //----------------------------------------
 // WEBNATIVE
