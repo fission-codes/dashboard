@@ -67,7 +67,7 @@ type alias AuthenticatedModel =
 type BackupState
     = BackupWaiting
     | BackupFetchingKey
-    | BackupFetchedKey String
+    | BackupFetchedKey { key : String, visible : Bool }
     | BackupError
 
 
@@ -134,6 +134,7 @@ type AuthenticatedMsg
     | BackupFetchKeyError String
     | BackupCopyToClipboard
     | BackupStoreInBrowser
+    | BackupToggleKeyVisibility Bool
       -- App List
     | FetchedAppList Json.Value
     | DropzonePublishStart

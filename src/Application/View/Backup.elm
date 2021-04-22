@@ -1,5 +1,6 @@
 module View.Backup exposing (..)
 
+import Common
 import Css
 import FeatherIcons
 import Html.Styled exposing (..)
@@ -100,8 +101,31 @@ secureBackupButton msg =
         }
 
 
-keyTextField : { id : String, key : String, onCopyToClipboard : msg } -> Html msg
+keyTextField :
+    { id : String
+    , key : String
+    , keyVisible : Bool
+    , onToggleVisibility : msg
+    , onCopyToClipboard : msg
+    }
+    -> Html msg
 keyTextField element =
+    let
+        buttonStyle =
+            Css.batch
+                [ dark
+                    [ Css.active [ bg_gray_100 ]
+                    , bg_gray_200
+                    , border_gray_200
+                    , text_gray_600
+                    ]
+                , Css.active [ bg_gray_900 ]
+                , bg_gray_700
+                , border
+                , border_gray_500
+                , text_gray_300
+                ]
+    in
     div
         [ css
             [ sm [ h_10 ]
@@ -120,6 +144,7 @@ keyTextField element =
                 , h_full
                 , rounded_r_none
                 ]
+            , type_ (Common.ifThenElse element.keyVisible "text" "password")
             , readonly True
             , id element.id
             , value element.key
@@ -127,22 +152,37 @@ keyTextField element =
             []
         , button
             [ css
-                [ dark
-                    [ Css.active [ bg_gray_100 ]
-                    , bg_gray_200
-                    , border_gray_200
-                    , text_gray_600
-                    ]
-                , Css.active [ bg_gray_900 ]
-                , bg_gray_700
-                , border
-                , border_gray_500
+                [ buttonStyle
+                , border_r_0
+                , flex
+                , px_4
+                ]
+            , Events.onClick element.onToggleVisibility
+            ]
+            [ View.Common.icon
+                { icon =
+                    Common.ifThenElse element.keyVisible
+                        FeatherIcons.eyeOff
+                        FeatherIcons.eye
+                , size = View.Common.Small
+                , tag =
+                    span
+                        [ css
+                            [ dark [ text_gray_600 ]
+                            , m_auto
+                            , text_gray_300
+                            ]
+                        ]
+                }
+            ]
+        , button
+            [ css
+                [ buttonStyle
                 , flex
                 , flex_row
                 , items_center
                 , px_4
                 , rounded_r
-                , text_gray_300
                 ]
             , Events.onClick element.onCopyToClipboard
             ]

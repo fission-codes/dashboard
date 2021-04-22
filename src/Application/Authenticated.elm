@@ -163,7 +163,7 @@ update navKey msg globalModel model =
         BackupReceivedKey key ->
             case model.backupState of
                 BackupFetchingKey ->
-                    ( { model | backupState = BackupFetchedKey key }
+                    ( { model | backupState = BackupFetchedKey { key = key, visible = False } }
                     , Cmd.none
                     )
 
@@ -201,6 +201,18 @@ update navKey msg globalModel model =
                 BackupFetchedKey _ ->
                     ( model
                     , Navigation.pushUrl navKey (Url.toString globalModel.url)
+                    )
+
+                _ ->
+                    ( model
+                    , Cmd.none
+                    )
+
+        BackupToggleKeyVisibility to ->
+            case model.backupState of
+                BackupFetchedKey backup ->
+                    ( { model | backupState = BackupFetchedKey { backup | visible = to } }
+                    , Cmd.none
                     )
 
                 _ ->
@@ -557,8 +569,8 @@ backupKeyInputFieldId =
     "backup-key"
 
 
-viewBackupShowingKey : AuthenticatedModel -> String -> List (Html Msg)
-viewBackupShowingKey model key =
+viewBackupShowingKey : AuthenticatedModel -> { key : String, visible : Bool } -> List (Html Msg)
+viewBackupShowingKey model backup =
     [ View.Dashboard.sectionParagraph
         [ Html.text "This is your secure backup."
         , Html.br [] []
@@ -575,18 +587,20 @@ viewBackupShowingKey model key =
     , View.Dashboard.sectionGroup []
         [ View.Backup.keyTextField
             { id = backupKeyInputFieldId
-            , key = key
+            , key = backup.key
+            , keyVisible = backup.visible
             , onCopyToClipboard = AuthenticatedMsg BackupCopyToClipboard
+            , onToggleVisibility = AuthenticatedMsg (BackupToggleKeyVisibility (not backup.visible))
             }
         , View.Backup.twoOptions
             (View.Backup.storeInBrowserButton
                 { username = model.username
-                , key = key
+                , key = backup.key
                 , onStore = AuthenticatedMsg BackupStoreInBrowser
                 }
             )
             (View.Backup.downloadKeyButton
-                { key = key
+                { key = backup.key
                 }
             )
         ]
