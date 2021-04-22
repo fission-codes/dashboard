@@ -539,7 +539,7 @@ viewBackup model =
                 , [ View.Dashboard.sectionParagraph
                         [ Html.text "The dashboard will need access permissions to your private files to create a secure backup." ]
                   , View.Backup.buttonGroup
-                        [ View.Backup.askForPermissionButton (AuthenticatedMsg BackupAskForPermission)
+                        [ View.Backup.buttonAskForPermission (AuthenticatedMsg BackupAskForPermission)
                         ]
                   ]
                 ]
@@ -586,7 +586,7 @@ viewBackupPermissioned model =
             List.concat
                 [ viewBackupInfo model
                 , [ View.Backup.buttonGroup
-                        [ View.Backup.secureBackupButton (AuthenticatedMsg BackupStart)
+                        [ View.Backup.buttonSecureBackup (AuthenticatedMsg BackupStart)
                         ]
                   ]
                 , case model.backupState of
@@ -636,13 +636,13 @@ viewBackupShowingKey model backup =
             , onToggleVisibility = AuthenticatedMsg (BackupToggleKeyVisibility (not backup.visible))
             }
         , View.Backup.twoOptions
-            (View.Backup.storeInPasswordManagerButton
+            (View.Backup.buttonStoreInPasswordManager
                 { username = model.username
                 , key = backup.key
                 , onStore = AuthenticatedMsg BackupStoreInBrowser
                 }
             )
-            (View.Backup.downloadKeyButton
+            (View.Backup.buttonDownloadKey
                 { key = backup.key
                 }
             )

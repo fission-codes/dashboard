@@ -67,8 +67,8 @@ buttonGroup content =
         content
 
 
-askForPermissionButton : msg -> Html msg
-askForPermissionButton msg =
+buttonAskForPermission : msg -> Html msg
+buttonAskForPermission msg =
     View.Common.button
         { isLoading = False
         , disabled = False
@@ -84,8 +84,8 @@ askForPermissionButton msg =
         }
 
 
-secureBackupButton : msg -> Html msg
-secureBackupButton msg =
+buttonSecureBackup : msg -> Html msg
+buttonSecureBackup msg =
     View.Common.button
         { isLoading = False
         , disabled = False
@@ -239,8 +239,8 @@ twoOptions option1 option2 =
         ]
 
 
-storeInPasswordManagerButton : { onStore : msg, username : String, key : String } -> Html msg
-storeInPasswordManagerButton element =
+buttonStoreInPasswordManager : { onStore : msg, username : String, key : String } -> Html msg
+buttonStoreInPasswordManager element =
     form
         [ css
             [ sm
@@ -279,8 +279,8 @@ storeInPasswordManagerButton element =
         ]
 
 
-downloadKeyButton : { key : String } -> Html msg
-downloadKeyButton element =
+buttonDownloadKey : { key : String } -> Html msg
+buttonDownloadKey element =
     a
         [ css
             [ sm
