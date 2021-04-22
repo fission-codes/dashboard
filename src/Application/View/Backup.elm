@@ -326,3 +326,19 @@ buttonTryAnotherBackupMethod msg =
                 ]
         , spinnerStyle = []
         }
+
+
+buttonBackupCancel : msg -> Html msg
+buttonBackupCancel msg =
+    View.Common.button
+        { label = "CANCEL"
+        , onClick = Just msg
+        , isLoading = False
+        , disabled = False
+        , style =
+            Css.batch
+                [ View.Common.uppercaseButtonStyle
+                , ml_auto
+                ]
+        , spinnerStyle = []
+        }

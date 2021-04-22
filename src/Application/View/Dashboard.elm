@@ -177,6 +177,7 @@ heading headingItems =
             , flex_wrap
             , font_display
             , items_center
+            , max_w_3xl
             , px_10
             , py_5
             , text_2xl

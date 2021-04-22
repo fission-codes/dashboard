@@ -131,6 +131,7 @@ type AuthenticatedMsg
       -- Backup
     | BackupAskForPermission
     | BackupStart
+    | BackupCancel
     | BackupReceivedKey String
     | BackupFetchKeyError String
     | BackupCopyToClipboard
