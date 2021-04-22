@@ -117,7 +117,7 @@ elmApp.ports.webnativeAppDelete.subscribe(async appUrl => {
   try {
     try {
       await webnative.apps.deleteByDomain(appUrl)
-    } catch (_) { /* FIXME Ignoring CORS errors for now */ }
+    } catch (_) { /* TODO FIXME Ignoring CORS errors for now */ }
     elmApp.ports.webnativeAppDeleteSucceeded.send({ app: appUrl })
   } catch (error) {
     console.error("Error while fetching the app index", error)
@@ -135,11 +135,22 @@ elmApp.ports.webnativeAppRename.subscribe(async ({ from, to }) => {
     await state.fs.mv(fromPath, toPath)
     try {
       await webnative.apps.deleteByDomain(from)
-    } catch (_) { /* FIXME Ignoring CORS errors for now */ }
+    } catch (_) { /* TODO FIXME Ignoring CORS errors for now */ }
     elmApp.ports.webnativeAppRenameSucceeded.send({ app: from, renamed: newApp.domain })
   } catch (error) {
     console.error(`Error while renaming an app from ${from} to ${to}`, error)
     elmApp.ports.webnativeAppRenameFailed.send({ app: from, error: error.message })
+  }
+})
+
+elmApp.ports.fetchReadKey.subscribe(async () => {
+  try {
+    const privateHash = await webnative.keystore.sha256Str("/private")
+    const readKey = await webnative.keystore.getKeyByName(`wnfs__readKey__${privateHash}`)
+    elmApp.ports.fetchedReadKey.send(readKey)
+  } catch (error) {
+    console.error(`Error while trying to fetch the readKey for backup`, error)
+    elmApp.ports.fetchReadKeyError.send(error.message)
   }
 })
 

@@ -5,6 +5,9 @@ port module Ports exposing
     , appRename
     , appRenameFailed
     , appRenameSucceeded
+    , fetchReadKey
+    , fetchReadKeyError
+    , fetchedReadKey
     , log
     , redirectToLobby
     , webnativeAppIndexFetch
@@ -188,3 +191,16 @@ redirectToLobby { permissions } =
 
 
 port webnativeRedirectToLobby : { permissions : Json.Value } -> Cmd msg
+
+
+
+-- Secure Backup
+
+
+port fetchReadKey : () -> Cmd msg
+
+
+port fetchedReadKey : (String -> msg) -> Sub msg
+
+
+port fetchReadKeyError : (String -> msg) -> Sub msg

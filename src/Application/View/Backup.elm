@@ -82,13 +82,13 @@ askForPermissionButton msg =
         }
 
 
-secureBackupButton : msg -> Html msg
-secureBackupButton msg =
+secureBackupButton : { isLoading : Bool, onClick : msg } -> Html msg
+secureBackupButton element =
     View.Common.button
-        { isLoading = False
-        , disabled = False
+        { isLoading = element.isLoading
+        , disabled = element.isLoading
         , label = "Secure Backup"
-        , onClick = Just msg
+        , onClick = Just element.onClick
         , style =
             Css.batch
                 [ sm [ flex_grow_0 ]

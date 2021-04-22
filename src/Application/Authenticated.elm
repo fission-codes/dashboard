@@ -38,8 +38,15 @@ init url { username, permissions } =
       , resendingVerificationEmail = False
       , navigationExpanded = False
       , route = route
+
+      -- Backup
+      , backupState = BackupWaiting
+
+      -- App List
       , appList = Nothing
       , appListUploadState = DropzoneWaiting
+
+      -- Individual App Pages
       , appPageModels = Dict.empty
       }
     , commandsByRoute route
@@ -51,6 +58,7 @@ onRouteChange route model =
     ( { model
         | route = route
         , navigationExpanded = False
+        , backupState = BackupWaiting
       }
     , commandsByRoute route
     )
@@ -136,8 +144,40 @@ update navKey msg model =
             )
 
         BackupStart ->
-            -- TODO
-            ( model, Cmd.none )
+            case model.backupState of
+                BackupWaiting ->
+                    ( { model | backupState = BackupFetchingKey }
+                    , Ports.fetchReadKey ()
+                    )
+
+                _ ->
+                    ( model
+                    , Cmd.none
+                    )
+
+        BackupReceivedKey key ->
+            case model.backupState of
+                BackupFetchingKey ->
+                    ( { model | backupState = BackupFetchedKey key }
+                    , Cmd.none
+                    )
+
+                _ ->
+                    ( model
+                    , Cmd.none
+                    )
+
+        BackupFetchKeyError _ ->
+            case model.backupState of
+                BackupFetchingKey ->
+                    ( { model | backupState = BackupError }
+                    , Cmd.none
+                    )
+
+                _ ->
+                    ( model
+                    , Cmd.none
+                    )
 
         -- App list
         FetchedAppList value ->
@@ -422,30 +462,86 @@ viewBackup model =
     [ View.Dashboard.heading [ Html.text "Secure Backup" ]
     , View.Common.sectionSpacer
     , View.Dashboard.section []
-        (List.concat
-            [ [ View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
-                    [ Html.text "Fission accounts don't need passwords, because we use the encryption built into your web browser to link devices."
-                    , Html.br [] []
-                    , Html.br [] []
-                    , Html.text "In case you lose access to all the devices you have linked to Fission, you need to store this secure backup in a safe place."
-                    ]
-              , View.Backup.loggedInAs model.username
-              ]
-            , if hasPrivateFilesystemPermissions model.permissions then
-                [ View.Backup.buttonGroup
-                    [ View.Backup.secureBackupButton (AuthenticatedMsg BackupStart) ]
-                ]
+        (if hasPrivateFilesystemPermissions model.permissions then
+            viewBackupPermissioned model
 
-              else
-                [ View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
-                    [ Html.text "The dashboard will need access permissions to your private files to create a secure backup." ]
-                , View.Backup.buttonGroup
-                    [ View.Backup.askForPermissionButton (AuthenticatedMsg BackupAskForPermission)
-                    ]
+         else
+            List.concat
+                [ viewBackupInfo model
+                , [ View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
+                        [ Html.text "The dashboard will need access permissions to your private files to create a secure backup." ]
+                  , View.Backup.buttonGroup
+                        [ View.Backup.askForPermissionButton (AuthenticatedMsg BackupAskForPermission)
+                        ]
+                  ]
                 ]
-            ]
         )
     ]
+
+
+viewBackupInfo : AuthenticatedModel -> List (Html msg)
+viewBackupInfo model =
+    [ View.Dashboard.sectionParagraph [ View.Common.infoTextStyle ]
+        [ Html.text "Fission accounts don't need passwords, because we use the encryption built into your web browser to link devices."
+        , Html.br [] []
+        , Html.br [] []
+        , Html.text "In case you lose access to all the devices you have linked to Fission, you need to store this secure backup in a safe place."
+        ]
+    , View.Backup.loggedInAs model.username
+    ]
+
+
+viewBackupPermissioned : AuthenticatedModel -> List (Html Msg)
+viewBackupPermissioned model =
+    case model.backupState of
+        BackupFetchedKey key ->
+            viewBackupKey model key
+
+        _ ->
+            let
+                { error, isLoading } =
+                    case model.backupState of
+                        BackupWaiting ->
+                            { error = [], isLoading = False }
+
+                        BackupFetchingKey ->
+                            { error = [], isLoading = True }
+
+                        BackupError ->
+                            { error =
+                                [ View.Common.warning
+                                    [ Html.text "Something went wrong while trying to create a backup. Please reload the page and try again or contact "
+                                    , View.Common.underlinedLink []
+                                        { location = "https://fission.codes/support"
+                                        , external = False
+                                        }
+                                        [ Html.text "our support" ]
+                                    , Html.text "."
+                                    ]
+                                ]
+                            , isLoading = False
+                            }
+
+                        -- Impossible
+                        _ ->
+                            { error = [], isLoading = False }
+            in
+            List.concat
+                [ viewBackupInfo model
+                , [ View.Backup.buttonGroup
+                        [ View.Backup.secureBackupButton
+                            { isLoading = isLoading
+                            , onClick = AuthenticatedMsg BackupStart
+                            }
+                        ]
+                  ]
+                , error
+                ]
+
+
+viewBackupKey : AuthenticatedModel -> String -> List (Html msg)
+viewBackupKey model key =
+    [ Html.text key ]
 
 
 viewAppList : AuthenticatedModel -> List (Html Msg)
@@ -847,6 +943,15 @@ subscriptions model =
 
           else
             Sub.none
+        , case model.backupState of
+            BackupFetchingKey ->
+                Sub.batch
+                    [ Ports.fetchedReadKey (AuthenticatedMsg << BackupReceivedKey)
+                    , Ports.fetchReadKeyError (AuthenticatedMsg << BackupFetchKeyError)
+                    ]
+
+            _ ->
+                Sub.none
         , Ports.webnativeAppIndexFetched (AuthenticatedMsg << FetchedAppList)
         , case getAppPageModel model of
             Just pageModel ->
