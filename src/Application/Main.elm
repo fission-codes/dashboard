@@ -71,7 +71,7 @@ update msg model =
         ( Authenticated authenticatedModel, AuthenticatedMsg authenticatedMsg ) ->
             let
                 ( newModel, cmds ) =
-                    Authenticated.update model.navKey authenticatedMsg model authenticatedModel
+                    Authenticated.update model.navKey authenticatedMsg authenticatedModel
             in
             ( { model | state = Authenticated newModel }
             , cmds

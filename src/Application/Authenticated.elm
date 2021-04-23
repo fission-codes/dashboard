@@ -113,8 +113,8 @@ getAppPageModel model =
             Nothing
 
 
-update : Navigation.Key -> AuthenticatedMsg -> Model -> AuthenticatedModel -> ( AuthenticatedModel, Cmd Msg )
-update navKey msg globalModel model =
+update : Navigation.Key -> AuthenticatedMsg -> AuthenticatedModel -> ( AuthenticatedModel, Cmd Msg )
+update navKey msg model =
     case msg of
         Logout ->
             ( model
@@ -217,7 +217,7 @@ update navKey msg globalModel model =
             case model.backupState of
                 BackupFetchedKey backup ->
                     ( { model | backupState = BackupStoredInPasswordManager { key = backup.key } }
-                    , Navigation.pushUrl navKey (Url.toString globalModel.url)
+                    , Navigation.pushUrl navKey (Route.toUrl Route.Backup)
                     )
 
                 _ ->
