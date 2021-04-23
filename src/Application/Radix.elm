@@ -108,6 +108,7 @@ type AppRenamingState
 
 type Msg
     = UrlChanged Url
+    | UrlChangedFromOutside String
     | UrlRequested UrlRequest
     | AuthenticatedMsg AuthenticatedMsg
       -----------------------------------------

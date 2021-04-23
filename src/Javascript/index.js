@@ -194,6 +194,10 @@ webnative
     window.fs = state.fs;
 
     elmApp.ports.webnativeInitialized.send(state)
+
+    // Webnative will remove search params after authorisation.
+    // To keep the URL in sync, we tell Elm about it
+    elmApp.ports.urlChanged.send(window.location.toString())
   })
   .catch(error => {
     console.error("Error in webnative initialisation", error)

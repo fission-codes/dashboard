@@ -162,6 +162,18 @@ updateOther msg model =
         UrlChanged url ->
             onUrlChange url model
 
+        UrlChangedFromOutside str ->
+            case Url.fromString str of
+                Just url ->
+                    ( { model | url = url }
+                    , Cmd.none
+                    )
+
+                Nothing ->
+                    ( model
+                    , Ports.log [ E.string "Couldn't parse url:", E.string str ]
+                    )
+
         UrlRequested request ->
             case request of
                 Browser.Internal url ->
@@ -230,6 +242,7 @@ subscriptions model =
         [ Ports.webnativeResponse GotWebnativeResponse
         , Ports.webnativeInitialized (Json.decodeValue Webnative.Types.decoderState >> InitializedWebnative)
         , Ports.webnativeError GotWebnativeError
+        , Ports.urlChanged UrlChangedFromOutside
         , case model.state of
             Authenticated dashboard ->
                 Authenticated.subscriptions dashboard
