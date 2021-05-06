@@ -174,7 +174,7 @@ previewIframe { url } =
                 ]
                 [ iframe
                     [ src url
-                    , attribute "sandbox" "allow-scripts allow-top-navigation"
+                    , attribute "sandbox" "allow-scripts"
                     , attribute "frameborder" "0"
                     , attribute "focusable" "false"
                     , tabindex -1
