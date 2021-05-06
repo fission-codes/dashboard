@@ -20,7 +20,7 @@
     "fission-kit": "fission-suite/kit#aed7844ccd76f6ca7feeca95981b47d4b1114a7c",
     "lodash": "^4.17.21",
     "tailwindcss": "^2.0.3",
-    "webnative": "^0.23.0",
+    "webnative": "0.24.0-alpha-15",
     "webnative-elm": "^4.0.0-3"
   }
 }

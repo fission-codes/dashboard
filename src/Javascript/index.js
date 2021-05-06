@@ -33,7 +33,7 @@ const permissionsBaseline = {
     name: "Dashboard",
   },
   fs: {
-    publicPaths: ["Apps"],
+    public: [{ directory: ["Apps"] }],
   },
   platform: {
     apps: "*",

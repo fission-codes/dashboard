@@ -147,8 +147,8 @@ update navKey msg model =
                     , platform = Nothing
                     , fs =
                         Just
-                            { publicPaths = []
-                            , privatePaths = [ "/" ]
+                            { public = []
+                            , private = [ Webnative.Types.Directory [] ]
                             }
                     }
                 }
@@ -512,8 +512,17 @@ viewBackup model =
     let
         hasPrivateFilesystemPermissions permissions =
             case permissions.fs of
-                Just { privatePaths } ->
-                    privatePaths |> List.any ((==) "/")
+                Just { private } ->
+                    private
+                        |> List.any
+                            (\path ->
+                                case path of
+                                    Webnative.Types.Directory [] ->
+                                        True
+
+                                    _ ->
+                                        False
+                            )
 
                 _ ->
                     False
