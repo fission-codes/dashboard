@@ -12,6 +12,7 @@ port module Ports exposing
     , log
     , logout
     , redirectToLobby
+    , urlChanged
     , webnativeAppIndexFetch
     , webnativeAppIndexFetched
     , webnativeError
@@ -30,6 +31,9 @@ import Webnative.Types
 
 
 port log : List Json.Value -> Cmd msg
+
+
+port urlChanged : (String -> msg) -> Sub msg
 
 
 

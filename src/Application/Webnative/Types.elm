@@ -58,9 +58,14 @@ type alias AppInfo =
 
 
 type alias FileSystemPermissions =
-    { privatePaths : List String
-    , publicPaths : List String
+    { private : List Path
+    , public : List Path
     }
+
+
+type Path
+    = File (List String)
+    | Directory (List String)
 
 
 type alias PlatformPermissions =
@@ -172,14 +177,38 @@ codecFileSystemPermissions =
                     []
     in
     Codec.object
-        (\publicPaths privatePaths ->
-            { publicPaths = fromNonEmptyList publicPaths
-            , privatePaths = fromNonEmptyList privatePaths
+        (\public private ->
+            { public = fromNonEmptyList public
+            , private = fromNonEmptyList private
             }
         )
-        |> Codec.maybeField "publicPaths" (nonEmptyList << .publicPaths) (Codec.list Codec.string)
-        |> Codec.maybeField "privatePaths" (nonEmptyList << .privatePaths) (Codec.list Codec.string)
+        |> Codec.maybeField "public" (nonEmptyList << .public) (Codec.list codecPath)
+        |> Codec.maybeField "private" (nonEmptyList << .private) (Codec.list codecPath)
         |> Codec.buildObject
+
+
+codecPath : Codec Path
+codecPath =
+    Codec.build
+        (\path ->
+            case path of
+                File pieces ->
+                    E.object [ ( "file", E.list E.string pieces ) ]
+
+                Directory pieces ->
+                    E.object [ ( "directory", E.list E.string pieces ) ]
+        )
+        (Json.maybe (Json.field "file" (Json.list Json.string))
+            |> Json.andThen
+                (\maybePieces ->
+                    case maybePieces of
+                        Just pieces ->
+                            Json.succeed (File pieces)
+
+                        Nothing ->
+                            Json.map Directory (Json.field "directory" (Json.list Json.string))
+                )
+        )
 
 
 codecPlatformPermissions : Codec PlatformPermissions

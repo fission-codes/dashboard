@@ -113,8 +113,8 @@ getAppPageModel model =
             Nothing
 
 
-update : Navigation.Key -> AuthenticatedMsg -> Model -> AuthenticatedModel -> ( AuthenticatedModel, Cmd Msg )
-update navKey msg globalModel model =
+update : Navigation.Key -> AuthenticatedMsg -> AuthenticatedModel -> ( AuthenticatedModel, Cmd Msg )
+update navKey msg model =
     case msg of
         Logout ->
             ( model
@@ -147,8 +147,8 @@ update navKey msg globalModel model =
                     , platform = Nothing
                     , fs =
                         Just
-                            { publicPaths = []
-                            , privatePaths = [ "/" ]
+                            { public = []
+                            , private = [ Webnative.Types.Directory [] ]
                             }
                     }
                 }
@@ -217,7 +217,7 @@ update navKey msg globalModel model =
             case model.backupState of
                 BackupFetchedKey backup ->
                     ( { model | backupState = BackupStoredInPasswordManager { key = backup.key } }
-                    , Navigation.pushUrl navKey (Url.toString globalModel.url)
+                    , Navigation.pushUrl navKey (Route.toUrl Route.Backup)
                     )
 
                 _ ->
@@ -512,8 +512,17 @@ viewBackup model =
     let
         hasPrivateFilesystemPermissions permissions =
             case permissions.fs of
-                Just { privatePaths } ->
-                    privatePaths |> List.any ((==) "/")
+                Just { private } ->
+                    private
+                        |> List.any
+                            (\path ->
+                                case path of
+                                    Webnative.Types.Directory [] ->
+                                        True
+
+                                    _ ->
+                                        False
+                            )
 
                 _ ->
                     False
@@ -570,7 +579,7 @@ viewBackupPermissioned model =
                 [ Html.text "Your browser's password manager should've prompted you to save the backup. "
                 , Html.strong [] [ Html.text "Did that work?" ]
                 , Html.br [] []
-                , Html.text "If not, we're sorry. Browsers are hard!"
+                , Html.text "If not, we're sorry. Browsers are hard! Are you using 1Password? At the moment, we can't support that extension, unfortunately."
                 , Html.br [] []
                 , Html.text "You can try to look at your browser's password manager settings. Did you disable password prompts or accidentally create an exception for this site?"
                 , Html.br [] []
@@ -619,9 +628,9 @@ viewBackupShowingKey model backup =
         , Html.br [] []
         , Html.br [] []
         , Html.text "Store it somewhere safe. "
-        , Html.strong [] [ Html.text "Anyone with this backup will have read access to your files" ]
+        , Html.strong [] [ Html.text "Anyone with this backup will have read access to your private files" ]
         , Html.text " and "
-        , Html.strong [] [ Html.text "losing it will mean you won’t be able to recover your account" ]
+        , Html.strong [] [ Html.text "losing it will mean you won’t be able to recover your private files" ]
         , Html.text " in case you lose all your linked devices. You can create a backup at any point when logged in."
         , Html.br [] []
         , Html.br [] []
