@@ -1,7 +1,6 @@
 import * as webnative from "webnative"
 import * as webnativeElm from "webnative-elm"
 import lodashMerge from "lodash/merge"
-import * as localforage from "localforage"
 
 
 //----------------------------------------
