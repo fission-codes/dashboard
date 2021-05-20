@@ -1,6 +1,7 @@
 import * as webnative from "webnative"
 import * as webnativeElm from "webnative-elm"
 import lodashMerge from "lodash/merge"
+import * as localforage from "localforage"
 
 
 //----------------------------------------
@@ -148,9 +149,11 @@ elmApp.ports.webnativeAppRename.subscribe(async ({ from, to }) => {
 
 elmApp.ports.fetchReadKey.subscribe(async () => {
   try {
-    const privateHash = await webnative.keystore.sha256Str("/private")
-    const readKey = await webnative.keystore.getKeyByName(`wnfs__readKey__${privateHash}`)
-    elmApp.ports.fetchedReadKey.send(readKey)
+    const privateHash = await webnative.crypto.sha256Str("/private")
+    const keystore = await webnative.keystore.get()
+    const readKey = await keystore.getSymmKey(`wnfs__readKey__${privateHash}`)
+    const exported = await window.crypto.subtle.exportKey("jwk", readKey)
+    elmApp.ports.fetchedReadKey.send(exported.k)
   } catch (error) {
     console.error(`Error while trying to fetch the readKey for backup`, error)
     elmApp.ports.fetchReadKeyError.send(error.message)
