@@ -652,7 +652,8 @@ viewBackupShowingKey model backup =
                 }
             )
             (View.Backup.buttonDownloadKey
-                { key = backup.key
+                { username = model.username
+                , key = backup.key
                 }
             )
         ]

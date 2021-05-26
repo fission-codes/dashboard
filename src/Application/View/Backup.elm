@@ -1,5 +1,6 @@
 module View.Backup exposing (..)
 
+import Base64
 import Common
 import Css
 import FeatherIcons
@@ -280,7 +281,7 @@ buttonStoreInPasswordManager element =
         ]
 
 
-buttonDownloadKey : { key : String } -> Html msg
+buttonDownloadKey : { username : String, key : String } -> Html msg
 buttonDownloadKey element =
     a
         [ css
@@ -296,10 +297,13 @@ buttonDownloadKey element =
             , w_full
             ]
         , href
-            (String.concat
-                [ "data:,"
-                , element.key
-                ]
+            ("data:text/plain;base64,"
+                ++ Base64.encode
+                    (String.join "\n"
+                        [ "username: " ++ element.username
+                        , "key: " ++ element.key
+                        ]
+                    )
             )
         , download "FissionSecureBackup.txt"
         ]
