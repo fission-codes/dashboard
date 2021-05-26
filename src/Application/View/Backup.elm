@@ -141,6 +141,7 @@ keyTextField element =
                 , border_r_0
                 , flex_grow
                 , flex_shrink
+                , font_mono
                 , h_full
                 , rounded_r_none
                 ]

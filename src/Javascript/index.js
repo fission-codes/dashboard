@@ -1,6 +1,7 @@
 import * as webnative from "webnative"
 import * as webnativeElm from "webnative-elm"
 import lodashMerge from "lodash/merge"
+import * as uint8arrays from "uint8arrays"
 
 
 //----------------------------------------
@@ -151,8 +152,9 @@ elmApp.ports.fetchReadKey.subscribe(async () => {
     const privateHash = await webnative.crypto.sha256Str("/private")
     const keystore = await webnative.keystore.get()
     const readKey = await keystore.getSymmKey(`wnfs__readKey__${privateHash}`)
-    const exported = await window.crypto.subtle.exportKey("jwk", readKey)
-    elmApp.ports.fetchedReadKey.send(exported.k)
+    const exported = await window.crypto.subtle.exportKey("raw", readKey)
+    const encoded = uint8arrays.toString(new Uint8Array(exported), "base64pad")
+    elmApp.ports.fetchedReadKey.send(encoded)
   } catch (error) {
     console.error(`Error while trying to fetch the readKey for backup`, error)
     elmApp.ports.fetchReadKeyError.send(error.message)
