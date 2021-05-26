@@ -7,6 +7,8 @@ dependencies:
   webnative-elm: 4.0.0-3_webnative@0.24.1
 devDependencies:
   '@tailwindcss/aspect-ratio': 0.2.0
+  '@types/wicg-entries-api': 2020.8.0
+  '@types/wicg-file-system-access': 2020.9.1
   autoprefixer: 10.2.4_postcss@8.2.6
   elm-live: 4.0.2
   elm-tailwind-css: 1.1.1_tailwindcss@2.0.3
@@ -1137,6 +1139,14 @@ packages:
     dev: true
     resolution:
       integrity: sha512-yy7HuzQhj0dhGpD8RLXSZWEkLsV9ibvxvi6EiJ3bkqLAO1RGo0WbkWQiwpRlSFymTJRz0d3k5LM3kkx8ArDbLw==
+  /@types/wicg-entries-api/2020.8.0:
+    dev: true
+    resolution:
+      integrity: sha512-dOsPhdQgQiWbbcVSDD7VSE0wk9lmaoI7WQcHUjaFYBho+yytWjG8MFLRVh6YqEUT+hAalngTxDjbBmToywZCsA==
+  /@types/wicg-file-system-access/2020.9.1:
+    dev: true
+    resolution:
+      integrity: sha512-hEN/YpLwvDjhRJrKoBiyiKtIh2zNkmJ/GY9VWIXNgjy7TBZNM9upfb/rnWDGpOoLomnEQtlTBjFBFCDra1oxOQ==
   /@ungap/global-this/0.4.4:
     dev: false
     resolution:
@@ -6741,6 +6751,8 @@ packages:
     version: 0.2.0
 specifiers:
   '@tailwindcss/aspect-ratio': ^0.2.0
+  '@types/wicg-entries-api': ^2020.8.0
+  '@types/wicg-file-system-access': ^2020.9.1
   autoprefixer: ^10.2.4
   elm-live: ^4.0.2
   elm-tailwind-css: ^1.1.1

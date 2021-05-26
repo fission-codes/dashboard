@@ -20,7 +20,7 @@ workbox_config := "./src/Javascript/workbox.config.cjs"
 	just config={{config}} hot-server & \
 	just config={{config}} watch-css & \
 	just config={{config}} watch-html & \
-	just config={{config}} watch-javascript-dev
+	just config={{config}} watch-typescript-dev
 
 
 
@@ -79,8 +79,8 @@ workbox_config := "./src/Javascript/workbox.config.cjs"
 	cp -RT src/Images/ {{dist}}/images/
 
 
-@javascript-dev:
-	echo "⚙️  Bundling javascript"
+@typescript-dev:
+	echo "⚙️  Bundling typescript"
 	{{node_bin}}/esbuild \
 		--define:CONFIG_ENVIRONMENT="\"{{config}}\"" \
 		--define:CONFIG_API_ENDPOINT="$(jq .API_ENDPOINT config/{{config}}.json)" \
@@ -89,11 +89,11 @@ workbox_config := "./src/Javascript/workbox.config.cjs"
 		--bundle \
 		--sourcemap \
 		--outfile={{dist}}/bundle.min.js \
-		src/Javascript/index.js
+		src/Javascript/index.ts
 
 
-@javascript-prod:
-	echo "⚙️  Bundling minified javascript"
+@typescript-prod:
+	echo "⚙️  Bundling minified typescript"
 	{{node_bin}}/esbuild \
 		--define:CONFIG_ENVIRONMENT="\"{{config}}\"" \
 		--define:CONFIG_API_ENDPOINT="$(jq .API_ENDPOINT config/{{config}}.json)" \
@@ -103,7 +103,7 @@ workbox_config := "./src/Javascript/workbox.config.cjs"
 		--minify \
 		--sourcemap \
 		--outfile={{dist}}/bundle.min.js \
-		src/Javascript/index.js
+		src/Javascript/index.ts
 
 
 @manifests:
@@ -121,10 +121,10 @@ workbox_config := "./src/Javascript/workbox.config.cjs"
 	mkdir -p {{dist}}
 
 
-@dev-build: clean html css javascript-dev elm-dev fonts favicons manifests images
+@dev-build: clean html css typescript-dev elm-dev fonts favicons manifests images
 
 
-@build: clean html css elm-production javascript-prod fonts favicons manifests images production-service-worker
+@build: clean html css elm-production typescript-prod fonts favicons manifests images production-service-worker
 
 
 @production-build:
@@ -164,7 +164,7 @@ workbox_config := "./src/Javascript/workbox.config.cjs"
 	just config={{config}} watch-css & \
 	just config={{config}} watch-elm & \
 	just config={{config}} watch-html & \
-	just config={{config}} watch-javascript-dev
+	just config={{config}} watch-typescript-dev
 
 
 @watch-css:
@@ -179,5 +179,5 @@ workbox_config := "./src/Javascript/workbox.config.cjs"
 	watchexec -p -w src -e html -- just config={{config}} html
 
 
-@watch-javascript-dev:
-	watchexec -p -w src -e js -- just config={{config}} javascript-dev
+@watch-typescript-dev:
+	watchexec -p -w src -e ts -- just config={{config}} typescript-dev
