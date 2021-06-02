@@ -22,7 +22,7 @@ sidebarWidth =
     w_80
 
 
-appShell :
+appShellWithNavigation :
     { navigation :
         { items : List (Html msg)
         , expanded : Bool
@@ -32,7 +32,7 @@ appShell :
     , main : List (Html msg)
     }
     -> Html msg
-appShell element =
+appShellWithNavigation element =
     div
         [ css
             [ lg [ flex_row ]
@@ -80,10 +80,12 @@ appShell element =
                 , z_10
                 ]
             ]
-            [ appHeader
-                { menuExpanded = element.navigation.expanded
-                , onToggle = element.navigation.onToggleExpanded
-                }
+            [ appHeader "Dashboard"
+                [ hamburgerMenu
+                    { menuExpanded = element.navigation.expanded
+                    , onToggle = element.navigation.onToggleExpanded
+                    }
+                ]
             , nav
                 [ classList
                     [ ( "expanded", element.navigation.expanded ) ]
@@ -138,12 +140,11 @@ appShell element =
                     , px_6
                     ]
                 ]
-                appFooter
+                appFooterSidebar
             ]
         , main_
             [ css
-                [ container
-                , flex
+                [ flex
                 , flex_col
                 , flex_grow
                 , mx_auto
@@ -159,7 +160,7 @@ appShell element =
                 , px_6
                 ]
             ]
-            appFooter
+            appFooterMobile
         ]
 
 
@@ -225,8 +226,32 @@ headingSubItem label =
         [ text label ]
 
 
-appHeader : { menuExpanded : Bool, onToggle : msg } -> Html msg
-appHeader element =
+hamburgerMenu : { menuExpanded : Bool, onToggle : msg } -> Html msg
+hamburgerMenu element =
+    View.Common.icon
+        { icon =
+            if element.menuExpanded then
+                FeatherIcons.x
+
+            else
+                FeatherIcons.menu
+        , size = View.Common.Big
+        , tag =
+            button
+                [ Events.onClick element.onToggle
+                , css
+                    [ lg [ hidden ]
+                    , dark [ text_gray_400 ]
+                    , ml_auto
+                    , rounded
+                    , text_gray_300
+                    ]
+                ]
+        }
+
+
+appHeader : String -> List (Html msg) -> Html msg
+appHeader subtitle content =
     header
         [ css
             [ container
@@ -242,51 +267,54 @@ appHeader element =
                 , items_center
                 ]
             ]
-            [ View.Common.logo
-                { styles = []
-                , imageStyles = [ h_8 ]
-                }
-            , View.Common.icon
-                { icon =
-                    if element.menuExpanded then
-                        FeatherIcons.x
-
-                    else
-                        FeatherIcons.menu
-                , size = View.Common.Big
-                , tag =
-                    button
-                        [ Events.onClick element.onToggle
-                        , css
-                            [ lg [ hidden ]
-                            , dark [ text_gray_400 ]
-                            , ml_auto
-                            , rounded
-                            , text_gray_300
-                            ]
-                        ]
-                }
-            ]
+            (List.append
+                [ View.Common.logo
+                    { styles = []
+                    , subtitle = subtitle
+                    , imageStyles = [ h_8 ]
+                    }
+                ]
+                content
+            )
         ]
 
 
-appFooter : List (Html msg)
-appFooter =
+appFooterMobile : List (Html msg)
+appFooterMobile =
+    [ div
+        [ css
+            [ flex
+            , flex_row
+            , items_center
+            , py_6
+            , space_x_8
+            , overflow_y_hidden
+            ]
+        ]
+        [ img
+            [ src "/images/badge-solid-faded.svg"
+            , css [ h_8 ]
+            ]
+            []
+        , footerLink { styles = [], text = "Discord", url = "https://fission.codes/discord" }
+        , footerLink { styles = [], text = "Guide", url = "https://guide.fission.codes/accounts-and-dashboard/dashboard" }
+        , footerLink { styles = [], text = "Forum", url = "https://talk.fission.codes/" }
+        , footerLink { styles = [], text = "Support", url = "https://fission.codes/support" }
+        ]
+    ]
+
+
+appFooterSidebar : List (Html msg)
+appFooterSidebar =
     let
         linkContainer content =
             div
                 [ css
-                    [ lg
-                        [ flex
-                        , flex_col
-                        , flex_grow
-                        , space_y_2
-                        , space_x_0
-                        ]
-                    , flex_row
-                    , space_x_8
-                    , flex_grow_0
+                    [ flex
+                    , flex_col
+                    , flex_grow
                     , items_start
+                    , space_y_2
                     ]
                 ]
                 content

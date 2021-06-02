@@ -428,7 +428,7 @@ view : AuthenticatedModel -> Browser.Document Msg
 view model =
     { title = "Fission Dashboard"
     , body =
-        View.Dashboard.appShell
+        View.Dashboard.appShellWithNavigation
             { navigation =
                 { expanded = model.navigationExpanded
                 , onToggleExpanded = AuthenticatedMsg ToggleNavigationExpanded

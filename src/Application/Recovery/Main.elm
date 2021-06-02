@@ -11,7 +11,7 @@ import Recovery.Radix exposing (..)
 import Route
 import Url exposing (Url)
 import View.Common
-import View.Dashboard as View
+import View.Recovery
 import Webnative.Types
 
 
@@ -104,15 +104,8 @@ view : Model -> Browser.Document Msg
 view model =
     { title = "Dashboard - Account Recovery"
     , body =
-        [ View.appShell
-            { navigation =
-                { items = []
-                , expanded = False
-                , onToggleExpanded = NoOp
-                , onLogout = NoOp
-                }
-            , main = []
-            }
+        [ View.Recovery.appShell
+            []
             |> Html.toUnstyled
         ]
     }

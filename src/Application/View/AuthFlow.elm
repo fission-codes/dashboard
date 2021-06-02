@@ -145,6 +145,7 @@ splashscreenShell { styles, content } =
                 [ sm [ max_w_xs ]
                 , max_w_xxs
                 ]
+            , subtitle = "Dashboard"
             }
             :: content
         )

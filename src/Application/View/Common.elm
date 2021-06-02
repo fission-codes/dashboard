@@ -16,9 +16,10 @@ import Tailwind.Utilities exposing (..)
 logo :
     { styles : List Css.Style
     , imageStyles : List Css.Style
+    , subtitle : String
     }
     -> Html msg
-logo { styles, imageStyles } =
+logo { styles, imageStyles, subtitle } =
     span
         [ css
             [ Css.batch styles
@@ -58,7 +59,7 @@ logo { styles, imageStyles } =
                 , uppercase
                 ]
             ]
-            [ text "Dashboard" ]
+            [ text subtitle ]
         ]
 
 
