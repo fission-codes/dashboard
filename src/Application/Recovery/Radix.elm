@@ -26,6 +26,8 @@ type alias Flags =
 type alias Model =
     { navKey : Browser.Navigation.Key
     , url : Url
+    , username : String
+    , backup : String
     }
 
 
@@ -38,3 +40,5 @@ type Msg
     | UrlChangedFromOutside String
     | UrlRequested UrlRequest
     | NoOp
+    | UsernameInput String
+    | BackupInput String

@@ -238,7 +238,6 @@ primaryButtonStyle =
         , appearance_none
         , bg_purple
         , font_semibold
-        , inline_block
         , leading_normal
         , px_5
         , py_3

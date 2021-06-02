@@ -1,18 +1,15 @@
 module Recovery.Main exposing (main)
 
-import Authenticated
 import Browser
 import Browser.Navigation as Navigation
 import Html.Styled as Html
-import Json.Decode as Json
 import Json.Encode as E
 import Ports
 import Recovery.Radix exposing (..)
-import Route
 import Url exposing (Url)
 import View.Common
+import View.Dashboard
 import View.Recovery
-import Webnative.Types
 
 
 
@@ -39,6 +36,8 @@ init : Flags -> Url -> Navigation.Key -> ( Model, Cmd Msg )
 init flags url navKey =
     ( { navKey = navKey
       , url = url
+      , username = ""
+      , backup = ""
       }
     , Cmd.none
     )
@@ -86,6 +85,19 @@ update msg model =
                     , Navigation.load url
                     )
 
+        -----------------------------------------
+        -- URL
+        -----------------------------------------
+        UsernameInput username ->
+            ( { model | username = username }
+            , Cmd.none
+            )
+
+        BackupInput backup ->
+            ( { model | backup = backup }
+            , Cmd.none
+            )
+
 
 
 -- 📰
@@ -105,7 +117,26 @@ view model =
     { title = "Dashboard - Account Recovery"
     , body =
         [ View.Recovery.appShell
-            []
+            [ View.Dashboard.heading [ Html.text "Recover your Account" ]
+            , View.Common.sectionSpacer
+            , View.Dashboard.section []
+                [ View.Dashboard.sectionParagraph
+                    [ Html.text "If you’ve lost access to all your linked devices, you can recover your account here."
+                    , Html.br [] []
+                    , Html.br [] []
+                    , Html.text "Plus, in case you’ve secured recovery keys you can recover your private files."
+                    , Html.br [] []
+                    , Html.br [] []
+                    , Html.text "Enter your username or email address to be emailed a link with account recovery instructions. This also serves as verification that you have access to the email address listed for your account."
+                    ]
+                , View.Recovery.accountInput
+                    { username = model.username
+                    , onUsernameInput = UsernameInput
+                    , onBackupAutocompleted = BackupInput
+                    , onStartRecovery = NoOp
+                    }
+                ]
+            ]
             |> Html.toUnstyled
         ]
     }
