@@ -23,6 +23,13 @@ workbox_config := "./src/Javascript/workbox.config.cjs"
 	just config={{config}} watch-typescript-dev
 
 
+@hot-recovery:
+	just config={{config}} dev-build
+	just config={{config}} hot-server-recovery & \
+	just config={{config}} watch-css & \
+	just config={{config}} watch-html & \
+	just config={{config}} watch-typescript-dev
+
 
 # Parts
 # =====
@@ -156,6 +163,18 @@ workbox_config := "./src/Javascript/workbox.config.cjs"
 		--dir={{dist}} \
 		-- \
 		--output={{dist}}/application.js \
+		--debug
+
+
+@hot-server-recovery:
+	echo "🔥  Start a hot-reloading (only for the recovery app!) elm-live server at http://localhost:8004"
+	{{node_bin}}/elm-live src/Application/Recovery/Main.elm \
+		--hot \
+		--host 0.0.0.0 \
+		--port=8004 \
+		--dir={{dist}} \
+		-- \
+		--output={{dist}}/recover/application.js \
 		--debug
 
 
