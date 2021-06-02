@@ -177,14 +177,20 @@ updateOther msg model =
         UrlRequested request ->
             case request of
                 Browser.Internal url ->
-                    onUrlChange url model
-                        |> Tuple.mapSecond
-                            (\commands ->
-                                Cmd.batch
-                                    [ Navigation.pushUrl model.navKey (Url.toString url)
-                                    , commands
-                                    ]
-                            )
+                    if Route.isRecovery url then
+                        ( model
+                        , Navigation.load (Url.toString url)
+                        )
+
+                    else
+                        onUrlChange url model
+                            |> Tuple.mapSecond
+                                (\commands ->
+                                    Cmd.batch
+                                        [ Navigation.pushUrl model.navKey (Url.toString url)
+                                        , commands
+                                        ]
+                                )
 
                 Browser.External url ->
                     ( model

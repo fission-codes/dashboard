@@ -3,7 +3,7 @@ module View.AuthFlow exposing (..)
 import Css
 import FeatherIcons
 import Html.Styled exposing (..)
-import Html.Styled.Attributes exposing (css)
+import Html.Styled.Attributes exposing (css, href)
 import Html.Styled.Events as Events
 import Svg exposing (Svg, svg)
 import Svg.Attributes as SvgA
@@ -40,6 +40,26 @@ signinScreen { onSignIn } =
                     [ text "The Fission Dashboard lets you manage your Fission account and apps." ]
                 , signinButton []
                     { onClick = onSignIn }
+                , p
+                    [ css
+                        [ text_gray_300
+                        , text_sm
+                        , text_center
+                        ]
+                    ]
+                    [ text "Lost access to all your devices?"
+                    , br [] []
+                    , a
+                        [ css
+                            [ underline
+                            , decoration_color_gray_300
+                            , decoration_thickness_1_dot_5
+                            ]
+                        , href "/recover/"
+                        ]
+                        [ text "Recover your account" ]
+                    , text "."
+                    ]
                 ]
             ]
         }

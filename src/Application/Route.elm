@@ -1,6 +1,7 @@
 module Route exposing (..)
 
 import Data.App as App
+import Maybe.Extra as Maybe
 import Url exposing (Url)
 import Url.Parser exposing (..)
 
@@ -27,10 +28,6 @@ type DeveloperAppListRoute
 fromUrl : Url -> Maybe Route
 fromUrl =
     parse route
-
-
-
--- ㊙️
 
 
 {-| Due to lacking SPA-mode support on fission apps, we
@@ -112,3 +109,14 @@ isSameFirstLevel routeOne routeTwo =
 
         ( DeveloperAppList _, _ ) ->
             False
+
+
+
+-- Recovery routes
+
+
+isRecovery : Url -> Bool
+isRecovery url =
+    url
+        |> parse (map () (top </> s "recover"))
+        |> Maybe.isJust

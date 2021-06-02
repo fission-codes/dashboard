@@ -32,21 +32,14 @@ workbox_config := "./src/Javascript/workbox.config.cjs"
 	pnpx node src/Javascript/generate-css-modules.js
 
 
-@css-old:
-	echo "💄  Compiling CSS"
-	mkdir -p src/Library/Css
-	pnpx etc src/Css/Application.css \
-		--config src/Css/Tailwind.js \
-		--elm-module Css.Classes \
-		--elm-path src/Library/Css/Classes.elm \
-		--output {{dist}}/application.css \
-		--post-plugin-before postcss-import
-
 @elm-dev:
 	echo "🌳  Compiling Elm"
 	elm make \
 		--output {{dist}}/application.js \
 		src/Application/Main.elm
+	elm make \
+		--output {{dist}}/recover/application.js \
+		src/Application/Recovery/Main.elm
 
 
 @elm-production:
@@ -71,6 +64,8 @@ workbox_config := "./src/Javascript/workbox.config.cjs"
 @html:
 	echo "📜  Copying HTML"
 	cp src/Html/Main.html {{dist}}/index.html
+	mkdir -p {{dist}}/recover
+	cp src/Html/Recovery/Main.html {{dist}}/recover/index.html
 
 
 @images:
@@ -90,6 +85,15 @@ workbox_config := "./src/Javascript/workbox.config.cjs"
 		--sourcemap \
 		--outfile={{dist}}/bundle.min.js \
 		src/Javascript/index.ts
+	{{node_bin}}/esbuild \
+		--define:CONFIG_ENVIRONMENT="\"{{config}}\"" \
+		--define:CONFIG_API_ENDPOINT="$(jq .API_ENDPOINT config/{{config}}.json)" \
+		--define:CONFIG_LOBBY="$(jq .LOBBY config/{{config}}.json)" \
+		--define:CONFIG_USER="$(jq .USER config/{{config}}.json)" \
+		--bundle \
+		--sourcemap \
+		--outfile={{dist}}/recover/bundle.min.js \
+		src/Javascript/recovery.ts
 
 
 @typescript-prod:
