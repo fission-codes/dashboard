@@ -302,7 +302,7 @@ appFooter =
             ]
         ]
         [ img
-            [ src "images/badge-solid-faded.svg"
+            [ src "/images/badge-solid-faded.svg"
             , css [ h_8 ]
             ]
             []

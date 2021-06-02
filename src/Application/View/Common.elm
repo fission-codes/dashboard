@@ -29,7 +29,7 @@ logo { styles, imageStyles } =
             ]
         ]
         [ img
-            [ src "images/logo-dark-textonly.svg"
+            [ src "/images/logo-dark-textonly.svg"
             , css
                 [ Css.batch imageStyles
                 , dark [ hidden ]
@@ -37,7 +37,7 @@ logo { styles, imageStyles } =
             ]
             []
         , img
-            [ src "images/logo-light-textonly.svg"
+            [ src "/images/logo-light-textonly.svg"
             , css
                 [ Css.batch imageStyles
                 , dark [ block ]

@@ -11,6 +11,7 @@ import Recovery.Radix exposing (..)
 import Route
 import Url exposing (Url)
 import View.Common
+import View.Dashboard as View
 import Webnative.Types
 
 
@@ -50,6 +51,9 @@ init flags url navKey =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        NoOp ->
+            ( model, Cmd.none )
+
         -----------------------------------------
         -- URL
         -----------------------------------------
@@ -99,5 +103,16 @@ subscriptions model =
 view : Model -> Browser.Document Msg
 view model =
     { title = "Dashboard - Account Recovery"
-    , body = []
+    , body =
+        [ View.appShell
+            { navigation =
+                { items = []
+                , expanded = False
+                , onToggleExpanded = NoOp
+                , onLogout = NoOp
+                }
+            , main = []
+            }
+            |> Html.toUnstyled
+        ]
     }
