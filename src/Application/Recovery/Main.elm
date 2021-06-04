@@ -127,10 +127,11 @@ view model =
                     , Html.text "Plus, in case you’ve secured recovery keys you can recover your private files."
                     , Html.br [] []
                     , Html.br [] []
-                    , Html.text "Enter your username or email address to be emailed a link with account recovery instructions. This also serves as verification that you have access to the email address listed for your account."
+                    , Html.text "Enter your username to be emailed a link with account recovery instructions. This also serves as verification that you have access to the email address listed for your account."
                     ]
                 , View.Recovery.accountInput
                     { username = model.username
+                    , backupLoaded = model.backup /= ""
                     , onUsernameInput = UsernameInput
                     , onBackupAutocompleted = BackupInput
                     , onStartRecovery = NoOp

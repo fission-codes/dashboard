@@ -1,10 +1,10 @@
 module View.Recovery exposing (..)
 
 import Css
-import Css.Global
+import Css.Global as Css
 import FeatherIcons
 import Html.Styled exposing (..)
-import Html.Styled.Attributes exposing (attribute, css, placeholder, type_, value)
+import Html.Styled.Attributes exposing (attribute, classList, css, disabled, placeholder, type_, value)
 import Html.Styled.Events as Events
 import Tailwind.Breakpoints exposing (..)
 import Tailwind.Utilities exposing (..)
@@ -75,10 +75,101 @@ appShell content =
         ]
 
 
-startRecoveryProcessButton : Html msg
-startRecoveryProcessButton =
+accountInput :
+    { username : String
+    , backupLoaded : Bool
+    , onUsernameInput : String -> msg
+    , onBackupAutocompleted : String -> msg
+    , onStartRecovery : msg
+    }
+    -> Html msg
+accountInput element =
+    form
+        [ Events.onSubmit element.onStartRecovery
+        , css
+            [ sm
+                [ items_start ]
+            , flex
+            , flex_col
+            , items_stretch
+            , space_y_3
+            , View.Dashboard.sectionGroupSpacings
+            ]
+        ]
+        [ label
+            [ css
+                [ flex
+                , flex_col
+                , items_start
+                , space_y_1
+                ]
+            ]
+            [ span
+                [ css
+                    [ dark [ text_gray_600 ]
+                    , text_sm
+                    , text_gray_300
+                    ]
+                ]
+                [ text "Account Username" ]
+            , input
+                [ type_ "text"
+                , placeholder "my_username"
+                , attribute "autocomplete" "username"
+                , value element.username
+                , Events.onInput element.onUsernameInput
+                , css
+                    [ sm [ text_left ]
+                    , w_full
+                    , max_w_xl
+                    , View.Common.basicInputStyle
+                    ]
+                ]
+                []
+            ]
+        , input
+            [ css [ hidden ]
+            , type_ "password"
+            , attribute "autocomplete" "password"
+            , Events.onInput element.onBackupAutocompleted
+            ]
+            []
+        , importedBackupCheckmark
+            { backupLoaded = element.backupLoaded
+            }
+        , startRecoveryProcessButton
+            { backupLoaded = element.backupLoaded
+            , disabled = String.trim element.username == ""
+            }
+        ]
+
+
+importedBackupCheckmark : { backupLoaded : Bool } -> Html msg
+importedBackupCheckmark element =
+    span
+        [ classList [ ( "no-backup-loaded", not element.backupLoaded ) ]
+        , css
+            [ flex
+            , flex_row
+            , items_center
+            , text_green
+            , Css.withClass "no-backup-loaded" [ hidden ]
+            ]
+        ]
+        [ View.Common.icon
+            { icon = FeatherIcons.check
+            , size = View.Common.Small
+            , tag = span []
+            }
+        , span [ css [ ml_2 ] ] [ text "Imported Backup" ]
+        ]
+
+
+startRecoveryProcessButton : { backupLoaded : Bool, disabled : Bool } -> Html msg
+startRecoveryProcessButton element =
     button
         [ type_ "submit"
+        , disabled element.disabled
         , css
             [ View.Common.primaryButtonStyle
             , sm
@@ -93,57 +184,18 @@ startRecoveryProcessButton =
             , w_full
             ]
         ]
-        [ span [ css [ ml_auto ] ] [ text "Start Recovery Process" ]
+        [ span [ css [ ml_auto ] ]
+            [ text
+                (if element.backupLoaded then
+                    "Recover Account"
+
+                 else
+                    "Start Recovery Process"
+                )
+            ]
         , View.Common.icon
             { icon = FeatherIcons.arrowRight
             , size = View.Common.Small
             , tag = span [ css [ ml_1, mr_auto ] ]
             }
-        ]
-
-
-accountInput :
-    { username : String
-    , onUsernameInput : String -> msg
-    , onBackupAutocompleted : String -> msg
-    , onStartRecovery : msg
-    }
-    -> Html msg
-accountInput element =
-    form
-        [ Events.onSubmit element.onStartRecovery
-        , css
-            [ sm
-                [ flex_row
-                , space_x_3
-                , space_y_0
-                ]
-            , flex
-            , flex_col
-            , items_stretch
-            , space_y_3
-            , View.Dashboard.sectionGroupSpacings
-            ]
-        ]
-        [ input
-            [ type_ "text"
-            , placeholder "my_username"
-            , attribute "autocomplete" "username"
-            , value element.username
-            , Events.onInput element.onUsernameInput
-            , css
-                [ w_full
-                , max_w_xl
-                , View.Common.basicInputStyle
-                ]
-            ]
-            []
-        , input
-            [ css [ hidden ]
-            , type_ "password"
-            , attribute "autocomplete" "password"
-            , Events.onInput element.onBackupAutocompleted
-            ]
-            []
-        , startRecoveryProcessButton
         ]
