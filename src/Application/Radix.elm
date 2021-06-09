@@ -68,7 +68,6 @@ type BackupState
     = BackupWaiting
     | BackupFetchingKey
     | BackupFetchedKey { key : String, visible : Bool, createdAt : String }
-    | BackupStoredInPasswordManager { key : String, createdAt : String }
     | BackupError
 
 
@@ -135,9 +134,6 @@ type AuthenticatedMsg
     | BackupCancel
     | BackupReceivedKey { key : String, createdAt : String }
     | BackupFetchKeyError String
-    | BackupCopyToClipboard
-    | BackupStoreInBrowser
-    | BackupToggleKeyVisibility Bool
       -- App List
     | FetchedAppList Json.Value
     | DropzonePublishStart

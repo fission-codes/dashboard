@@ -543,76 +543,62 @@ viewBackup model =
             viewBackupPermissioned model
 
          else
-            List.concat
-                [ viewBackupInfo model
-                , [ View.Dashboard.sectionParagraph
-                        [ Html.text "The dashboard will need access permissions to your private files to create a secure backup." ]
-                  , View.Backup.buttonGroup
-                        [ View.Backup.buttonAskForPermission (AuthenticatedMsg BackupAskForPermission)
-                        ]
-                  ]
+            viewBackupInfoWith model
+                [ View.Dashboard.sectionParagraph
+                    [ Html.text "The dashboard will need access permissions to your private files to create a secure backup." ]
+                , View.Backup.buttonGroup
+                    [ View.Backup.buttonAskForPermission (AuthenticatedMsg BackupAskForPermission)
+                    ]
                 ]
         )
     ]
 
 
-viewBackupInfo : AuthenticatedModel -> List (Html msg)
-viewBackupInfo model =
-    [ View.Dashboard.sectionParagraph
-        [ Html.text "Fission accounts don't need passwords, because we use the encryption built into your web browser to link devices."
-        , Html.br [] []
-        , Html.br [] []
-        , Html.text "In case you lose access to all the devices you have linked to Fission, you need to store this secure backup in a safe place."
+viewBackupInfoWith : AuthenticatedModel -> List (Html Msg) -> List (Html Msg)
+viewBackupInfoWith model content =
+    List.append
+        [ View.Dashboard.sectionParagraph
+            [ Html.text "Fission accounts don't need passwords, because we use the encryption built into your web browser to link devices."
+            , Html.br [] []
+            , Html.br [] []
+            , Html.text "In case you lose access to all the devices you have linked to Fission, you need to store this secure backup in a safe place."
+            ]
+        , View.Backup.loggedInAs model.username
         ]
-    , View.Backup.loggedInAs model.username
-    ]
+        content
 
 
 viewBackupPermissioned : AuthenticatedModel -> List (Html Msg)
 viewBackupPermissioned model =
     case model.backupState of
+        BackupWaiting ->
+            viewBackupInfoWith model
+                [ View.Backup.buttonGroup
+                    [ View.Backup.buttonSecureBackup (AuthenticatedMsg BackupStart) ]
+                ]
+
+        BackupFetchingKey ->
+            viewBackupInfoWith model
+                [ View.Backup.buttonGroup
+                    [ View.Backup.buttonSecureBackup (AuthenticatedMsg BackupStart) ]
+                ]
+
         BackupFetchedKey backup ->
             viewBackupShowingKey model backup
 
-        BackupStoredInPasswordManager backup ->
-            [ View.Dashboard.sectionParagraph
-                [ Html.text "Your browser's password manager should've prompted you to save the backup. "
-                , Html.strong [] [ Html.text "Did that work?" ]
-                , Html.br [] []
-                , Html.text "If not, we're sorry. Browsers are hard! Are you using 1Password? At the moment, we can't support that extension, unfortunately."
-                , Html.br [] []
-                , Html.text "You can try to look at your browser's password manager settings. Did you disable password prompts or accidentally create an exception for this site?"
-                , Html.br [] []
-                , Html.br [] []
-                , Html.text "In any case, you can still go back and try again."
-                ]
-            , View.Backup.buttonGroup
-                [ View.Backup.buttonTryAnotherBackupMethod (AuthenticatedMsg (BackupReceivedKey backup))
-                ]
-            ]
-
-        _ ->
-            List.concat
-                [ viewBackupInfo model
-                , [ View.Backup.buttonGroup
-                        [ View.Backup.buttonSecureBackup (AuthenticatedMsg BackupStart)
-                        ]
-                  ]
-                , case model.backupState of
-                    BackupError ->
-                        [ View.Common.warning
-                            [ Html.text "Something went wrong while trying to create a backup. Please reload the page and try again or contact "
-                            , View.Common.underlinedLink []
-                                { location = "https://fission.codes/support"
-                                , external = False
-                                }
-                                [ Html.text "our support" ]
-                            , Html.text "."
-                            ]
-                        ]
-
-                    _ ->
-                        []
+        BackupError ->
+            viewBackupInfoWith model
+                [ View.Backup.buttonGroup
+                    [ View.Backup.buttonSecureBackup (AuthenticatedMsg BackupStart) ]
+                , View.Common.warning
+                    [ Html.text "Something went wrong while trying to create a backup. Please reload the page and try again or contact "
+                    , View.Common.underlinedLink []
+                        { location = "https://fission.codes/support"
+                        , external = False
+                        }
+                        [ Html.text "our support" ]
+                    , Html.text "."
+                    ]
                 ]
 
 
