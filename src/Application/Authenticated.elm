@@ -668,7 +668,7 @@ backupFile { username, key, createdAt } =
     , "# "
     , "# Created for " ++ username ++ " on " ++ createdAt
     , "# "
-    , "# Store it somewhere safe."
+    , "# Store this somewhere safe."
     , "# "
     , "# Anyone with this backup will have read access to your private files."
     , "# Losing it means you won’t be able to recover your account"
