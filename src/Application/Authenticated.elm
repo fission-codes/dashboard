@@ -58,13 +58,7 @@ onRouteChange route model =
     ( { model
         | route = route
         , navigationExpanded = False
-        , backupState =
-            case model.backupState of
-                BackupStoredInPasswordManager _ ->
-                    model.backupState
-
-                _ ->
-                    BackupWaiting
+        , backupState = BackupWaiting
       }
     , commandsByRoute route
     )
@@ -178,12 +172,6 @@ update navKey msg model =
                     , Cmd.none
                     )
 
-                -- If the user wanted to try something else again
-                BackupStoredInPasswordManager _ ->
-                    ( { model | backupState = BackupFetchedKey { key = key, visible = False, createdAt = createdAt } }
-                    , Cmd.none
-                    )
-
                 _ ->
                     ( model
                     , Cmd.none
@@ -193,42 +181,6 @@ update navKey msg model =
             case model.backupState of
                 BackupFetchingKey ->
                     ( { model | backupState = BackupError }
-                    , Cmd.none
-                    )
-
-                _ ->
-                    ( model
-                    , Cmd.none
-                    )
-
-        BackupCopyToClipboard ->
-            case model.backupState of
-                BackupFetchedKey _ ->
-                    ( model
-                    , Ports.copyElementToClipboard backupKeyInputFieldId
-                    )
-
-                _ ->
-                    ( model
-                    , Cmd.none
-                    )
-
-        BackupStoreInBrowser ->
-            case model.backupState of
-                BackupFetchedKey backup ->
-                    ( { model | backupState = BackupStoredInPasswordManager { key = backup.key, createdAt = backup.createdAt } }
-                    , Navigation.pushUrl navKey (Route.toUrl Route.Backup)
-                    )
-
-                _ ->
-                    ( model
-                    , Cmd.none
-                    )
-
-        BackupToggleKeyVisibility to ->
-            case model.backupState of
-                BackupFetchedKey backup ->
-                    ( { model | backupState = BackupFetchedKey { backup | visible = to } }
                     , Cmd.none
                     )
 

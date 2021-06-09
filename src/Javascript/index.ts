@@ -186,11 +186,6 @@ elmApp.ports.fetchReadKey.subscribe(async () => {
   }
 })
 
-elmApp.ports.copyElementToClipboard.subscribe((id: string) => {
-  (document.getElementById(id) as HTMLInputElement).select()
-  document.execCommand("copy")
-})
-
 elmApp.ports.logout.subscribe(async () => {
   savePermissionsWanted(null)
   savePermissionsConfirmed(null)
