@@ -69,7 +69,7 @@ port webnativeError : (String -> msg) -> Sub msg
 port fetchReadKey : () -> Cmd msg
 
 
-port fetchedReadKey : (String -> msg) -> Sub msg
+port fetchedReadKey : ({ key: String, createdAt : String } -> msg) -> Sub msg
 
 
 port fetchReadKeyError : (String -> msg) -> Sub msg

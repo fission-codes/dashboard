@@ -176,7 +176,10 @@ elmApp.ports.fetchReadKey.subscribe(async () => {
     const readKey = await keystore.getSymmKey(`wnfs__readKey__${privateHash}`)
     const exported = await window.crypto.subtle.exportKey("raw", readKey)
     const encoded = uint8arrays.toString(new Uint8Array(exported), "base64pad")
-    elmApp.ports.fetchedReadKey.send(encoded)
+    elmApp.ports.fetchedReadKey.send({
+      key: encoded,
+      createdAt: (new Date()).toDateString(),
+    })
   } catch (error) {
     console.error(`Error while trying to fetch the readKey for backup`, error)
     elmApp.ports.fetchReadKeyError.send(error.message)

@@ -171,16 +171,16 @@ update navKey msg model =
             , Cmd.none
             )
 
-        BackupReceivedKey key ->
+        BackupReceivedKey { key, createdAt } ->
             case model.backupState of
                 BackupFetchingKey ->
-                    ( { model | backupState = BackupFetchedKey { key = key, visible = False } }
+                    ( { model | backupState = BackupFetchedKey { key = key, visible = False, createdAt = createdAt } }
                     , Cmd.none
                     )
 
                 -- If the user wanted to try something else again
                 BackupStoredInPasswordManager _ ->
-                    ( { model | backupState = BackupFetchedKey { key = key, visible = False } }
+                    ( { model | backupState = BackupFetchedKey { key = key, visible = False, createdAt = createdAt } }
                     , Cmd.none
                     )
 
@@ -216,7 +216,7 @@ update navKey msg model =
         BackupStoreInBrowser ->
             case model.backupState of
                 BackupFetchedKey backup ->
-                    ( { model | backupState = BackupStoredInPasswordManager { key = backup.key } }
+                    ( { model | backupState = BackupStoredInPasswordManager { key = backup.key, createdAt = backup.createdAt } }
                     , Navigation.pushUrl navKey (Route.toUrl Route.Backup)
                     )
 
@@ -587,7 +587,7 @@ viewBackupPermissioned model =
                 , Html.text "In any case, you can still go back and try again."
                 ]
             , View.Backup.buttonGroup
-                [ View.Backup.buttonTryAnotherBackupMethod (AuthenticatedMsg (BackupReceivedKey backup.key))
+                [ View.Backup.buttonTryAnotherBackupMethod (AuthenticatedMsg (BackupReceivedKey backup))
                 ]
             ]
 
@@ -621,7 +621,7 @@ backupKeyInputFieldId =
     "backup-key"
 
 
-viewBackupShowingKey : AuthenticatedModel -> { key : String, visible : Bool } -> List (Html Msg)
+viewBackupShowingKey : AuthenticatedModel -> { key : String, visible : Bool, createdAt : String } -> List (Html Msg)
 viewBackupShowingKey model backup =
     [ View.Dashboard.sectionParagraph
         [ Html.text "This is your secure backup."
@@ -634,30 +634,69 @@ viewBackupShowingKey model backup =
         , Html.text " in case you lose all your linked devices. You can create a backup at any point when logged in."
         , Html.br [] []
         , Html.br [] []
-        , Html.text "The fission team will never ask you to share your read key."
+        , Html.text "The fission team will never ask you to share your backup."
         ]
     , View.Dashboard.sectionGroup []
-        [ View.Backup.keyTextField
-            { id = backupKeyInputFieldId
-            , key = backup.key
-            , keyVisible = backup.visible
-            , onCopyToClipboard = AuthenticatedMsg BackupCopyToClipboard
-            , onToggleVisibility = AuthenticatedMsg (BackupToggleKeyVisibility (not backup.visible))
+        [ View.Backup.buttonDownload
+            { filename = "FissionSecureBackup-" ++ model.username ++ ".txt"
+            , file =
+                backupFile
+                    { username = model.username
+                    , key = backup.key
+                    , createdAt = backup.createdAt
+                    }
             }
-        , View.Backup.twoOptions
-            (View.Backup.buttonStoreInPasswordManager
-                { username = model.username
-                , key = backup.key
-                , onStore = AuthenticatedMsg BackupStoreInBrowser
-                }
-            )
-            (View.Backup.buttonDownloadKey
-                { username = model.username
-                , key = backup.key
-                }
-            )
         ]
     ]
+
+
+backupFile :
+    { username : String
+    , key : String
+    , createdAt : String
+    }
+    -> String
+backupFile { username, key, createdAt } =
+    [ "# MMMMMMMMMMMMMMMMMMMMMMMMWXkoccdxxookXWMM"
+    , "# MWXOxolodkXWMMMMMMMMMMMWk;..cONWW0l',oXM"
+    , "# Xd;.......,oKWMMMMMMMMWx'..oXMMMMMNd..:K"
+    , "# c...........;0MMMMMMMWk,..lXMMMMMMMXl..l"
+    , "# .............oNMMMMMW0;..cKMMMMMMMMWd..:"
+    , "# '............'cxOXNKkc..;0MMMMMMMMW0:..o"
+    , "# d'...............';;'...ckO000Okxoc'..:K"
+    , "# WOl,.....'cdo:,.....................,oKM"
+    , "# MMWX0Okk0XWMMWX0kl.....,''.....',:lxKWMM"
+    , "# MMMMMMMMMMMMMMMMWd...'xXXKK000KXXWMMMMMM"
+    , "# MMMWNKOxddddddxkd,...lXMMMMMMMMMMMMMMMMM"
+    , "# MNOl;'...............,coxOXNXkdlllox0WMM"
+    , "# Kc....';;::::;,...........,;,.......'c0W"
+    , "# :..:x0XNNWWWWXo...cddo:,..............,O"
+    , "# ..cKMMMMMMMMWO,..:KMMMWXOc.............o"
+    , "# .lNMMMMMMMM0:..;OWMMMMMM0;............d"
+    , "# ,.,OWMMMMMMKc..'kWMMMMMMMWk,..........lX"
+    , "# k,.;OWMMMWKc..,kWMMMMMMMMMWKo;'....,lkNM"
+    , "# WKd;;oOKOd,.'cOWMMMMMMMMMMMMMNK0OO0XWMMM"
+    , "# MMWXklcc:;:o0NMMMMMMMMMMMMMMMMMMMMMMMMMM"
+    , "# "
+    , "# This is your secure backup. (It’s a yaml text file)"
+    , "# "
+    , "# Created for " ++ username ++ " on " ++ createdAt
+    , "# "
+    , "# Store it somewhere safe."
+    , "# "
+    , "# Anyone with this backup will have read access to your private files."
+    , "# Losing it means you won’t be able to recover your account"
+    , "# in case you lose access to all your linked devices."
+    , "# "
+    , "# The fission team will never ask you to share this file."
+    , "# "
+    , "# To use this file, go to https://dashboard.fission.codes/recover/"
+    , "# For more information, read https://guide.fission.codes/"
+    , "# If you need help, contact us at support@fission.codes"
+    , "username: " ++ username
+    , "key: " ++ key
+    ]
+        |> String.join "\n"
 
 
 viewAppList : AuthenticatedModel -> List (Html Msg)

@@ -67,8 +67,8 @@ type alias AuthenticatedModel =
 type BackupState
     = BackupWaiting
     | BackupFetchingKey
-    | BackupFetchedKey { key : String, visible : Bool }
-    | BackupStoredInPasswordManager { key : String }
+    | BackupFetchedKey { key : String, visible : Bool, createdAt : String }
+    | BackupStoredInPasswordManager { key : String, createdAt : String }
     | BackupError
 
 
@@ -133,7 +133,7 @@ type AuthenticatedMsg
     | BackupAskForPermission
     | BackupStart
     | BackupCancel
-    | BackupReceivedKey String
+    | BackupReceivedKey { key : String, createdAt : String }
     | BackupFetchKeyError String
     | BackupCopyToClipboard
     | BackupStoreInBrowser

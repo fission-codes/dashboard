@@ -281,13 +281,14 @@ buttonStoreInPasswordManager element =
         ]
 
 
-buttonDownloadKey : { username : String, key : String } -> Html msg
-buttonDownloadKey element =
+buttonDownload : { filename : String, file : String } -> Html msg
+buttonDownload element =
     a
         [ css
             [ sm
                 [ flex_grow_0
                 , w_auto
+                , mr_auto
                 ]
             , View.Common.primaryButtonStyle
             , flex
@@ -297,15 +298,8 @@ buttonDownloadKey element =
             , w_full
             ]
         , href
-            ("data:text/plain;base64,"
-                ++ Base64.encode
-                    (String.join "\n"
-                        [ "username: " ++ element.username
-                        , "key: " ++ element.key
-                        ]
-                    )
-            )
-        , download "FissionSecureBackup.txt"
+            ("data:text/plain;base64," ++ Base64.encode element.file)
+        , download element.filename
         ]
         [ View.Common.icon
             { icon = FeatherIcons.download
