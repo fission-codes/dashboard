@@ -133,35 +133,15 @@ view model =
     { title = "Dashboard - Account Recovery"
     , body =
         [ (case model.recoveryState of
-            EnterUsername ->
+            _ ->
                 View.Recovery.appShell
                     [ View.Dashboard.heading [ Html.text "Recover your Account" ]
                     , View.Common.sectionSpacer
                     , View.Dashboard.section []
                         [ View.Dashboard.sectionParagraph
                             [ Html.text "If you’ve lost access to all your linked devices, you can recover your account here."
-                            , Html.br [] []
-                            , Html.br [] []
-                            , Html.text "Plus, in case you’ve secured recovery keys you can recover your private files."
-                            , Html.br [] []
-                            , Html.br [] []
-                            , Html.text "Enter your username to be emailed a link with account recovery instructions. This also serves as verification that you have access to the email address listed for your account."
                             ]
-                        , View.Recovery.accountInput
-                            { username = model.username
-                            , backupLoaded = model.backup /= ""
-                            , onUsernameInput = UsernameInput
-                            , onBackupAutocompleted = BackupInput
-                            , onStartRecovery = StartRecoveryClicked
-                            }
                         ]
-                    ]
-
-            Loading ->
-                View.Recovery.appShell
-                    [ View.Dashboard.heading [ Html.text "Recover your Account" ]
-                    , View.Common.sectionSpacer
-                    , View.Recovery.loadingScreen
                     ]
           )
             |> Html.toUnstyled

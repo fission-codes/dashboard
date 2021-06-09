@@ -80,12 +80,16 @@ appShellWithNavigation element =
                 , z_10
                 ]
             ]
-            [ appHeader "Dashboard"
-                [ hamburgerMenu
-                    { menuExpanded = element.navigation.expanded
-                    , onToggle = element.navigation.onToggleExpanded
-                    }
-                ]
+            [ appHeader
+                { styles = [ container, mx_auto ]
+                , subtitle = "Dashboard"
+                , content =
+                    [ hamburgerMenu
+                        { menuExpanded = element.navigation.expanded
+                        , onToggle = element.navigation.onToggleExpanded
+                        }
+                    ]
+                }
             , nav
                 [ classList
                     [ ( "expanded", element.navigation.expanded ) ]
@@ -160,7 +164,7 @@ appShellWithNavigation element =
                 , px_6
                 ]
             ]
-            appFooterMobile
+            [ appFooterMobile [] ]
         ]
 
 
@@ -250,12 +254,11 @@ hamburgerMenu element =
         }
 
 
-appHeader : String -> List (Html msg) -> Html msg
-appHeader subtitle content =
+appHeader : { styles : List Css.Style, subtitle : String, content : List (Html msg) } -> Html msg
+appHeader element =
     header
         [ css
-            [ container
-            , mx_auto
+            [ Css.batch element.styles
             , px_5
             ]
         ]
@@ -270,20 +273,21 @@ appHeader subtitle content =
             (List.append
                 [ View.Common.logo
                     { styles = []
-                    , subtitle = subtitle
+                    , subtitle = element.subtitle
                     , imageStyles = [ h_8 ]
                     }
                 ]
-                content
+                element.content
             )
         ]
 
 
-appFooterMobile : List (Html msg)
-appFooterMobile =
-    [ div
+appFooterMobile : List Css.Style -> Html msg
+appFooterMobile styles =
+    div
         [ css
-            [ flex
+            [ Css.batch styles
+            , flex
             , flex_row
             , items_center
             , py_6
@@ -301,7 +305,6 @@ appFooterMobile =
         , footerLink { styles = [], text = "Forum", url = "https://talk.fission.codes/" }
         , footerLink { styles = [], text = "Support", url = "https://fission.codes/support" }
         ]
-    ]
 
 
 appFooterSidebar : List (Html msg)
