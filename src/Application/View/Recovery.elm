@@ -17,11 +17,11 @@ appShell content =
     div
         [ css
             [ sm [ pt_5 ]
+            , bg_gray_600
             , flex
             , flex_col
-            , items_center
             , flex_grow
-            , bg_gray_600
+            , items_center
             ]
         ]
         [ View.Dashboard.appHeader
@@ -32,26 +32,84 @@ appShell content =
         , main_
             [ css
                 [ sm
-                    [ rounded_lg
+                    [ flex_grow_0
                     , mt_5
-                    , flex_grow_0
+                    , rounded_lg
                     ]
+                , bg_gray_900
                 , flex
                 , flex_col
                 , flex_grow
-                , bg_gray_900
                 , max_w_xl
                 ]
             ]
             content
         , footer
             [ css
-                [ px_5
+                [ sm
+                    [ mt_5
+                    , px_10
+                    ]
+                , px_5
                 , max_w_xl
                 , w_full
                 ]
             ]
             [ View.Dashboard.appFooterMobile [] ]
+        ]
+
+
+steps : List (Html msg) -> Html msg
+steps content =
+    ol
+        [ css
+            [ View.Dashboard.sectionGroupSpacings
+            , flex
+            , flex_col
+            , space_y_3
+            ]
+        ]
+        content
+
+
+step : Int -> Bool -> String -> Html msg
+step number active description =
+    li
+        [ css
+            [ flex
+            , flex_row
+            , items_center
+            , px_3
+            ]
+        ]
+        [ span
+            [ classList [ ( "active", active ) ]
+            , css
+                [ bg_gray_600
+                , flex
+                , font_mono
+                , h_8
+                , rounded_full
+                , text_gray_300
+                , text_lg
+                , w_8
+                , Css.withClass "active"
+                    [ bg_purple_tint
+                    , text_purple
+                    ]
+                ]
+            ]
+            [ span [ css [ m_auto ] ]
+                [ text (String.fromInt number) ]
+            ]
+        , span
+            [ css
+                [ font_display
+                , ml_3
+                , text_sm
+                ]
+            ]
+            [ text description ]
         ]
 
 
@@ -72,5 +130,68 @@ importedBackupCheckmark element =
             , size = View.Common.Small
             , tag = span []
             }
-        , span [ css [ ml_2 ] ] [ text "Imported Backup" ]
+        , span [ css [ ml_2 ] ]
+            [ text "Imported Backup" ]
         ]
+
+
+backupUpload : Html msg
+backupUpload =
+    button
+        [ css
+            [ dark [ border_gray_200 ]
+            , border_2
+            , border_dashed
+            , border_gray_500
+            , flex
+            , h_20
+            , rounded_lg
+            ]
+        ]
+        [ label
+            [ css
+                [ cursor_pointer
+                , flex
+                , flex_grow
+                , items_center
+                ]
+            ]
+            [ span
+                [ css
+                    [ font_display
+                    , italic
+                    , m_auto
+                    , text_gray_300
+                    , text_sm
+                    ]
+                ]
+                [ text "drop or tap to upload your backup file" ]
+            , input
+                [ type_ "file"
+                , css
+                    [ absolute
+                    , h_0
+                    , opacity_0
+                    , pointer_events_none
+                    , w_0
+                    ]
+                ]
+                []
+            ]
+        ]
+
+
+iHaveNoBackupButton : Html msg
+iHaveNoBackupButton =
+    button
+        [ css
+            [ decoration_color_gray_300
+            , font_display
+            , italic
+            , mx_auto
+            , text_gray_300
+            , text_sm
+            , underline
+            ]
+        ]
+        [ text "I don’t have a backup" ]

@@ -51,7 +51,7 @@ uploadDropzone element content =
                 , dark [ border_gray_200 ]
                 , border_2
                 , border_dashed
-                , border_gray_400
+                , border_gray_500
                 , cursor_pointer
                 , rounded_lg
                 ]

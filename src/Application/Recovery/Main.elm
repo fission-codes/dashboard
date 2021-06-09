@@ -138,8 +138,17 @@ view model =
                     [ View.Dashboard.heading [ Html.text "Recover your Account" ]
                     , View.Common.sectionSpacer
                     , View.Dashboard.section []
-                        [ View.Dashboard.sectionParagraph
+                        [ View.Recovery.steps
+                            [ View.Recovery.step 1 True "upload your secure backup file"
+                            , View.Recovery.step 2 False "verify your e-mail address"
+                            , View.Recovery.step 3 False "re-link your fission account"
+                            ]
+                        , View.Dashboard.sectionParagraph
                             [ Html.text "If you’ve lost access to all your linked devices, you can recover your account here."
+                            ]
+                        , View.Dashboard.sectionGroup []
+                            [ View.Recovery.backupUpload
+                            , View.Recovery.iHaveNoBackupButton
                             ]
                         ]
                     ]
