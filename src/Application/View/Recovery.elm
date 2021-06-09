@@ -199,3 +199,34 @@ startRecoveryProcessButton element =
             , tag = span [ css [ ml_1, mr_auto ] ]
             }
         ]
+
+
+loadingScreen : Html msg
+loadingScreen =
+    div
+        [ css
+            [ View.Dashboard.sectionGroupSpacings
+            , sm
+                [ min_h_120px
+                , h_auto
+                ]
+            , flex
+            , flex_grow
+            , items_center
+            , h_full
+            ]
+        ]
+        [ div
+            [ css
+                [ flex
+                , flex_col
+                , items_center
+                , m_auto
+                , space_y_3
+                ]
+            ]
+            [ View.Common.loadingAnimation View.Common.Small [ mx_auto ]
+            , span [ css [ View.Common.infoTextStyle ] ]
+                [ text "Reconstructing your account..." ]
+            ]
+        ]

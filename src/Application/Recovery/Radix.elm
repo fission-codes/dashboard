@@ -28,7 +28,17 @@ type alias Model =
     , url : Url
     , username : String
     , backup : String
+    , recoveryState : State
     }
+
+
+type State
+    = EnterUsername
+      -- | EnterBackup
+      -- | AskForRecoveryWithoutPrivateFiles
+      -- | WaitingForLinking
+      -- | WaitingForEmailVerification
+    | Loading
 
 
 
@@ -42,3 +52,4 @@ type Msg
     | NoOp
     | UsernameInput String
     | BackupInput String
+    | StartRecoveryClicked

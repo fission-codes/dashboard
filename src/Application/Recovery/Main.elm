@@ -38,6 +38,7 @@ init flags url navKey =
       , url = url
       , username = ""
       , backup = ""
+      , recoveryState = EnterUsername
       }
     , Cmd.none
     )
@@ -98,6 +99,21 @@ update msg model =
             , Cmd.none
             )
 
+        StartRecoveryClicked ->
+            if String.trim model.backup /= "" && String.trim model.username /= "" then
+                ( { model
+                    | username = String.trim model.username
+                    , backup = String.trim model.backup
+                    , recoveryState = Loading
+                  }
+                  -- TODO
+                , Cmd.none
+                )
+
+            else
+                -- TODO
+                ( model, Cmd.none )
+
 
 
 -- 📰
@@ -116,28 +132,38 @@ view : Model -> Browser.Document Msg
 view model =
     { title = "Dashboard - Account Recovery"
     , body =
-        [ View.Recovery.appShell
-            [ View.Dashboard.heading [ Html.text "Recover your Account" ]
-            , View.Common.sectionSpacer
-            , View.Dashboard.section []
-                [ View.Dashboard.sectionParagraph
-                    [ Html.text "If you’ve lost access to all your linked devices, you can recover your account here."
-                    , Html.br [] []
-                    , Html.br [] []
-                    , Html.text "Plus, in case you’ve secured recovery keys you can recover your private files."
-                    , Html.br [] []
-                    , Html.br [] []
-                    , Html.text "Enter your username to be emailed a link with account recovery instructions. This also serves as verification that you have access to the email address listed for your account."
+        [ (case model.recoveryState of
+            EnterUsername ->
+                View.Recovery.appShell
+                    [ View.Dashboard.heading [ Html.text "Recover your Account" ]
+                    , View.Common.sectionSpacer
+                    , View.Dashboard.section []
+                        [ View.Dashboard.sectionParagraph
+                            [ Html.text "If you’ve lost access to all your linked devices, you can recover your account here."
+                            , Html.br [] []
+                            , Html.br [] []
+                            , Html.text "Plus, in case you’ve secured recovery keys you can recover your private files."
+                            , Html.br [] []
+                            , Html.br [] []
+                            , Html.text "Enter your username to be emailed a link with account recovery instructions. This also serves as verification that you have access to the email address listed for your account."
+                            ]
+                        , View.Recovery.accountInput
+                            { username = model.username
+                            , backupLoaded = model.backup /= ""
+                            , onUsernameInput = UsernameInput
+                            , onBackupAutocompleted = BackupInput
+                            , onStartRecovery = StartRecoveryClicked
+                            }
+                        ]
                     ]
-                , View.Recovery.accountInput
-                    { username = model.username
-                    , backupLoaded = model.backup /= ""
-                    , onUsernameInput = UsernameInput
-                    , onBackupAutocompleted = BackupInput
-                    , onStartRecovery = NoOp
-                    }
-                ]
-            ]
+
+            Loading ->
+                View.Recovery.appShell
+                    [ View.Dashboard.heading [ Html.text "Recover your Account" ]
+                    , View.Common.sectionSpacer
+                    , View.Recovery.loadingScreen
+                    ]
+          )
             |> Html.toUnstyled
         ]
     }
