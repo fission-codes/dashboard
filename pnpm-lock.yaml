@@ -4,7 +4,7 @@ dependencies:
   tailwindcss: 2.0.3_759587f5361760629983e9fe457a3aed
   uint8arrays: 2.1.5
   webnative: 0.24.1
-  webnative-elm: 4.0.0-3_webnative@0.24.1
+  webnative-elm: 4.0.0-3
 devDependencies:
   '@tailwindcss/aspect-ratio': 0.2.0
   '@types/wicg-entries-api': 2020.8.0
@@ -18,7 +18,7 @@ devDependencies:
   postcss-import: 14.0.0_postcss@8.2.6
   workbox-cli: 6.1.0
   workbox-strategies: 6.1.0
-lockfileVersion: 5.2
+lockfileVersion: 5.1
 packages:
   /@babel/code-frame/7.12.13:
     dependencies:
@@ -6416,9 +6416,7 @@ packages:
     dev: true
     resolution:
       integrity: sha512-YQ+BmxuTgd6UXZW3+ICGfyqRyHXVlD5GtQr5+qjiNW7bF0cqrzX500HVXPBOvgXb5YnzDd+h0zqyv61KUD7+Sg==
-  /webnative-elm/4.0.0-3_webnative@0.24.1:
-    dependencies:
-      webnative: 0.24.1
+  /webnative-elm/4.0.0-3:
     dev: false
     peerDependencies:
       webnative: '> 0.0.0'
@@ -6747,6 +6745,7 @@ packages:
     dev: false
     name: fission-kit
     resolution:
+      registry: 'https://registry.npmjs.org/'
       tarball: 'https://codeload.github.com/fission-suite/kit/tar.gz/aed7844ccd76f6ca7feeca95981b47d4b1114a7c'
     version: 0.2.0
 specifiers:

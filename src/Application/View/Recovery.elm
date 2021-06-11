@@ -4,8 +4,9 @@ import Css
 import Css.Global as Css
 import FeatherIcons
 import Html.Styled exposing (..)
-import Html.Styled.Attributes exposing (attribute, classList, css, disabled, placeholder, type_, value)
+import Html.Styled.Attributes exposing (attribute, classList, css, disabled, href, placeholder, type_, value)
 import Html.Styled.Events as Events
+import Json.Decode as Json
 import Tailwind.Breakpoints exposing (..)
 import Tailwind.Utilities exposing (..)
 import View.Common exposing (dark)
@@ -113,16 +114,14 @@ step number active description =
         ]
 
 
-importedBackupCheckmark : { backupLoaded : Bool } -> Html msg
-importedBackupCheckmark element =
+importedBackupCheckmark : Html msg
+importedBackupCheckmark =
     span
-        [ classList [ ( "no-backup-loaded", not element.backupLoaded ) ]
-        , css
+        [ css
             [ flex
             , flex_row
             , items_center
             , text_green
-            , Css.withClass "no-backup-loaded" [ hidden ]
             ]
         ]
         [ View.Common.icon
@@ -131,53 +130,47 @@ importedBackupCheckmark element =
             , tag = span []
             }
         , span [ css [ ml_2 ] ]
-            [ text "Imported Backup" ]
+            [ text "Imported Backup File" ]
         ]
 
 
-backupUpload : Html msg
-backupUpload =
-    button
+backupUpload : { onUpload : Json.Decoder msg } -> Html msg
+backupUpload element =
+    label
         [ css
             [ dark [ border_gray_200 ]
             , border_2
             , border_dashed
             , border_gray_500
-            , flex
             , h_20
             , rounded_lg
+            , cursor_pointer
+            , flex
+            , flex_grow
             ]
         ]
-        [ label
+        [ span
             [ css
-                [ cursor_pointer
-                , flex
-                , flex_grow
-                , items_center
+                [ font_display
+                , italic
+                , m_auto
+                , text_gray_300
+                , text_sm
                 ]
             ]
-            [ span
-                [ css
-                    [ font_display
-                    , italic
-                    , m_auto
-                    , text_gray_300
-                    , text_sm
-                    ]
+            [ text "drop or tap to upload your backup file" ]
+        , input
+            [ type_ "file"
+            , Events.on "change" element.onUpload
+            , css
+                [ absolute
+                , h_0
+                , opacity_0
+                , pointer_events_none
+                , w_0
                 ]
-                [ text "drop or tap to upload your backup file" ]
-            , input
-                [ type_ "file"
-                , css
-                    [ absolute
-                    , h_0
-                    , opacity_0
-                    , pointer_events_none
-                    , w_0
-                    ]
-                ]
-                []
             ]
+            []
         ]
 
 
@@ -195,3 +188,24 @@ iHaveNoBackupButton =
             ]
         ]
         [ text "I don’t have a backup" ]
+
+
+contactSupportMessage : Bool -> Html msg
+contactSupportMessage contactSupportRequested =
+    span []
+        [ if contactSupportRequested then
+            text "Please try again or "
+
+          else
+            text "If you need any help "
+        , a
+            [ css
+                [ underline
+                , decoration_color_red
+                , decoration_thickness_1_dot_5
+                ]
+            , href "https://fission.codes/support"
+            ]
+            [ text "contact our support" ]
+        , text "."
+        ]

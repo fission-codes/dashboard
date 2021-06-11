@@ -1,11 +1,15 @@
-module Recovery.Main exposing (main)
+module Recovery.Main exposing (main, parseBackup)
 
 import Browser
 import Browser.Navigation as Navigation
+import Dict
+import File
 import Html.Styled as Html
+import Json.Decode as Json
 import Json.Encode as E
-import Ports
+import Recovery.Ports as Ports
 import Recovery.Radix exposing (..)
+import Task
 import Url exposing (Url)
 import View.Common
 import View.Dashboard
@@ -33,12 +37,12 @@ main =
 
 
 init : Flags -> Url -> Navigation.Key -> ( Model, Cmd Msg )
-init flags url navKey =
+init _ url navKey =
     ( { navKey = navKey
       , url = url
       , username = ""
       , backup = ""
-      , recoveryState = EnterUsername
+      , recoveryState = InitialScreen Nothing
       }
     , Cmd.none
     )
@@ -53,6 +57,33 @@ update msg model =
     case msg of
         NoOp ->
             ( model, Cmd.none )
+
+        SelectedBackup files ->
+            case files of
+                [ file ] ->
+                    ( model
+                    , Task.perform UploadedBackup (File.toString file)
+                    )
+
+                _ ->
+                    ( model
+                    , Ports.log [ E.string "Unexpected amount of files uploaded. Expected 1 but got ", E.int (List.length files) ]
+                    )
+
+        VerifyBackupFailed error ->
+            ( { model | recoveryState = InitialScreen (Just (Err error)) }
+            , Cmd.none
+            )
+
+        UploadedBackup content ->
+            case parseBackup content of
+                Ok backup ->
+                    ( model, Ports.verifyBackup backup )
+
+                Err error ->
+                    ( { model | recoveryState = InitialScreen (Just (Err error)) }
+                    , Cmd.none
+                    )
 
         -----------------------------------------
         -- URL
@@ -86,34 +117,6 @@ update msg model =
                     , Navigation.load url
                     )
 
-        -----------------------------------------
-        -- URL
-        -----------------------------------------
-        UsernameInput username ->
-            ( { model | username = username }
-            , Cmd.none
-            )
-
-        BackupInput backup ->
-            ( { model | backup = backup }
-            , Cmd.none
-            )
-
-        StartRecoveryClicked ->
-            if String.trim model.backup /= "" && String.trim model.username /= "" then
-                ( { model
-                    | username = String.trim model.username
-                    , backup = String.trim model.backup
-                    , recoveryState = Loading
-                  }
-                  -- TODO
-                , Cmd.none
-                )
-
-            else
-                -- TODO
-                ( model, Cmd.none )
-
 
 
 -- 📰
@@ -121,7 +124,9 @@ update msg model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.none
+    case model.recoveryState of
+        InitialScreen _ ->
+            Ports.verifyBackupFailed VerifyBackupFailed
 
 
 
@@ -132,9 +137,23 @@ view : Model -> Browser.Document Msg
 view model =
     { title = "Dashboard - Account Recovery"
     , body =
-        [ (case model.recoveryState of
-            _ ->
-                View.Recovery.appShell
+        [ View.Recovery.appShell
+            (case model.recoveryState of
+                InitialScreen result ->
+                    let
+                        error =
+                            case result of
+                                Just (Err verifyError) ->
+                                    [ View.Common.warning
+                                        [ Html.text verifyError.message
+                                        , Html.br [] []
+                                        , View.Recovery.contactSupportMessage verifyError.contactSupport
+                                        ]
+                                    ]
+
+                                _ ->
+                                    []
+                    in
                     [ View.Dashboard.heading [ Html.text "Recover your Account" ]
                     , View.Common.sectionSpacer
                     , View.Dashboard.section []
@@ -147,12 +166,55 @@ view model =
                             [ Html.text "If you’ve lost access to all your linked devices, you can recover your account here."
                             ]
                         , View.Dashboard.sectionGroup []
-                            [ View.Recovery.backupUpload
-                            , View.Recovery.iHaveNoBackupButton
-                            ]
+                            (List.concat
+                                [ [ View.Recovery.backupUpload
+                                        { onUpload =
+                                            Json.at [ "target", "files" ] (Json.list File.decoder)
+                                                |> Json.map SelectedBackup
+                                        }
+                                  ]
+                                , error
+                                , [ View.Recovery.iHaveNoBackupButton
+                                  ]
+                                ]
+                            )
                         ]
                     ]
-          )
+            )
             |> Html.toUnstyled
         ]
     }
+
+
+
+--
+
+
+parseBackup : String -> Result VerifyBackupError SecureBackup
+parseBackup content =
+    let
+        keyValues =
+            content
+                |> String.split "\n"
+                |> List.filter (not << String.startsWith "#")
+                |> List.concatMap
+                    (\line ->
+                        case String.split ":" line of
+                            [ key, value ] ->
+                                [ ( String.trim key
+                                  , String.trim value
+                                  )
+                                ]
+
+                            _ ->
+                                []
+                    )
+                |> Dict.fromList
+    in
+    Maybe.map2 SecureBackup
+        (Dict.get "username" keyValues)
+        (Dict.get "key" keyValues)
+        |> Result.fromMaybe
+            { message = "Couldn’t validate the backup."
+            , contactSupport = True
+            }

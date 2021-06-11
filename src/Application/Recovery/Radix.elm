@@ -4,6 +4,7 @@ import Browser exposing (UrlRequest)
 import Browser.Navigation
 import Data.App as App
 import Dict exposing (Dict)
+import File exposing (File)
 import Json.Decode as Json
 import Route exposing (Route)
 import Url exposing (Url)
@@ -32,16 +33,18 @@ type alias Model =
     }
 
 
+type alias SecureBackup =
+    { username : String
+    , key : String
+    }
+
+
 type State
-    = EnterUsername
-      -- | EnterBackup
-      -- | AskForRecoveryWithoutPrivateFiles
-      -- | WaitingForLinking
-      -- | WaitingForEmailVerification
-    | Loading
+    = InitialScreen (Maybe (Result VerifyBackupError SecureBackup))
 
 
 
+-- | UploadSuccess SecureBackup
 -- 📣
 
 
@@ -50,6 +53,10 @@ type Msg
     | UrlChangedFromOutside String
     | UrlRequested UrlRequest
     | NoOp
-    | UsernameInput String
-    | BackupInput String
-    | StartRecoveryClicked
+    | SelectedBackup (List File)
+    | VerifyBackupFailed VerifyBackupError
+    | UploadedBackup String
+
+
+type alias VerifyBackupError =
+    { message : String, contactSupport : Bool }
