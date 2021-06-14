@@ -4,7 +4,7 @@ import Browser
 import Browser.Navigation as Navigation
 import Dict
 import File
-import Html.Styled as Html
+import Html.Styled as Html exposing (Html)
 import Json.Decode as Json
 import Json.Encode as E
 import Recovery.Ports as Ports
@@ -42,7 +42,7 @@ init _ url navKey =
       , url = url
       , username = ""
       , backup = ""
-      , recoveryState = InitialScreen Nothing
+      , recoveryState = ScreenInitial Nothing
       }
     , Cmd.none
     )
@@ -76,23 +76,28 @@ update msg model =
                     ( model, Ports.verifyBackup backup )
 
                 Err error ->
-                    ( { model | recoveryState = InitialScreen (Just (Err error)) }
+                    ( { model | recoveryState = ScreenInitial (Just (Err error)) }
                     , Cmd.none
                     )
 
         VerifyBackupFailed error ->
-            ( { model | recoveryState = InitialScreen (Just (Err error)) }
+            ( { model | recoveryState = ScreenInitial (Just (Err error)) }
             , Cmd.none
             )
 
         VerifyBackupSucceeded backup ->
-            ( { model | recoveryState = InitialScreen (Just (Ok backup)) }
+            ( { model | recoveryState = ScreenInitial (Just (Ok backup)) }
             , Cmd.none
             )
 
         ClickedSendEmail ->
-            ( { model | recoveryState = WaitingForEmail }
+            ( { model | recoveryState = ScreenWaitingForEmail }
               -- TODO
+            , Cmd.none
+            )
+
+        ClickedIHaveNoBackup ->
+            ( { model | recoveryState = ScreenRegainAccess }
             , Cmd.none
             )
 
@@ -136,13 +141,16 @@ update msg model =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     case model.recoveryState of
-        InitialScreen _ ->
+        ScreenInitial _ ->
             Sub.batch
                 [ Ports.verifyBackupFailed VerifyBackupFailed
                 , Ports.verifyBackupSucceeded VerifyBackupSucceeded
                 ]
 
-        WaitingForEmail ->
+        ScreenWaitingForEmail ->
+            Sub.none
+
+        ScreenRegainAccess ->
             Sub.none
 
 
@@ -156,82 +164,122 @@ view model =
     , body =
         [ View.Recovery.appShell
             (case model.recoveryState of
-                InitialScreen result ->
-                    let
-                        error =
-                            case result of
-                                Just (Err verifyError) ->
-                                    [ View.Common.warning
-                                        [ Html.text verifyError.message
-                                        , Html.br [] []
-                                        , View.Recovery.contactSupportMessage verifyError.contactSupport
-                                        ]
-                                    ]
+                ScreenInitial result ->
+                    viewScreenInitial result
 
-                                _ ->
-                                    []
+                ScreenWaitingForEmail ->
+                    viewScreenWaitingForEmail
 
-                        uploadSection =
-                            case result of
-                                Just (Ok backup) ->
-                                    [ View.Recovery.importedBackupCheckmark
-                                    , View.Recovery.welcomeBackMessage backup.username
-                                    , View.Recovery.buttonSendEmail
-                                        { onClickSendEmail = ClickedSendEmail }
-                                    ]
-
-                                _ ->
-                                    List.concat
-                                        [ [ View.Recovery.backupUpload
-                                                { onUpload =
-                                                    Json.at [ "target", "files" ] (Json.list File.decoder)
-                                                        |> Json.map SelectedBackup
-                                                }
-                                          ]
-                                        , error
-                                        , [ View.Recovery.iHaveNoBackupButton
-                                          ]
-                                        ]
-                    in
-                    [ View.Dashboard.heading [ Html.text "Recover your Account" ]
-                    , View.Common.sectionSpacer
-                    , View.Dashboard.section []
-                        [ View.Recovery.steps
-                            [ View.Recovery.step 1 True "upload your secure backup file"
-                            , View.Recovery.step 2 False "verify your e-mail address"
-                            , View.Recovery.step 3 False "re-link your fission account"
-                            ]
-                        , View.Dashboard.sectionParagraph
-                            [ Html.text "If you’ve lost access to all your linked devices, you can recover your account here."
-                            ]
-                        , View.Dashboard.sectionGroup [] uploadSection
-                        ]
-                    ]
-
-                WaitingForEmail ->
-                    [ View.Dashboard.heading [ Html.text "Recover your Account" ]
-                    , View.Common.sectionSpacer
-                    , View.Dashboard.section []
-                        [ View.Recovery.steps
-                            [ View.Recovery.step 1 False "upload your secure backup file"
-                            , View.Recovery.step 2 True "verify your e-mail address"
-                            , View.Recovery.step 3 False "re-link your fission account"
-                            ]
-                        , View.Dashboard.sectionParagraph
-                            [ Html.text "We’ve sent you an e-mail with further instructions for account recovery."
-                            , Html.br [] []
-                            , Html.br [] []
-                            , Html.text "This email will only be valid for 24 hours."
-                            , Html.br [] []
-                            , Html.br [] []
-                            , Html.text "You can go to your inbox and close this site."
-                            ]
-                        ]
-                    ]
+                ScreenRegainAccess ->
+                    viewScreenRegainAccess
             )
             |> Html.toUnstyled
         ]
     }
+
+
+viewScreenInitial : Maybe (Result VerifyBackupError SecureBackup) -> List (Html Msg)
+viewScreenInitial result =
+    let
+        error =
+            case result of
+                Just (Err verifyError) ->
+                    [ View.Common.warning
+                        [ Html.text verifyError.message
+                        , Html.br [] []
+                        , View.Recovery.contactSupportMessage verifyError.contactSupport
+                        ]
+                    ]
+
+                _ ->
+                    []
+
+        uploadSection =
+            case result of
+                Just (Ok backup) ->
+                    [ View.Recovery.importedBackupCheckmark
+                    , View.Recovery.welcomeBackMessage backup.username
+                    , View.Recovery.buttonSendEmail
+                        { onClickSendEmail = ClickedSendEmail }
+                    ]
+
+                _ ->
+                    List.concat
+                        [ [ View.Recovery.backupUpload
+                                { onUpload =
+                                    Json.at [ "target", "files" ] (Json.list File.decoder)
+                                        |> Json.map SelectedBackup
+                                }
+                          ]
+                        , error
+                        , [ View.Recovery.iHaveNoBackupButton
+                                { onClick = ClickedIHaveNoBackup }
+                          ]
+                        ]
+    in
+    [ View.Dashboard.heading [ Html.text "Recover your Account" ]
+    , View.Common.sectionSpacer
+    , View.Dashboard.section []
+        [ View.Recovery.steps
+            [ View.Recovery.step 1 True "upload your secure backup file"
+            , View.Recovery.step 2 False "verify your e-mail address"
+            , View.Recovery.step 3 False "re-link your fission account"
+            ]
+        , View.Dashboard.sectionParagraph
+            [ Html.text "If you’ve lost access to all your linked devices, you can recover your account here."
+            ]
+        , View.Dashboard.sectionGroup [] uploadSection
+        ]
+    ]
+
+
+viewScreenWaitingForEmail : List (Html Msg)
+viewScreenWaitingForEmail =
+    [ View.Dashboard.heading [ Html.text "Recover your Account" ]
+    , View.Common.sectionSpacer
+    , View.Dashboard.section []
+        [ View.Recovery.steps
+            [ View.Recovery.step 1 False "upload your secure backup file"
+            , View.Recovery.step 2 True "verify your e-mail address"
+            , View.Recovery.step 3 False "re-link your fission account"
+            ]
+        , View.Dashboard.sectionParagraph
+            [ Html.text "We’ve sent you an e-mail with further instructions for account recovery."
+            , Html.br [] []
+            , Html.br [] []
+            , Html.text "This email will only be valid for 24 hours."
+            , Html.br [] []
+            , Html.br [] []
+            , Html.text "You can go to your inbox and close this site."
+            ]
+        ]
+    ]
+
+
+viewScreenRegainAccess : List (Html Msg)
+viewScreenRegainAccess =
+    [ View.Dashboard.heading [ Html.text "Regain Account Access" ]
+    , View.Common.sectionSpacer
+    , View.Dashboard.section []
+        [ View.Recovery.steps
+            [ View.Recovery.step 1 True "enter your username"
+            , View.Recovery.step 2 False "verify your e-mail address"
+            , View.Recovery.step 3 False "re-link your fission account"
+            ]
+        , View.Dashboard.sectionParagraph
+            [ Html.text "Your private files are stored encrypted. Not even fission can read them."
+            , Html.br [] []
+            , Html.br [] []
+            , Html.text "If you’ve lost your secure backup, we can’t recover your private files."
+            , Html.br [] []
+            , Html.br [] []
+            , Html.text "However, we can restore access to your username and public files, if you can verify your e-mail address."
+            , Html.br [] []
+            , Html.br [] []
+            , Html.text "Don’t worry, if you eventually find your backup, you’ll still be able to recover your private files."
+            ]
+        ]
+    ]
 
 
 

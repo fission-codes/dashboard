@@ -40,8 +40,9 @@ type alias SecureBackup =
 
 
 type State
-    = InitialScreen (Maybe (Result VerifyBackupError SecureBackup))
-    | WaitingForEmail
+    = ScreenInitial (Maybe (Result VerifyBackupError SecureBackup))
+    | ScreenWaitingForEmail
+    | ScreenRegainAccess
 
 
 
@@ -59,6 +60,7 @@ type Msg
     | VerifyBackupSucceeded SecureBackup
     | UploadedBackup String
     | ClickedSendEmail
+    | ClickedIHaveNoBackup
 
 
 type alias VerifyBackupError =

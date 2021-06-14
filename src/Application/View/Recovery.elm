@@ -162,10 +162,11 @@ backupUpload element =
         ]
 
 
-iHaveNoBackupButton : Html msg
-iHaveNoBackupButton =
+iHaveNoBackupButton : { onClick : msg } -> Html msg
+iHaveNoBackupButton element =
     button
-        [ css
+        [ Events.onClick element.onClick
+        , css
             [ decoration_color_gray_300
             , font_display
             , italic
