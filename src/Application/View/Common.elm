@@ -230,7 +230,7 @@ primaryButtonStyle =
             ]
         , Css.active
             [ transform_gpu
-            , scale_105
+            , scale_95
             ]
 
         --
@@ -247,9 +247,10 @@ primaryButtonStyle =
         , text_white
         , tracking_wider
         , transition_colors
+        , transition_transform
 
         --
-        , duration_300
+        , duration_100
         , ease_out
         ]
 
