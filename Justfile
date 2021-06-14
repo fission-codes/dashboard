@@ -115,6 +115,16 @@ workbox_config := "./src/Javascript/workbox.config.cjs"
 		--sourcemap \
 		--outfile={{dist}}/bundle.min.js \
 		src/Javascript/index.ts
+	{{node_bin}}/esbuild \
+		--define:CONFIG_ENVIRONMENT="\"{{config}}\"" \
+		--define:CONFIG_API_ENDPOINT="$(jq .API_ENDPOINT config/{{config}}.json)" \
+		--define:CONFIG_LOBBY="$(jq .LOBBY config/{{config}}.json)" \
+		--define:CONFIG_USER="$(jq .USER config/{{config}}.json)" \
+		--bundle \
+		--minify \
+		--sourcemap \
+		--outfile={{dist}}/recover/bundle.min.js \
+		src/Javascript/recovery.ts
 
 
 @manifests:

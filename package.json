@@ -15,7 +15,7 @@
     "elm-live": "^4.0.2",
     "elm-tailwind-css": "^1.1.1",
     "elm-tailwind-modules": "0.3.0",
-    "esbuild": "^0.8.40",
+    "esbuild": "^0.12.8",
     "postcss": "^8.2.6",
     "postcss-import": "^14.0.0",
     "workbox-cli": "^6.1.0",

@@ -8,7 +8,7 @@ specifiers:
   elm-live: ^4.0.2
   elm-tailwind-css: ^1.1.1
   elm-tailwind-modules: 0.3.0
-  esbuild: ^0.8.40
+  esbuild: ^0.12.8
   fission-kit: fission-suite/kit#aed7844ccd76f6ca7feeca95981b47d4b1114a7c
   lodash: ^4.17.21
   postcss: ^8.2.6
@@ -26,7 +26,7 @@ dependencies:
   tailwindcss: 2.0.3_759587f5361760629983e9fe457a3aed
   uint8arrays: 2.1.5
   webnative: github.com/fission-suite/webnative/b0c8810cf16e733151ed2b4ab8107820d0ca844c
-  webnative-elm: 4.0.0-3_webnative@0.25.2
+  webnative-elm: 4.0.0-3
 
 devDependencies:
   '@tailwindcss/aspect-ratio': 0.2.0
@@ -36,7 +36,7 @@ devDependencies:
   elm-live: 4.0.2
   elm-tailwind-css: 1.1.1_tailwindcss@2.0.3
   elm-tailwind-modules: 0.3.0_postcss@8.2.6+tailwindcss@2.0.3
-  esbuild: 0.8.40
+  esbuild: 0.12.8
   postcss: 8.2.6
   postcss-import: 14.0.0_postcss@8.2.6
   workbox-cli: 6.1.0
@@ -2488,8 +2488,8 @@ packages:
     resolution: {integrity: sha512-HBL8I3mIki5C1Cc9QjKUenHtnG0A5/xA8Q/AllRcfiwl2CZFXGK7ddBiCoRwAix4i2KxcQfjtIVcrVbB3vbmwg==}
     dev: true
 
-  /esbuild/0.8.40:
-    resolution: {integrity: sha512-IP0GcO3K9yO9rM69AMtx9tmjUYFO7oCcRfURCV4KveL3HQnQA1SJ8YLM71EyFe67+7At6HJIyjkOjGO3xnUQ/g==}
+  /esbuild/0.12.8:
+    resolution: {integrity: sha512-sx/LwlP/SWTGsd9G4RlOPrXnIihAJ2xwBUmzoqe2nWwbXORMQWtAGNJNYLBJJqa3e9PWvVzxdrtyFZJcr7D87g==}
     hasBin: true
     requiresBuild: true
     dev: true
@@ -5956,12 +5956,10 @@ packages:
     resolution: {integrity: sha512-YQ+BmxuTgd6UXZW3+ICGfyqRyHXVlD5GtQr5+qjiNW7bF0cqrzX500HVXPBOvgXb5YnzDd+h0zqyv61KUD7+Sg==}
     dev: true
 
-  /webnative-elm/4.0.0-3_webnative@0.25.2:
+  /webnative-elm/4.0.0-3:
     resolution: {integrity: sha512-74y9J2Vj1XEO078GAJEohqroJmJQMyZDbB8MouHEpscLiTxlOstgqlW5JyHNSQ9y2LAVv9Il/lG48QtI4a6LVg==}
     peerDependencies:
       webnative: '> 0.0.0'
-    dependencies:
-      webnative: github.com/fission-suite/webnative/b0c8810cf16e733151ed2b4ab8107820d0ca844c
     dev: false
 
   /whatwg-url/7.1.0:
