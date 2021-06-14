@@ -55,6 +55,7 @@ type Msg
     | NoOp
     | SelectedBackup (List File)
     | VerifyBackupFailed VerifyBackupError
+    | VerifyBackupSucceeded SecureBackup
     | UploadedBackup String
 
 

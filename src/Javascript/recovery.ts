@@ -23,7 +23,7 @@ window.endpoints = {
 //----------------------------------------
 
 const elmApp = Elm.Recovery.Main.init({
-  flags: { }
+  flags: {}
 })
 
 elmApp.ports.verifyBackup.subscribe(async (backup: { username: string, key: string }) => {
@@ -81,7 +81,7 @@ elmApp.ports.verifyBackup.subscribe(async (backup: { username: string, key: stri
         original: null,
       }
     }
-    console.log("success!")
+    elmApp.ports.verifyBackupSucceeded.send(backup)
   } catch (e) {
     if (e.isUserError) {
       elmApp.ports.verifyBackupFailed.send({ message: e.message, contactSupport: e.contactSupport })

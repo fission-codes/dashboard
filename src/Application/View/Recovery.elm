@@ -114,26 +114,6 @@ step number active description =
         ]
 
 
-importedBackupCheckmark : Html msg
-importedBackupCheckmark =
-    span
-        [ css
-            [ flex
-            , flex_row
-            , items_center
-            , text_green
-            ]
-        ]
-        [ View.Common.icon
-            { icon = FeatherIcons.check
-            , size = View.Common.Small
-            , tag = span []
-            }
-        , span [ css [ ml_2 ] ]
-            [ text "Imported Backup File" ]
-        ]
-
-
 backupUpload : { onUpload : Json.Decoder msg } -> Html msg
 backupUpload element =
     label
@@ -208,4 +188,58 @@ contactSupportMessage contactSupportRequested =
             ]
             [ text "contact our support" ]
         , text "."
+        ]
+
+
+importedBackupCheckmark : Html msg
+importedBackupCheckmark =
+    span
+        [ css
+            [ flex
+            , flex_row
+            , items_center
+            , text_green
+            , text_sm
+            ]
+        ]
+        [ View.Common.icon
+            { icon = FeatherIcons.checkCircle
+            , size = View.Common.Small
+            , tag = span [ css [ ml_auto ] ]
+            }
+        , span [ css [ ml_2, mr_auto ] ]
+            [ text "Imported Backup File" ]
+        ]
+
+
+welcomeBackMessage : String -> Html msg
+welcomeBackMessage username =
+    span
+        [ css
+            [ text_center
+            , View.Common.infoTextStyle
+            ]
+        ]
+        [ text "Welcome back "
+        , span [ css [ italic ] ] [ text username ]
+        , text "!"
+        ]
+
+
+buttonSendEmail : Html msg
+buttonSendEmail =
+    button
+        [ css
+            [ View.Common.primaryButtonStyle
+            , flex
+            , flex_row
+            , items_center
+            ]
+        ]
+        [ View.Common.icon
+            { icon = FeatherIcons.mail
+            , size = View.Common.Small
+            , tag = span [ css [ ml_auto ] ]
+            }
+        , span [ css [ ml_2, mr_auto ] ] [ text "Send Email" ]
         ]

@@ -70,11 +70,6 @@ update msg model =
                     , Ports.log [ E.string "Unexpected amount of files uploaded. Expected 1 but got ", E.int (List.length files) ]
                     )
 
-        VerifyBackupFailed error ->
-            ( { model | recoveryState = InitialScreen (Just (Err error)) }
-            , Cmd.none
-            )
-
         UploadedBackup content ->
             case parseBackup content of
                 Ok backup ->
@@ -84,6 +79,16 @@ update msg model =
                     ( { model | recoveryState = InitialScreen (Just (Err error)) }
                     , Cmd.none
                     )
+
+        VerifyBackupFailed error ->
+            ( { model | recoveryState = InitialScreen (Just (Err error)) }
+            , Cmd.none
+            )
+
+        VerifyBackupSucceeded backup ->
+            ( { model | recoveryState = InitialScreen (Just (Ok backup)) }
+            , Cmd.none
+            )
 
         -----------------------------------------
         -- URL
@@ -126,7 +131,10 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
     case model.recoveryState of
         InitialScreen _ ->
-            Ports.verifyBackupFailed VerifyBackupFailed
+            Sub.batch
+                [ Ports.verifyBackupFailed VerifyBackupFailed
+                , Ports.verifyBackupSucceeded VerifyBackupSucceeded
+                ]
 
 
 
@@ -153,6 +161,27 @@ view model =
 
                                 _ ->
                                     []
+
+                        uploadSection =
+                            case result of
+                                Just (Ok backup) ->
+                                    [ View.Recovery.importedBackupCheckmark
+                                    , View.Recovery.welcomeBackMessage backup.username
+                                    , View.Recovery.buttonSendEmail
+                                    ]
+
+                                _ ->
+                                    List.concat
+                                        [ [ View.Recovery.backupUpload
+                                                { onUpload =
+                                                    Json.at [ "target", "files" ] (Json.list File.decoder)
+                                                        |> Json.map SelectedBackup
+                                                }
+                                          ]
+                                        , error
+                                        , [ View.Recovery.iHaveNoBackupButton
+                                          ]
+                                        ]
                     in
                     [ View.Dashboard.heading [ Html.text "Recover your Account" ]
                     , View.Common.sectionSpacer
@@ -165,19 +194,7 @@ view model =
                         , View.Dashboard.sectionParagraph
                             [ Html.text "If you’ve lost access to all your linked devices, you can recover your account here."
                             ]
-                        , View.Dashboard.sectionGroup []
-                            (List.concat
-                                [ [ View.Recovery.backupUpload
-                                        { onUpload =
-                                            Json.at [ "target", "files" ] (Json.list File.decoder)
-                                                |> Json.map SelectedBackup
-                                        }
-                                  ]
-                                , error
-                                , [ View.Recovery.iHaveNoBackupButton
-                                  ]
-                                ]
-                            )
+                        , View.Dashboard.sectionGroup [] uploadSection
                         ]
                     ]
             )
