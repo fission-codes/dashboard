@@ -2,8 +2,8 @@ import * as webnative from "webnative"
 import * as webnativeElm from "webnative-elm"
 import lodashMerge from "lodash/merge"
 import * as uint8arrays from "uint8arrays"
-import type FileSystem from "webnative/dist/fs"
-import type { DirectoryPath, FilePath } from "webnative/dist/path"
+import type FileSystem from "webnative/fs/index"
+import type { DirectoryPath, FilePath } from "webnative/path"
 
 
 //----------------------------------------

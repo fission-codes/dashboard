@@ -90,6 +90,12 @@ update msg model =
             , Cmd.none
             )
 
+        ClickedSendEmail ->
+            ( { model | recoveryState = WaitingForEmail }
+              -- TODO
+            , Cmd.none
+            )
+
         -----------------------------------------
         -- URL
         -----------------------------------------
@@ -136,6 +142,9 @@ subscriptions model =
                 , Ports.verifyBackupSucceeded VerifyBackupSucceeded
                 ]
 
+        WaitingForEmail ->
+            Sub.none
+
 
 
 -- 🌄
@@ -168,6 +177,7 @@ view model =
                                     [ View.Recovery.importedBackupCheckmark
                                     , View.Recovery.welcomeBackMessage backup.username
                                     , View.Recovery.buttonSendEmail
+                                        { onClickSendEmail = ClickedSendEmail }
                                     ]
 
                                 _ ->
@@ -195,6 +205,27 @@ view model =
                             [ Html.text "If you’ve lost access to all your linked devices, you can recover your account here."
                             ]
                         , View.Dashboard.sectionGroup [] uploadSection
+                        ]
+                    ]
+
+                WaitingForEmail ->
+                    [ View.Dashboard.heading [ Html.text "Recover your Account" ]
+                    , View.Common.sectionSpacer
+                    , View.Dashboard.section []
+                        [ View.Recovery.steps
+                            [ View.Recovery.step 1 False "upload your secure backup file"
+                            , View.Recovery.step 2 True "verify your e-mail address"
+                            , View.Recovery.step 3 False "re-link your fission account"
+                            ]
+                        , View.Dashboard.sectionParagraph
+                            [ Html.text "We’ve sent you an e-mail with further instructions for account recovery."
+                            , Html.br [] []
+                            , Html.br [] []
+                            , Html.text "This email will only be valid for 24 hours."
+                            , Html.br [] []
+                            , Html.br [] []
+                            , Html.text "You can go to your inbox and close this site."
+                            ]
                         ]
                     ]
             )

@@ -1,7 +1,7 @@
-import * as dataRoot from "webnative/dist/data-root"
-import * as webnativeIpfs from "webnative/dist/ipfs"
-import * as namefilter from "webnative/dist/fs/protocol/private/namefilter"
-import MMPT from "webnative/dist/fs/protocol/private/mmpt"
+import * as dataRoot from "webnative/data-root"
+import * as webnativeIpfs from "webnative/ipfs/index"
+import * as namefilter from "webnative/fs/protocol/private/namefilter"
+import MMPT from "webnative/fs/protocol/private/mmpt"
 
 //----------------------------------------
 // GLOBALS / CONFIG

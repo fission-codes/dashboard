@@ -42,6 +42,7 @@ appShell content =
                 , flex_col
                 , flex_grow
                 , max_w_xl
+                , w_full
                 ]
             ]
             content
@@ -94,6 +95,13 @@ step number active description =
                 , text_gray_300
                 , text_lg
                 , w_8
+
+                --
+                , transition_colors
+                , duration_500
+                , delay_500
+
+                --
                 , Css.withClass "active"
                     [ bg_purple_tint
                     , text_purple
@@ -226,10 +234,11 @@ welcomeBackMessage username =
         ]
 
 
-buttonSendEmail : Html msg
-buttonSendEmail =
+buttonSendEmail : { onClickSendEmail : msg } -> Html msg
+buttonSendEmail element =
     button
-        [ css
+        [ Events.onClick element.onClickSendEmail
+        , css
             [ View.Common.primaryButtonStyle
             , flex
             , flex_row
