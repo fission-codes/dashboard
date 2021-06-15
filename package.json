@@ -4,9 +4,6 @@
   "version": "0.1.0",
   "author": "Steven Vandevelde <icid.asset@gmail.com>, Philipp Krüger <philipp.krueger1@gmail.com>",
   "type": "module",
-  "browser": {
-    "crypto": false
-  },
   "devDependencies": {
     "@tailwindcss/aspect-ratio": "^0.2.0",
     "@types/wicg-entries-api": "^2020.8.0",
