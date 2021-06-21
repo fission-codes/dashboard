@@ -25,6 +25,7 @@ in
       pkgs.elmPackages.elm-format
 
       # Node
+      node
       pnpm
       pnpx
 
