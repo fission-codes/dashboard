@@ -237,19 +237,60 @@ welcomeBackMessage username =
 
 buttonSendEmail : { onClickSendEmail : msg } -> Html msg
 buttonSendEmail element =
+    buttonSendEmailBase [ Events.onClick element.onClickSendEmail ]
+
+
+buttonSendEmailBase : List (Attribute msg) -> Html msg
+buttonSendEmailBase attributes =
     button
-        [ Events.onClick element.onClickSendEmail
-        , css
-            [ View.Common.primaryButtonStyle
-            , flex
-            , flex_row
-            , items_center
+        (List.append attributes
+            [ css
+                [ View.Common.primaryButtonStyle
+                , flex
+                , flex_row
+                , items_center
+                ]
             ]
-        ]
+        )
         [ View.Common.icon
             { icon = FeatherIcons.mail
             , size = View.Common.Small
             , tag = span [ css [ ml_auto ] ]
             }
         , span [ css [ ml_2, mr_auto ] ] [ text "Send Email" ]
+        ]
+
+
+inputsRegainAccount : { onSubmit : msg } -> Html msg
+inputsRegainAccount element =
+    form
+        [ Events.onSubmit element.onSubmit
+        , css
+            [ flex
+            , flex_col
+            , space_y_5
+            , View.Dashboard.sectionGroupSpacings
+            ]
+        ]
+        [ label
+            [ css
+                [ font_body
+                , text_sm
+                , text_gray_300
+                , flex
+                , flex_col
+                ]
+            ]
+            [ span [] [ text "Enter your Account Username" ]
+            , input
+                [ type_ "text"
+                , css
+                    [ mt_1
+                    , View.Common.basicInputStyle
+                    ]
+                ]
+                []
+            ]
+        , buttonSendEmailBase
+            [ type_ "submit" ]
         ]

@@ -278,6 +278,8 @@ viewScreenRegainAccess =
             , Html.br [] []
             , Html.text "Don’t worry, if you eventually find your backup, you’ll still be able to recover your private files."
             ]
+        , View.Recovery.inputsRegainAccount
+            { onSubmit = NoOp }
         ]
     ]
 
