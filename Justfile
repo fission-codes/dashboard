@@ -55,6 +55,10 @@ workbox_config := "./src/Javascript/workbox.config.cjs"
 		src/Application/Main.elm \
 		--output {{dist}}/application.js \
 		--optimize
+	elm make \
+		--output {{dist}}/recover/application.js \
+		--optimize \
+		src/Application/Recovery/Main.elm
 
 
 @favicons:
