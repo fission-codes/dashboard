@@ -261,7 +261,13 @@ buttonSendEmailBase attributes =
         ]
 
 
-inputsRegainAccount : { onSubmit : msg } -> Html msg
+inputsRegainAccount :
+    { onSubmit : msg
+    , username : String
+    , onInputUsername : String -> msg
+    , errors : List (Html msg)
+    }
+    -> Html msg
 inputsRegainAccount element =
     form
         [ Events.onSubmit element.onSubmit
@@ -279,18 +285,22 @@ inputsRegainAccount element =
                 , text_gray_300
                 , flex
                 , flex_col
+                , space_y_1
                 ]
             ]
-            [ span [] [ text "Enter your Account Username" ]
-            , input
-                [ type_ "text"
-                , css
-                    [ mt_1
-                    , View.Common.basicInputStyle
-                    ]
+            (List.concat
+                [ [ span [] [ text "Enter your Account Username" ]
+                  , input
+                        [ type_ "text"
+                        , value element.username
+                        , Events.onInput element.onInputUsername
+                        , css [ View.Common.basicInputStyle ]
+                        ]
+                        []
+                  ]
+                , element.errors
                 ]
-                []
-            ]
+            )
         , buttonSendEmailBase
             [ type_ "submit" ]
         ]

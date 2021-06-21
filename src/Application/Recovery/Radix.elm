@@ -40,7 +40,7 @@ type alias SecureBackup =
 type State
     = ScreenInitial (Maybe (Result VerifyBackupError SecureBackup))
     | ScreenWaitingForEmail
-    | ScreenRegainAccess
+    | ScreenRegainAccess { username : String, usernameMightExist : Bool, usernameValid : Bool }
 
 
 
@@ -60,6 +60,8 @@ type Msg
     | ClickedSendEmail
     | ClickedIHaveNoBackup
     | ClickedGoBack
+    | UsernameInput String
+    | UsernameExists { username : String, exists : Bool, valid : Bool }
 
 
 type alias VerifyBackupError =

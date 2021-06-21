@@ -95,7 +95,14 @@ update msg model =
             )
 
         ClickedIHaveNoBackup ->
-            ( { model | recoveryState = ScreenRegainAccess }
+            ( { model
+                | recoveryState =
+                    ScreenRegainAccess
+                        { username = ""
+                        , usernameMightExist = True
+                        , usernameValid = True
+                        }
+              }
             , Cmd.none
             )
 
@@ -103,6 +110,50 @@ update msg model =
             ( { model | recoveryState = ScreenInitial Nothing }
             , Cmd.none
             )
+
+        UsernameInput username ->
+            case model.recoveryState of
+                ScreenRegainAccess state ->
+                    ( { model
+                        | recoveryState =
+                            ScreenRegainAccess
+                                { state
+                                    | username = username
+                                    , usernameMightExist = True
+                                    , usernameValid = True
+                                }
+                      }
+                    , if username |> String.trim |> String.isEmpty then
+                        Cmd.none
+
+                      else
+                        Ports.usernameExists (String.trim username)
+                    )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        UsernameExists { username, exists, valid } ->
+            case model.recoveryState of
+                ScreenRegainAccess state ->
+                    if state.username == username then
+                        ( { model
+                            | recoveryState =
+                                ScreenRegainAccess
+                                    { state
+                                        | username = username
+                                        , usernameMightExist = exists
+                                        , usernameValid = valid
+                                    }
+                          }
+                        , Cmd.none
+                        )
+
+                    else
+                        ( model, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
 
         -----------------------------------------
         -- URL
@@ -153,8 +204,8 @@ subscriptions model =
         ScreenWaitingForEmail ->
             Sub.none
 
-        ScreenRegainAccess ->
-            Sub.none
+        ScreenRegainAccess _ ->
+            Ports.usernameExistsResponse UsernameExists
 
 
 
@@ -173,8 +224,8 @@ view model =
                 ScreenWaitingForEmail ->
                     viewScreenWaitingForEmail
 
-                ScreenRegainAccess ->
-                    viewScreenRegainAccess
+                ScreenRegainAccess state ->
+                    viewScreenRegainAccess state
             )
             |> Html.toUnstyled
         ]
@@ -259,8 +310,8 @@ viewScreenWaitingForEmail =
     ]
 
 
-viewScreenRegainAccess : List (Html Msg)
-viewScreenRegainAccess =
+viewScreenRegainAccess : { username : String, usernameMightExist : Bool, usernameValid : Bool } -> List (Html Msg)
+viewScreenRegainAccess state =
     [ View.Dashboard.heading [ Html.text "Regain Account Access" ]
     , View.Common.sectionSpacer
     , View.Dashboard.section []
@@ -282,7 +333,19 @@ viewScreenRegainAccess =
             , Html.text "Don’t worry, if you eventually find your backup, you’ll still be able to recover your private files."
             ]
         , View.Recovery.inputsRegainAccount
-            { onSubmit = NoOp }
+            { onSubmit = NoOp
+            , username = state.username
+            , onInputUsername = UsernameInput
+            , errors =
+                if not state.usernameValid then
+                    [ View.Common.warning [ Html.text "That's not a valid fission username." ] ]
+
+                else if state.usernameMightExist then
+                    []
+
+                else
+                    [ View.Common.warning [ Html.text "Couldn't find an account with this username." ] ]
+            }
         , View.Dashboard.sectionGroup []
             [ View.Recovery.buttonGoBack { onGoBack = ClickedGoBack } ]
         ]

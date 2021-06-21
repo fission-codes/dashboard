@@ -3,6 +3,7 @@ import * as dataRoot from "webnative/data-root"
 import * as webnativeIpfs from "webnative/ipfs/index"
 import * as namefilter from "webnative/fs/protocol/private/namefilter"
 import MMPT from "webnative/fs/protocol/private/mmpt"
+import throttle from "lodash/throttle"
 
 //----------------------------------------
 // GLOBALS / CONFIG
@@ -117,3 +118,13 @@ async function getRootBlockPrivateName(key: string): Promise<namefilter.PrivateN
   const revisionName = await namefilter.addRevision(bareName, key, 1)
   return await namefilter.toPrivateName(revisionName)
 }
+
+
+elmApp.ports.usernameExists.subscribe(throttle(async (username: string) => {
+  if (webnative.lobby.isUsernameValid(username)) {
+    const exists = !await webnative.lobby.isUsernameAvailable(username)
+    elmApp.ports.usernameExistsResponse.send({ username, valid: true, exists })
+  } else {
+    elmApp.ports.usernameExistsResponse.send({ username, valid: false, exists: true })
+  }
+}, 500, { leading: false, trailing: true }))
