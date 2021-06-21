@@ -1,3 +1,4 @@
+import * as webnative from "webnative"
 import * as dataRoot from "webnative/data-root"
 import * as webnativeIpfs from "webnative/ipfs/index"
 import * as namefilter from "webnative/fs/protocol/private/namefilter"
@@ -16,6 +17,11 @@ window.endpoints = {
   lobby: CONFIG_LOBBY,
   user: CONFIG_USER,
 }
+
+window.webnative = webnative
+
+webnative.setup.debug({ enabled: true })
+webnative.setup.endpoints(window.endpoints)
 
 
 //----------------------------------------
