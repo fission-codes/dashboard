@@ -3,6 +3,12 @@ let
   sources = import ./nix/sources.nix;
   pkgs = import sources.nixpkgs {};
 
+  node = pkgs.nodejs-16_x;
+  node_pnpm = pkgs.nodePackages_latest.pnpm;
+
+  pnpm = pkgs.writeScriptBin "pnpm" "${node}/bin/node ${node_pnpm}/lib/node_modules/pnpm/bin/pnpm.cjs $@";
+  pnpx = pkgs.writeScriptBin "pnpx" "${node}/bin/node ${node_pnpm}/lib/node_modules/pnpm/bin/pnpx.cjs $@";
+
 in
 
   pkgs.mkShell {
@@ -15,10 +21,14 @@ in
       pkgs.jq
       pkgs.niv
 
-      # Language Specific
+      # Elm
       pkgs.elmPackages.elm
       pkgs.elmPackages.elm-format
-      pkgs.nodePackages.pnpm
+
+      # Node
+      node
+      pnpm
+      pnpx
 
     ];
   }
