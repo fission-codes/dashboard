@@ -4,7 +4,7 @@ import Css
 import Css.Global as Css
 import FeatherIcons
 import Html.Styled exposing (..)
-import Html.Styled.Attributes exposing (attribute, classList, css, disabled, href, placeholder, type_, value)
+import Html.Styled.Attributes exposing (classList, css, href, type_, value)
 import Html.Styled.Events as Events
 import Json.Decode as Json
 import Tailwind.Breakpoints exposing (..)
@@ -17,7 +17,8 @@ appShell : List (Html msg) -> Html msg
 appShell content =
     div
         [ css
-            [ sm [ pt_5 ]
+            [ dark [ bg_darkness_above ]
+            , sm [ pt_5 ]
             , bg_gray_600
             , flex
             , flex_col
@@ -32,7 +33,8 @@ appShell content =
             }
         , main_
             [ css
-                [ sm
+                [ dark [ bg_darkness ]
+                , sm
                     [ flex_grow_0
                     , mt_5
                     , rounded_lg
@@ -87,7 +89,11 @@ step number active description =
         [ span
             [ classList [ ( "active", active ) ]
             , css
-                [ bg_gray_600
+                [ dark
+                    [ bg_gray_100
+                    , text_gray_500
+                    ]
+                , bg_gray_600
                 , flex
                 , font_mono
                 , h_8
@@ -103,7 +109,11 @@ step number active description =
 
                 --
                 , Css.withClass "active"
-                    [ bg_purple_tint
+                    [ dark
+                        [ bg_darkmode_purple
+                        , text_purple_tint
+                        ]
+                    , bg_purple_tint
                     , text_purple
                     ]
                 ]
@@ -113,9 +123,11 @@ step number active description =
             ]
         , span
             [ css
-                [ font_display
+                [ dark [ text_gray_400 ]
+                , font_display
                 , ml_3
                 , text_sm
+                , text_gray_200
                 ]
             ]
             [ text description ]
@@ -280,7 +292,8 @@ inputsRegainAccount element =
         ]
         [ label
             [ css
-                [ font_body
+                [ dark [ text_gray_600 ]
+                , font_body
                 , text_sm
                 , text_gray_300
                 , flex
