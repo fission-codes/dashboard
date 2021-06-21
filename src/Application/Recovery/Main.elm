@@ -101,6 +101,11 @@ update msg model =
             , Cmd.none
             )
 
+        ClickedGoBack ->
+            ( { model | recoveryState = ScreenInitial Nothing }
+            , Cmd.none
+            )
+
         -----------------------------------------
         -- URL
         -----------------------------------------
@@ -280,6 +285,8 @@ viewScreenRegainAccess =
             ]
         , View.Recovery.inputsRegainAccount
             { onSubmit = NoOp }
+        , View.Dashboard.sectionGroup []
+            [ View.Recovery.buttonGoBack { onGoBack = ClickedGoBack } ]
         ]
     ]
 

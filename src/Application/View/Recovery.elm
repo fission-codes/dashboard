@@ -294,3 +294,23 @@ inputsRegainAccount element =
         , buttonSendEmailBase
             [ type_ "submit" ]
         ]
+
+
+buttonGoBack : { onGoBack : msg } -> Html msg
+buttonGoBack element =
+    button
+        [ Events.onClick element.onGoBack
+        , css
+            [ View.Common.secondaryButtonStyle
+            , flex
+            , flex_row
+            , items_center
+            ]
+        ]
+        [ View.Common.icon
+            { icon = FeatherIcons.arrowLeft
+            , size = View.Common.Small
+            , tag = span [ css [ ml_auto ] ]
+            }
+        , span [ css [ ml_2, mr_auto ] ] [ text "I have a backup! Go Back" ]
+        ]

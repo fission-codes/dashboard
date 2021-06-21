@@ -260,6 +260,40 @@ primaryButtonLoaderStyle =
     text_white
 
 
+secondaryButtonStyle : Css.Style
+secondaryButtonStyle =
+    Css.batch
+        [ Css.disabled
+            [ bg_gray_300
+            , text_gray_500
+            ]
+        , Css.active
+            [ transform_gpu
+            , scale_95
+            ]
+
+        --
+        , antialiased
+        , appearance_none
+        , bg_gray_200
+        , font_semibold
+        , leading_normal
+        , px_5
+        , py_3
+        , relative
+        , rounded
+        , text_sm
+        , text_white
+        , tracking_wider
+        , transition_colors
+        , transition_transform
+
+        --
+        , duration_100
+        , ease_out
+        ]
+
+
 button :
     { isLoading : Bool
     , disabled : Bool

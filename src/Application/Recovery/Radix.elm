@@ -61,6 +61,7 @@ type Msg
     | UploadedBackup String
     | ClickedSendEmail
     | ClickedIHaveNoBackup
+    | ClickedGoBack
 
 
 type alias VerifyBackupError =
