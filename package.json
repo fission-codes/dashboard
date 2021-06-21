@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "author": "Steven Vandevelde <icid.asset@gmail.com>, Philipp Krüger <philipp.krueger1@gmail.com>",
   "type": "module",
+  "browser": { "crypto": false },
   "devDependencies": {
     "@tailwindcss/aspect-ratio": "^0.2.0",
     "@types/wicg-entries-api": "^2020.8.0",
@@ -23,7 +24,7 @@
     "lodash": "^4.17.21",
     "tailwindcss": "^2.0.3",
     "uint8arrays": "^2.1.5",
-    "webnative": "https://github.com/fission-suite/webnative#b0c8810cf16e733151ed2b4ab8107820d0ca844c",
+    "webnative": "https://github.com/fission-suite/webnative#cbb2fec74d1f4dd2e0322184634fc595ae531209",
     "webnative-elm": "^4.0.0-3"
   }
 }
