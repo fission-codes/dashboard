@@ -4,9 +4,12 @@
   "version": "0.1.0",
   "author": "Steven Vandevelde <icid.asset@gmail.com>, Philipp Krüger <philipp.krueger1@gmail.com>",
   "type": "module",
-  "browser": { "crypto": false },
+  "browser": {
+    "crypto": false
+  },
   "devDependencies": {
     "@tailwindcss/aspect-ratio": "^0.2.0",
+    "@types/lodash": "^4.14.170",
     "@types/wicg-entries-api": "^2020.8.0",
     "@types/wicg-file-system-access": "^2020.9.1",
     "autoprefixer": "^10.2.4",

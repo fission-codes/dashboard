@@ -2,6 +2,7 @@ lockfileVersion: 5.3
 
 specifiers:
   '@tailwindcss/aspect-ratio': ^0.2.0
+  '@types/lodash': ^4.14.170
   '@types/wicg-entries-api': ^2020.8.0
   '@types/wicg-file-system-access': ^2020.9.1
   autoprefixer: ^10.2.4
@@ -30,6 +31,7 @@ dependencies:
 
 devDependencies:
   '@tailwindcss/aspect-ratio': 0.2.0
+  '@types/lodash': 4.14.170
   '@types/wicg-entries-api': 2020.8.0
   '@types/wicg-file-system-access': 2020.9.1
   autoprefixer: 10.2.4_postcss@8.2.6
@@ -1163,6 +1165,10 @@ packages:
     resolution: {integrity: sha512-EYNwp3bU+98cpU4lAWYYL7Zz+2gryWH1qbdDTidVd6hkiR6weksdbMadyXKXNPEkQFhXM+hVO9ZygomHXp+AIw==}
     dev: true
 
+  /@types/lodash/4.14.170:
+    resolution: {integrity: sha512-bpcvu/MKHHeYX+qeEN8GE7DIravODWdACVA1ctevD8CN24RhPZIKMn9ntfAsrvLfSX3cR5RrBKAbYm9bGs0A+Q==}
+    dev: true
+
   /@types/long/4.0.1:
     resolution: {integrity: sha512-5tXH6Bx/kNGd3MgffdmP4dy2Z+G4eaXw0SE81Tq3BNadtnMR5/ySMzX4SLEzHJzSmPNn4HIdpQsBvXMUykr58w==}
     dev: false
@@ -1175,8 +1181,8 @@ packages:
     resolution: {integrity: sha512-lg55ArB+ZiHHbBBttLpzD07akz0QPrZgUODNakeC09i62dnrywr9mFErHuaPlB6I7z+sEbK+IYmplahvplCj2g==}
     dev: true
 
-  /@types/node/15.6.1:
-    resolution: {integrity: sha512-7EIraBEyRHEe7CH+Fm1XvgqU6uwZN8Q7jppJGcqjROMT29qhAuuOxYB1uEY5UMYQKEmA5D+5tBnhdaPXSsLONA==}
+  /@types/node/15.12.4:
+    resolution: {integrity: sha512-zrNj1+yqYF4WskCMOHwN+w9iuD12+dGm0rQ35HLl9/Ouuq52cEtd0CH9qMgrdNmi5ejC1/V7vKEXYubB+65DkA==}
     dev: false
 
   /@types/normalize-package-data/2.4.0:
@@ -1737,8 +1743,8 @@ packages:
     resolution: {integrity: sha512-5tK7EtrZ0N+OLFMthtqOj4fI2Jeb88C4CAZPu25LDVUgXJ0A3Js4PMGqrn0JU1W0Mh1/Z8wZzYPxqUrXeBboCQ==}
     dev: true
 
-  /cids/1.1.6:
-    resolution: {integrity: sha512-5P+Jas2bVpjiHibp/SOwKY+v7JhAjTChaAZN+vCIrsWXn/JZV0frX22Vp5zZgEyJRPco79pX+yNQ2S3LkRukHQ==}
+  /cids/1.1.7:
+    resolution: {integrity: sha512-dlh+K0hMwFAFFjWQ2ZzxOhgGVNVREPdmk8cqHFui2U4sOodcemLMxdE5Ujga4cDcDQhWfldEPThkfu6KWBt1eA==}
     engines: {node: '>=4.0.0', npm: '>=3.0.0'}
     dependencies:
       multibase: 4.0.4
@@ -2442,8 +2448,8 @@ packages:
       string.prototype.trimstart: 1.0.4
     dev: true
 
-  /es-abstract/1.18.2:
-    resolution: {integrity: sha512-byRiNIQXE6HWNySaU6JohoNXzYgbBjztwFnBLUTiJmWXjaU9bSq3urQLUlNLQ292tc+gc07zYZXNZjaOoAX3sw==}
+  /es-abstract/1.18.3:
+    resolution: {integrity: sha512-nQIr12dxV7SSxE6r6f1l3DtAeEYdsGpps13dR0TwJg1S8gyp4ZPgy3FZcHBgbiQqnoqSTb+oC+kO4UQ0C/J8vw==}
     engines: {node: '>= 0.4'}
     dependencies:
       call-bind: 1.0.2
@@ -3090,7 +3096,7 @@ packages:
   /interface-ipld-format/1.0.0:
     resolution: {integrity: sha512-/df/uHRUxE9LtTJaC1QAwgmHUjdVxvCvQKQLoMo2k4Ilu3uSob5vNmZqXXnuQQM4M5tZjyRbqMm+A+hvWbki8w==}
     dependencies:
-      cids: 1.1.6
+      cids: 1.1.7
       multicodec: 3.0.1
       multihashes: 4.0.2
     dev: false
@@ -3121,7 +3127,7 @@ packages:
   /ipfs-core-types/0.2.1:
     resolution: {integrity: sha512-q93+93qSybku6woZaajE9mCrHeVoMzNtZ7S5m/zx0+xHRhnoLlg8QNnGGsb5/+uFQt/RiBArsIw/Q61K9Jwkzw==}
     dependencies:
-      cids: 1.1.6
+      cids: 1.1.7
       multiaddr: 8.1.2
       peer-id: 0.14.8
     transitivePeerDependencies:
@@ -3133,7 +3139,7 @@ packages:
     resolution: {integrity: sha512-JF2YGTFLkzJErOU50diTyTvOpiIFeoOh9KZRig+a1VLUGoZrvwg0O8YwL6/A6KhyomQiMWeAfNnU3H0OkRMuDg==}
     engines: {node: '>=10.3.0', npm: '>=3.0.0'}
     dependencies:
-      cids: 1.1.6
+      cids: 1.1.7
       ipld-block: 0.11.1
     dev: false
 
@@ -3141,14 +3147,14 @@ packages:
     resolution: {integrity: sha512-sDqqLqD5qh4QzGq6ssxLHUCnH4emCf/8F8IwjQM2cjEEIEHMUj57XhNYgmGbemdYPznUhffxFGEHsruh5+HQRw==}
     engines: {node: '>=6.0.0', npm: '>=3.0.0'}
     dependencies:
-      cids: 1.1.6
+      cids: 1.1.7
     dev: false
 
   /ipld-dag-pb/0.22.2:
     resolution: {integrity: sha512-5ZPo+hmH4YnPx0FIsJsWZFG9g8hCA5Oy0eGLA4lOPE6h1JHzn6VxnWoVkA22ft0i4koOuKNUqAXpepAKyf9rrw==}
     engines: {node: '>=6.0.0', npm: '>=3.0.0'}
     dependencies:
-      cids: 1.1.6
+      cids: 1.1.7
       interface-ipld-format: 1.0.0
       multicodec: 3.0.1
       multihashing-async: 2.1.2
@@ -3491,7 +3497,7 @@ packages:
     dependencies:
       available-typed-arrays: 1.0.4
       call-bind: 1.0.2
-      es-abstract: 1.18.2
+      es-abstract: 1.18.3
       foreach: 2.0.5
       has-symbols: 1.0.2
 
@@ -3976,7 +3982,7 @@ packages:
   /multiaddr/8.1.2:
     resolution: {integrity: sha512-r13IzW8+Sv9zab9Gt8RPMIN2WkptIPq99EpAzg4IbJ/zTELhiEwXWr9bAmEatSCI4j/LSA6ESJzvz95JZ+ZYXQ==}
     dependencies:
-      cids: 1.1.6
+      cids: 1.1.7
       class-is: 1.1.0
       dns-over-http-resolver: 1.2.3
       err-code: 2.0.3
@@ -4076,8 +4082,8 @@ packages:
     resolution: {integrity: sha512-1nh45deeb5olNY7eX82BkPO7SSxR5SSYJiPTrTdFUVYwAl8CKMA5N9PjTYkHiRjisVcxcQ1HXdLhx2qxxJzLNQ==}
     dev: true
 
-  /noble-ed25519/1.2.3:
-    resolution: {integrity: sha512-xc634JPGTXSEniGfyFJ3o5fTkty/tz+nIXGhpuhmbSUKcy8I2xoVFycQ9F8zlNsnz/a4QVcyHWTbQWsDGpzPVg==}
+  /noble-ed25519/1.2.4:
+    resolution: {integrity: sha512-IwV+j1xDYIF0ouiUhqH4Ot5jTLCWNbQZTUlCvYDQT4LRiGVwoK8FvkLlCeOlvMv3nXxLixSf05Kfi2nugtiBAQ==}
     dev: false
 
   /node-addon-api/2.0.2:
@@ -4391,7 +4397,7 @@ packages:
     engines: {node: '>=14.0.0'}
     hasBin: true
     dependencies:
-      cids: 1.1.6
+      cids: 1.1.7
       class-is: 1.1.0
       libp2p-crypto: 0.19.4
       minimist: 1.2.5
@@ -4812,7 +4818,7 @@ packages:
       '@protobufjs/pool': 1.1.0
       '@protobufjs/utf8': 1.1.0
       '@types/long': 4.0.1
-      '@types/node': 15.6.1
+      '@types/node': 15.12.4
       long: 4.0.0
     dev: false
 
@@ -5913,8 +5919,8 @@ packages:
       object.getownpropertydescriptors: 2.1.1
     dev: true
 
-  /util/0.12.3:
-    resolution: {integrity: sha512-I8XkoQwE+fPQEhy9v012V+TSdH2kp9ts29i20TaaDUXsg7x/onePbhFJUExBfv/2ay1ZOp/Vsm3nDlmnFGSAog==}
+  /util/0.12.4:
+    resolution: {integrity: sha512-bxZ9qtSlGUWSOy9Qa9Xgk11kSslpuZwaxCg4sNIDj6FLucDab2JxnHwyNTCpHMtK1MjoQiWQ6DiUMZYbSrO+Sw==}
     dependencies:
       inherits: 2.0.4
       is-arguments: 1.1.0
@@ -5948,7 +5954,7 @@ packages:
   /web-encoding/1.1.5:
     resolution: {integrity: sha512-HYLeVCdJ0+lBYV2FvNZmv3HJ2Nt0QYXqZojk3d9FJOLkwnuhzM9tmamh8d7HPM8QqjKH8DeHkFTx+CFlWpZZDA==}
     dependencies:
-      util: 0.12.3
+      util: 0.12.4
     optionalDependencies:
       '@zxing/text-encoding': 0.9.0
     dev: false
@@ -5997,7 +6003,7 @@ packages:
     dependencies:
       available-typed-arrays: 1.0.4
       call-bind: 1.0.2
-      es-abstract: 1.18.2
+      es-abstract: 1.18.3
       foreach: 2.0.5
       function-bind: 1.1.1
       has-symbols: 1.0.2
@@ -6257,7 +6263,7 @@ packages:
     version: 0.6.0-fission
     engines: {node: '>=10.3.0', npm: '>=3.0.0'}
     dependencies:
-      cids: 1.1.6
+      cids: 1.1.7
       ipld-block: 0.11.1
     dev: false
 
@@ -6287,14 +6293,14 @@ packages:
       base58-universal: github.com/digitalbazaar/base58-universal/de970560f005de0f7054723c35ef6e0ff4b328b7
       buffer: 6.0.3
       cborg: 1.3.4
-      cids: 1.1.6
+      cids: 1.1.7
       fission-bloom-filters: 1.7.1
       ipfs-message-port-client: '@ipfs.runfission.com/ipfs/bafybeigx6q4aezve7my76s5vvfuiinbxtepapqvmjf2jbgrozrut6cjape/p/ipfs-message-port-client.tar.gz'
       ipfs-message-port-protocol: '@ipfs.runfission.com/ipfs/bafybeigx6q4aezve7my76s5vvfuiinbxtepapqvmjf2jbgrozrut6cjape/p/ipfs-message-port-protocol.tar.gz'
       ipld-dag-pb: 0.22.2
       keystore-idb: 0.14.2
       localforage: 1.9.0
-      noble-ed25519: 1.2.3
+      noble-ed25519: 1.2.4
       throttle-debounce: 3.0.1
     transitivePeerDependencies:
       - node-fetch
