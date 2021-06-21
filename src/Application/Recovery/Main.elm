@@ -40,8 +40,6 @@ init : Flags -> Url -> Navigation.Key -> ( Model, Cmd Msg )
 init _ url navKey =
     ( { navKey = navKey
       , url = url
-      , username = ""
-      , backup = ""
       , recoveryState = ScreenInitial Nothing
       }
     , Cmd.none
