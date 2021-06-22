@@ -64,16 +64,19 @@ update msg model =
             ( model, Cmd.none )
 
         SelectedBackup files ->
-            case files of
-                [ file ] ->
-                    ( model
-                    , Task.perform UploadedBackup (File.toString file)
-                    )
+            updateScreenInitial model
+                (\state ->
+                    case files of
+                        [ file ] ->
+                            ( { state | backupUpload = RemoteData.Loading }
+                            , Task.perform UploadedBackup (File.toString file)
+                            )
 
-                _ ->
-                    ( model
-                    , Ports.log [ E.string "Unexpected amount of files uploaded. Expected 1 but got ", E.int (List.length files) ]
-                    )
+                        _ ->
+                            ( state
+                            , Ports.log [ E.string "Unexpected amount of files uploaded. Expected 1 but got ", E.int (List.length files) ]
+                            )
+                )
 
         UploadedBackup content ->
             case parseBackup content of
@@ -339,6 +342,7 @@ viewScreenInitial state =
                                 { onUpload =
                                     Json.at [ "target", "files" ] (Json.list File.decoder)
                                         |> Json.map SelectedBackup
+                                , isLoading = RemoteData.isLoading state.backupUpload
                                 }
                           ]
                         , error

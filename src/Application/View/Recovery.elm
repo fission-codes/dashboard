@@ -135,7 +135,7 @@ step number active description =
         ]
 
 
-backupUpload : { onUpload : Json.Decoder msg } -> Html msg
+backupUpload : { onUpload : Json.Decoder msg, isLoading : Bool } -> Html msg
 backupUpload element =
     label
         [ css
@@ -150,29 +150,38 @@ backupUpload element =
             , flex_grow
             ]
         ]
-        [ span
-            [ css
-                [ font_display
-                , italic
-                , m_auto
-                , text_gray_300
-                , text_sm
+        (if element.isLoading then
+            [ span [ css [ m_auto ] ]
+                [ View.Common.loadingAnimation View.Common.Medium
+                    []
                 ]
             ]
-            [ text "drop or tap to upload your backup file" ]
-        , input
-            [ type_ "file"
-            , Events.on "change" element.onUpload
-            , css
-                [ absolute
-                , h_0
-                , opacity_0
-                , pointer_events_none
-                , w_0
+
+         else
+            [ span
+                [ css
+                    [ font_display
+                    , italic
+                    , m_auto
+                    , text_gray_300
+                    , text_sm
+                    ]
                 ]
+                [ text "drop or tap to upload your backup file" ]
+            , input
+                [ type_ "file"
+                , Events.on "change" element.onUpload
+                , css
+                    [ absolute
+                    , h_0
+                    , opacity_0
+                    , pointer_events_none
+                    , w_0
+                    ]
+                ]
+                []
             ]
-            []
-        ]
+        )
 
 
 iHaveNoBackupButton : { onClick : msg } -> Html msg
