@@ -43,7 +43,7 @@ type alias SecureBackup =
 
 
 type State
-    = ScreenInitial (RemoteData VerifyBackupError SecureBackup)
+    = ScreenInitial { backupUpload : RemoteData VerifyBackupError SecureBackup }
     | ScreenWaitingForEmail
     | ScreenRegainAccess { username : String, usernameMightExist : Bool, usernameValid : Bool }
 

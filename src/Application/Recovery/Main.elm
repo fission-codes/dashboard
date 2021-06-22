@@ -43,7 +43,7 @@ init flags url navKey =
     ( { navKey = navKey
       , endpoints = flags.endpoints
       , url = url
-      , recoveryState = ScreenInitial RemoteData.NotAsked
+      , recoveryState = ScreenInitial { backupUpload = RemoteData.NotAsked }
       }
     , Cmd.none
     )
@@ -77,34 +77,51 @@ update msg model =
                     ( model, Ports.verifyBackup backup )
 
                 Err error ->
-                    ( { model | recoveryState = ScreenInitial (RemoteData.Failure error) }
+                    ( { model
+                        | recoveryState =
+                            ScreenInitial
+                                { backupUpload = RemoteData.Failure error }
+                      }
                     , Cmd.none
                     )
 
         VerifyBackupFailed error ->
-            ( { model | recoveryState = ScreenInitial (RemoteData.Failure error) }
+            ( { model
+                | recoveryState =
+                    ScreenInitial
+                        { backupUpload = RemoteData.Failure error }
+              }
             , Cmd.none
             )
 
         VerifyBackupSucceeded backup ->
-            ( { model | recoveryState = ScreenInitial (RemoteData.Success backup) }
+            ( { model
+                | recoveryState =
+                    ScreenInitial
+                        { backupUpload = RemoteData.Success backup }
+              }
             , Cmd.none
             )
 
         ClickedSendEmail ->
             case model.recoveryState of
-                ScreenInitial (RemoteData.Success backup) ->
-                    ( model
-                    , Http.request
-                        { method = "POST"
-                        , headers = []
-                        , url = model.endpoints.api ++ "/user/email/recover/" ++ backup.username
-                        , body = Http.emptyBody
-                        , expect = Http.expectWhatever RecoveryEmailSent
-                        , timeout = Just 10000
-                        , tracker = Nothing
-                        }
-                    )
+                ScreenInitial { backupUpload } ->
+                    case backupUpload of
+                        RemoteData.Success backup ->
+                            ( model
+                            , Http.request
+                                { method = "POST"
+                                , headers = []
+                                , url = model.endpoints.api ++ "/user/email/recover/" ++ backup.username
+                                , body = Http.emptyBody
+                                , expect = Http.expectWhatever RecoveryEmailSent
+                                , timeout = Just 10000
+                                , tracker = Nothing
+                                }
+                            )
+
+                        _ ->
+                            ( model, Cmd.none )
 
                 _ ->
                     ( model, Cmd.none )
@@ -127,7 +144,11 @@ update msg model =
             )
 
         ClickedGoBack ->
-            ( { model | recoveryState = ScreenInitial RemoteData.NotAsked }
+            ( { model
+                | recoveryState =
+                    ScreenInitial
+                        { backupUpload = RemoteData.NotAsked }
+              }
             , Cmd.none
             )
 
