@@ -10,7 +10,7 @@ import Json.Decode as Json
 import Json.Encode as E
 import Recovery.Ports as Ports
 import Recovery.Radix exposing (..)
-import RemoteData exposing (RemoteData)
+import RemoteData
 import Task
 import Url exposing (Url)
 import View.Common
@@ -114,11 +114,11 @@ update msg model =
             )
 
         ClickedSendEmail ->
-            case model.recoveryState of
-                ScreenInitial { backupUpload } ->
-                    case backupUpload of
+            updateScreenInitial model
+                (\state ->
+                    case state.backupUpload of
                         RemoteData.Success backup ->
-                            ( model
+                            ( { state | sentEmail = RemoteData.Loading }
                             , Http.request
                                 { method = "POST"
                                 , headers = []
@@ -131,15 +131,18 @@ update msg model =
                             )
 
                         _ ->
-                            ( model, Cmd.none )
-
-                _ ->
-                    ( model, Cmd.none )
+                            ( state, Cmd.none )
+                )
 
         RecoveryEmailSent result ->
-            ( { model | recoveryState = ScreenWaitingForEmail }
-            , Cmd.none
-            )
+            updateScreenInitial model
+                (\state ->
+                    ( { state
+                        | sentEmail = RemoteData.fromResult result
+                      }
+                    , Cmd.none
+                    )
+                )
 
         ClickedIHaveNoBackup ->
             ( { model
@@ -241,6 +244,22 @@ update msg model =
                     )
 
 
+updateScreenInitial : Model -> (Step1State -> ( Step1State, Cmd Msg )) -> ( Model, Cmd Msg )
+updateScreenInitial model updateState =
+    case model.recoveryState of
+        ScreenInitial state ->
+            let
+                ( updatedState, cmds ) =
+                    updateState state
+            in
+            ( { model | recoveryState = ScreenInitial updatedState }
+            , cmds
+            )
+
+        _ ->
+            ( model, Cmd.none )
+
+
 
 -- 📰
 
@@ -253,9 +272,6 @@ subscriptions model =
                 [ Ports.verifyBackupFailed VerifyBackupFailed
                 , Ports.verifyBackupSucceeded VerifyBackupSucceeded
                 ]
-
-        ScreenWaitingForEmail ->
-            Sub.none
 
         ScreenRegainAccess _ ->
             Ports.usernameExistsResponse UsernameExists
@@ -271,11 +287,15 @@ view model =
     , body =
         [ View.Recovery.appShell
             (case model.recoveryState of
-                ScreenInitial result ->
-                    viewScreenInitial result
+                ScreenInitial state ->
+                    if
+                        RemoteData.isSuccess state.backupUpload
+                            && RemoteData.isSuccess state.sentEmail
+                    then
+                        viewScreenWaitingForEmail
 
-                ScreenWaitingForEmail ->
-                    viewScreenWaitingForEmail
+                    else
+                        viewScreenInitial state
 
                 ScreenRegainAccess state ->
                     viewScreenRegainAccess state
@@ -307,7 +327,7 @@ viewScreenInitial state =
                     [ View.Recovery.importedBackupCheckmark
                     , View.Recovery.welcomeBackMessage backup.username
                     , View.Recovery.buttonSendEmail
-                        { isLoading = False
+                        { isLoading = RemoteData.isLoading state.sentEmail
                         , disabled = False
                         , onClick = Just ClickedSendEmail
                         }

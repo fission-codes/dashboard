@@ -44,7 +44,6 @@ type alias SecureBackup =
 
 type State
     = ScreenInitial Step1State
-    | ScreenWaitingForEmail
     | ScreenRegainAccess { username : String, usernameMightExist : Bool, usernameValid : Bool }
 
 
