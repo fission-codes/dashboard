@@ -27,3 +27,13 @@ port usernameExists : String -> Cmd msg
 
 
 port usernameExistsResponse : ({ username : String, exists : Bool, valid : Bool } -> msg) -> Sub msg
+
+
+
+-- save backup
+
+
+port saveUsername : String -> Cmd msg
+
+
+port saveBackup : String -> Cmd msg

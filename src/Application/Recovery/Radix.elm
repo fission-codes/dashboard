@@ -14,6 +14,14 @@ import Url exposing (Url)
 
 type alias Flags =
     { endpoints : Endpoints
+
+    -- Because there's an interruption in the account recovery process
+    -- (you need to open your email inbox and go to the link in the recovery email)
+    -- so we need to make sure we save&load the submitted backup.
+    , savedRecovery :
+        { username : Maybe String
+        , key : Maybe String
+        }
     }
 
 

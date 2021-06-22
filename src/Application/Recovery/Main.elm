@@ -143,7 +143,15 @@ update msg model =
                     ( { state
                         | sentEmail = RemoteData.fromResult result
                       }
-                    , Cmd.none
+                    , case state.backupUpload of
+                        RemoteData.Success backup ->
+                            Cmd.batch
+                                [ Ports.saveUsername backup.username
+                                , Ports.saveBackup backup.key
+                                ]
+
+                        _ ->
+                            Cmd.none
                     )
                 )
 

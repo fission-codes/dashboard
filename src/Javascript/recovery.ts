@@ -24,13 +24,22 @@ window.webnative = webnative
 webnative.setup.debug({ enabled: true })
 webnative.setup.endpoints(window.endpoints)
 
+const RECOVERY_USERNAME_KEY = "account-recovery-username"
+const RECOVERY_BACKUP_KEY = "account-recovery-backup"
+
 
 //----------------------------------------
 // SETUP ELM APP
 //----------------------------------------
 
 const elmApp = Elm.Recovery.Main.init({
-  flags: { endpoints: window.endpoints }
+  flags: {
+    endpoints: window.endpoints,
+    savedRecovery: {
+      username: localStorage.getItem(RECOVERY_USERNAME_KEY),
+      key: localStorage.getItem(RECOVERY_BACKUP_KEY)
+    }
+  }
 })
 
 elmApp.ports.verifyBackup.subscribe(async (backup: { username: string, key: string }) => {
@@ -128,3 +137,11 @@ elmApp.ports.usernameExists.subscribe(throttle(async (username: string) => {
     elmApp.ports.usernameExistsResponse.send({ username, valid: false, exists: true })
   }
 }, 500, { leading: false, trailing: true }))
+
+
+elmApp.ports.saveUsername.subscribe(async (username: string) => {
+  localStorage.setItem(RECOVERY_USERNAME_KEY, username)
+})
+elmApp.ports.saveBackup.subscribe(async (backup: string) => {
+  localStorage.setItem(RECOVERY_BACKUP_KEY, backup)
+})
