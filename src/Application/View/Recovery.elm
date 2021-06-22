@@ -278,6 +278,8 @@ inputsRegainAccount :
     { onSubmit : msg
     , username : String
     , onInputUsername : String -> msg
+    , isLoading : Bool
+    , disabled : Bool
     , errors : List (Html msg)
     }
     -> Html msg
@@ -316,8 +318,8 @@ inputsRegainAccount element =
                 ]
             )
         , buttonSendEmail
-            { isLoading = False
-            , disabled = False
+            { isLoading = element.isLoading
+            , disabled = element.disabled
             , onClick = Nothing
             }
         ]

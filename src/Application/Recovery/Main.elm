@@ -367,7 +367,7 @@ viewScreenRecoverAccount state =
                         , View.Recovery.welcomeBackMessage backup.username
                         , View.Recovery.buttonSendEmail
                             { isLoading = RemoteData.isLoading state.sentEmail
-                            , disabled = False
+                            , disabled = RemoteData.isLoading state.sentEmail
                             , onClick = Just RecoveryClickedSendEmail
                             }
                         ]
@@ -461,6 +461,8 @@ viewScreenRegainAccess state =
             ]
         , View.Recovery.inputsRegainAccount
             { onSubmit = RegainClickedSendEmail
+            , isLoading = RemoteData.isLoading state.sentEmail
+            , disabled = not state.usernameValid || not state.usernameMightExist || RemoteData.isLoading state.sentEmail
             , username = state.username
             , onInputUsername = RegainUsernameInput
             , errors =
