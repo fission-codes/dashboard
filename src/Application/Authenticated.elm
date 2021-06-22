@@ -447,7 +447,8 @@ viewAccount model =
         , View.Account.sectionEmail
             { verificationStatus =
                 [ View.Common.button
-                    { label = "Resend Verification Email"
+                    { icon = Nothing
+                    , label = "Resend Verification Email"
                     , onClick = Just (AuthenticatedMsg EmailResendVerification)
                     , isLoading = model.resendingVerificationEmail
                     , disabled = False
@@ -758,7 +759,8 @@ viewUploadDropzone appName state =
                     , case appName of
                         Nothing ->
                             View.Common.button
-                                { label = "To the App Page"
+                                { icon = Nothing
+                                , label = "To the App Page"
                                 , onClick = Just (AuthenticatedMsg (DropzoneSuccessGoToApp determinedAppName))
                                 , isLoading = False
                                 , disabled = False
@@ -768,7 +770,8 @@ viewUploadDropzone appName state =
 
                         Just _ ->
                             View.Common.button
-                                { label = "Dismiss"
+                                { icon = Nothing
+                                , label = "Dismiss"
                                 , onClick = Just (AuthenticatedMsg DropzoneSuccessDismiss)
                                 , isLoading = False
                                 , disabled = False
@@ -921,7 +924,8 @@ viewAppRenamingSection pageModel app =
                             ]
                         , button =
                             View.Common.button
-                                { isLoading = renaming.loading
+                                { icon = Nothing
+                                , isLoading = renaming.loading
                                 , disabled = Maybe.isJust renaming.error
                                 , onClick = Nothing
                                 , label = "Rename App"
@@ -999,7 +1003,8 @@ viewAppDeletionSection pageModel app =
                             ]
                         , button =
                             View.Common.button
-                                { isLoading = deletion.loading
+                                { icon = Nothing
+                                , isLoading = deletion.loading
                                 , onClick = Nothing
                                 , label = "Delete App"
                                 , disabled = False

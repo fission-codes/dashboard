@@ -4,7 +4,7 @@ import Browser exposing (UrlRequest)
 import Browser.Navigation
 import File exposing (File)
 import Http
-import RemoteData exposing (RemoteData)
+import RemoteData exposing (RemoteData, WebData)
 import Url exposing (Url)
 
 
@@ -43,9 +43,15 @@ type alias SecureBackup =
 
 
 type State
-    = ScreenInitial { backupUpload : RemoteData VerifyBackupError SecureBackup }
+    = ScreenInitial Step1State
     | ScreenWaitingForEmail
     | ScreenRegainAccess { username : String, usernameMightExist : Bool, usernameValid : Bool }
+
+
+type alias Step1State =
+    { backupUpload : RemoteData VerifyBackupError SecureBackup
+    , sentEmail : WebData ()
+    }
 
 
 

@@ -43,7 +43,11 @@ init flags url navKey =
     ( { navKey = navKey
       , endpoints = flags.endpoints
       , url = url
-      , recoveryState = ScreenInitial { backupUpload = RemoteData.NotAsked }
+      , recoveryState =
+            ScreenInitial
+                { backupUpload = RemoteData.NotAsked
+                , sentEmail = RemoteData.NotAsked
+                }
       }
     , Cmd.none
     )
@@ -80,7 +84,9 @@ update msg model =
                     ( { model
                         | recoveryState =
                             ScreenInitial
-                                { backupUpload = RemoteData.Failure error }
+                                { backupUpload = RemoteData.Failure error
+                                , sentEmail = RemoteData.NotAsked
+                                }
                       }
                     , Cmd.none
                     )
@@ -89,7 +95,9 @@ update msg model =
             ( { model
                 | recoveryState =
                     ScreenInitial
-                        { backupUpload = RemoteData.Failure error }
+                        { backupUpload = RemoteData.Failure error
+                        , sentEmail = RemoteData.NotAsked
+                        }
               }
             , Cmd.none
             )
@@ -98,7 +106,9 @@ update msg model =
             ( { model
                 | recoveryState =
                     ScreenInitial
-                        { backupUpload = RemoteData.Success backup }
+                        { backupUpload = RemoteData.Success backup
+                        , sentEmail = RemoteData.NotAsked
+                        }
               }
             , Cmd.none
             )
@@ -147,7 +157,9 @@ update msg model =
             ( { model
                 | recoveryState =
                     ScreenInitial
-                        { backupUpload = RemoteData.NotAsked }
+                        { backupUpload = RemoteData.NotAsked
+                        , sentEmail = RemoteData.NotAsked
+                        }
               }
             , Cmd.none
             )
@@ -273,11 +285,11 @@ view model =
     }
 
 
-viewScreenInitial : RemoteData VerifyBackupError SecureBackup -> List (Html Msg)
-viewScreenInitial result =
+viewScreenInitial : Step1State -> List (Html Msg)
+viewScreenInitial state =
     let
         error =
-            case result of
+            case state.backupUpload of
                 RemoteData.Failure verifyError ->
                     [ View.Common.warning
                         [ Html.text verifyError.message
@@ -290,12 +302,15 @@ viewScreenInitial result =
                     []
 
         uploadSection =
-            case result of
+            case state.backupUpload of
                 RemoteData.Success backup ->
                     [ View.Recovery.importedBackupCheckmark
                     , View.Recovery.welcomeBackMessage backup.username
                     , View.Recovery.buttonSendEmail
-                        { onClickSendEmail = ClickedSendEmail }
+                        { isLoading = False
+                        , disabled = False
+                        , onClick = Just ClickedSendEmail
+                        }
                     ]
 
                 _ ->

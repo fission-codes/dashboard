@@ -1,5 +1,6 @@
 module View.Recovery exposing (..)
 
+import Common
 import Css
 import Css.Global as Css
 import FeatherIcons
@@ -247,30 +248,22 @@ welcomeBackMessage username =
         ]
 
 
-buttonSendEmail : { onClickSendEmail : msg } -> Html msg
+buttonSendEmail :
+    { isLoading : Bool
+    , disabled : Bool
+    , onClick : Maybe msg
+    }
+    -> Html msg
 buttonSendEmail element =
-    buttonSendEmailBase [ Events.onClick element.onClickSendEmail ]
-
-
-buttonSendEmailBase : List (Attribute msg) -> Html msg
-buttonSendEmailBase attributes =
-    button
-        (List.append attributes
-            [ css
-                [ View.Common.primaryButtonStyle
-                , flex
-                , flex_row
-                , items_center
-                ]
-            ]
-        )
-        [ View.Common.icon
-            { icon = FeatherIcons.mail
-            , size = View.Common.Small
-            , tag = span [ css [ ml_auto ] ]
-            }
-        , span [ css [ ml_2, mr_auto ] ] [ text "Send Email" ]
-        ]
+    View.Common.button
+        { isLoading = element.isLoading
+        , disabled = element.disabled
+        , onClick = element.onClick
+        , icon = Just FeatherIcons.mail
+        , label = "Send Email"
+        , style = View.Common.primaryButtonStyle
+        , spinnerStyle = [ View.Common.primaryButtonLoaderStyle ]
+        }
 
 
 inputsRegainAccount :
@@ -314,8 +307,11 @@ inputsRegainAccount element =
                 , element.errors
                 ]
             )
-        , buttonSendEmailBase
-            [ type_ "submit" ]
+        , buttonSendEmail
+            { isLoading = False
+            , disabled = False
+            , onClick = Nothing
+            }
         ]
 
 

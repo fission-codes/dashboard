@@ -297,6 +297,7 @@ secondaryButtonStyle =
 button :
     { isLoading : Bool
     , disabled : Bool
+    , icon : Maybe FeatherIcons.Icon
     , label : String
     , onClick : Maybe msg
     , style : Css.Style
@@ -321,11 +322,34 @@ button element =
             ]
         ]
         (List.concat
-            [ [ span [ css [ text_center, mx_auto ] ] [ text element.label ] ]
+            [ case element.icon of
+                Just i ->
+                    [ icon
+                        { icon = i
+                        , size = Small
+                        , tag = span [ css [ ml_auto ] ]
+                        }
+                    ]
+
+                _ ->
+                    []
+            , [ span
+                    [ css
+                        [ text_center
+                        , case element.icon of
+                            Just _ ->
+                                Css.batch [ ml_2, mr_auto ]
+
+                            Nothing ->
+                                mx_auto
+                        ]
+                    ]
+                    [ text element.label ]
+              ]
             , Common.when element.isLoading
                 [ loadingAnimation Small
                     [ Css.batch element.spinnerStyle
-                    , ml_3
+                    , ml_2
                     ]
                 ]
             ]
