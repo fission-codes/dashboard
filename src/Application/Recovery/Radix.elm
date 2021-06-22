@@ -4,6 +4,7 @@ import Browser exposing (UrlRequest)
 import Browser.Navigation
 import File exposing (File)
 import Http
+import RemoteData exposing (RemoteData)
 import Url exposing (Url)
 
 
@@ -42,7 +43,7 @@ type alias SecureBackup =
 
 
 type State
-    = ScreenInitial (Maybe (Result VerifyBackupError SecureBackup))
+    = ScreenInitial (RemoteData VerifyBackupError SecureBackup)
     | ScreenWaitingForEmail
     | ScreenRegainAccess { username : String, usernameMightExist : Bool, usernameValid : Bool }
 

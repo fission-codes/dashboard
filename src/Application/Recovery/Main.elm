@@ -10,6 +10,7 @@ import Json.Decode as Json
 import Json.Encode as E
 import Recovery.Ports as Ports
 import Recovery.Radix exposing (..)
+import RemoteData exposing (RemoteData)
 import Task
 import Url exposing (Url)
 import View.Common
@@ -42,7 +43,7 @@ init flags url navKey =
     ( { navKey = navKey
       , endpoints = flags.endpoints
       , url = url
-      , recoveryState = ScreenInitial Nothing
+      , recoveryState = ScreenInitial RemoteData.NotAsked
       }
     , Cmd.none
     )
@@ -76,23 +77,23 @@ update msg model =
                     ( model, Ports.verifyBackup backup )
 
                 Err error ->
-                    ( { model | recoveryState = ScreenInitial (Just (Err error)) }
+                    ( { model | recoveryState = ScreenInitial (RemoteData.Failure error) }
                     , Cmd.none
                     )
 
         VerifyBackupFailed error ->
-            ( { model | recoveryState = ScreenInitial (Just (Err error)) }
+            ( { model | recoveryState = ScreenInitial (RemoteData.Failure error) }
             , Cmd.none
             )
 
         VerifyBackupSucceeded backup ->
-            ( { model | recoveryState = ScreenInitial (Just (Ok backup)) }
+            ( { model | recoveryState = ScreenInitial (RemoteData.Success backup) }
             , Cmd.none
             )
 
         ClickedSendEmail ->
             case model.recoveryState of
-                ScreenInitial (Just (Ok backup)) ->
+                ScreenInitial (RemoteData.Success backup) ->
                     ( model
                     , Http.request
                         { method = "POST"
@@ -126,7 +127,7 @@ update msg model =
             )
 
         ClickedGoBack ->
-            ( { model | recoveryState = ScreenInitial Nothing }
+            ( { model | recoveryState = ScreenInitial RemoteData.NotAsked }
             , Cmd.none
             )
 
@@ -251,12 +252,12 @@ view model =
     }
 
 
-viewScreenInitial : Maybe (Result VerifyBackupError SecureBackup) -> List (Html Msg)
+viewScreenInitial : RemoteData VerifyBackupError SecureBackup -> List (Html Msg)
 viewScreenInitial result =
     let
         error =
             case result of
-                Just (Err verifyError) ->
+                RemoteData.Failure verifyError ->
                     [ View.Common.warning
                         [ Html.text verifyError.message
                         , Html.br [] []
@@ -269,7 +270,7 @@ viewScreenInitial result =
 
         uploadSection =
             case result of
-                Just (Ok backup) ->
+                RemoteData.Success backup ->
                     [ View.Recovery.importedBackupCheckmark
                     , View.Recovery.welcomeBackMessage backup.username
                     , View.Recovery.buttonSendEmail
