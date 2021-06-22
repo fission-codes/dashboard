@@ -5,6 +5,7 @@ import Browser.Navigation as Navigation
 import Dict
 import File
 import Html.Styled as Html exposing (Html)
+import Http
 import Json.Decode as Json
 import Json.Encode as E
 import Recovery.Ports as Ports
@@ -37,8 +38,9 @@ main =
 
 
 init : Flags -> Url -> Navigation.Key -> ( Model, Cmd Msg )
-init _ url navKey =
+init flags url navKey =
     ( { navKey = navKey
+      , endpoints = flags.endpoints
       , url = url
       , recoveryState = ScreenInitial Nothing
       }
@@ -89,8 +91,25 @@ update msg model =
             )
 
         ClickedSendEmail ->
+            case model.recoveryState of
+                ScreenInitial (Just (Ok backup)) ->
+                    ( model
+                    , Http.request
+                        { method = "POST"
+                        , headers = []
+                        , url = model.endpoints.api ++ "/user/email/recover/" ++ backup.username
+                        , body = Http.emptyBody
+                        , expect = Http.expectWhatever RecoveryEmailSent
+                        , timeout = Just 10000
+                        , tracker = Nothing
+                        }
+                    )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        RecoveryEmailSent result ->
             ( { model | recoveryState = ScreenWaitingForEmail }
-              -- TODO
             , Cmd.none
             )
 

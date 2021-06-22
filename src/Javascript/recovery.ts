@@ -30,7 +30,7 @@ webnative.setup.endpoints(window.endpoints)
 //----------------------------------------
 
 const elmApp = Elm.Recovery.Main.init({
-  flags: {}
+  flags: { endpoints: window.endpoints }
 })
 
 elmApp.ports.verifyBackup.subscribe(async (backup: { username: string, key: string }) => {

@@ -2,14 +2,9 @@ module Recovery.Radix exposing (..)
 
 import Browser exposing (UrlRequest)
 import Browser.Navigation
-import Data.App as App
-import Dict exposing (Dict)
 import File exposing (File)
-import Json.Decode as Json
-import Route exposing (Route)
+import Http
 import Url exposing (Url)
-import Webnative
-import Webnative.Types
 
 
 
@@ -17,7 +12,15 @@ import Webnative.Types
 
 
 type alias Flags =
-    {}
+    { endpoints : Endpoints
+    }
+
+
+type alias Endpoints =
+    { api : String
+    , lobby : String
+    , user : String
+    }
 
 
 
@@ -26,6 +29,7 @@ type alias Flags =
 
 type alias Model =
     { navKey : Browser.Navigation.Key
+    , endpoints : Endpoints
     , url : Url
     , recoveryState : State
     }
@@ -58,6 +62,7 @@ type Msg
     | VerifyBackupSucceeded SecureBackup
     | UploadedBackup String
     | ClickedSendEmail
+    | RecoveryEmailSent (Result Http.Error ())
     | ClickedIHaveNoBackup
     | ClickedGoBack
     | UsernameInput String
