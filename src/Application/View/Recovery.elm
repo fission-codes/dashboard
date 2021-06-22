@@ -202,9 +202,9 @@ iHaveNoBackupButton element =
 
 
 contactSupportMessage : Bool -> Html msg
-contactSupportMessage contactSupportRequested =
+contactSupportMessage shouldTryRetry =
     span []
-        [ if contactSupportRequested then
+        [ if shouldTryRetry then
             text "Please try again or "
 
           else

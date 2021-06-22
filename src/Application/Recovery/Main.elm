@@ -327,14 +327,26 @@ viewScreenInitial state =
         uploadSection =
             case state.backupUpload of
                 RemoteData.Success backup ->
-                    [ View.Recovery.importedBackupCheckmark
-                    , View.Recovery.welcomeBackMessage backup.username
-                    , View.Recovery.buttonSendEmail
-                        { isLoading = RemoteData.isLoading state.sentEmail
-                        , disabled = False
-                        , onClick = Just ClickedSendEmail
-                        }
-                    ]
+                    List.append
+                        [ View.Recovery.importedBackupCheckmark
+                        , View.Recovery.welcomeBackMessage backup.username
+                        , View.Recovery.buttonSendEmail
+                            { isLoading = RemoteData.isLoading state.sentEmail
+                            , disabled = False
+                            , onClick = Just ClickedSendEmail
+                            }
+                        ]
+                        (if RemoteData.isFailure state.sentEmail then
+                            [ View.Common.warning
+                                [ Html.text "Something went wrong when trying to send an email."
+                                , Html.br [] []
+                                , View.Recovery.contactSupportMessage True
+                                ]
+                            ]
+
+                         else
+                            []
+                        )
 
                 _ ->
                     List.concat
