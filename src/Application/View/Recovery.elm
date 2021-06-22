@@ -1,6 +1,5 @@
 module View.Recovery exposing (..)
 
-import Common
 import Css
 import Css.Global as Css
 import FeatherIcons
@@ -324,21 +323,14 @@ inputsRegainAccount element =
         ]
 
 
-buttonGoBack : { onGoBack : msg } -> Html msg
+buttonGoBack : { onGoBack : msg, disabled : Bool } -> Html msg
 buttonGoBack element =
-    button
-        [ Events.onClick element.onGoBack
-        , css
-            [ View.Common.secondaryButtonStyle
-            , flex
-            , flex_row
-            , items_center
-            ]
-        ]
-        [ View.Common.icon
-            { icon = FeatherIcons.arrowLeft
-            , size = View.Common.Small
-            , tag = span [ css [ ml_auto ] ]
-            }
-        , span [ css [ ml_2, mr_auto ] ] [ text "I have a backup! Go Back" ]
-        ]
+    View.Common.button
+        { isLoading = False
+        , disabled = element.disabled
+        , onClick = Just element.onGoBack
+        , icon = Just FeatherIcons.arrowLeft
+        , label = "I have no backup! Go Back"
+        , style = View.Common.secondaryButtonStyle
+        , spinnerStyle = []
+        }

@@ -51,12 +51,20 @@ type alias SecureBackup =
 
 
 type State
-    = ScreenInitial Step1State
-    | ScreenRegainAccess { username : String, usernameMightExist : Bool, usernameValid : Bool }
+    = ScreenRecoverAccount StateRecoverAccount
+    | ScreenRegainAccess StateRegainAccess
 
 
-type alias Step1State =
+type alias StateRecoverAccount =
     { backupUpload : RemoteData VerifyBackupError SecureBackup
+    , sentEmail : WebData ()
+    }
+
+
+type alias StateRegainAccess =
+    { username : String
+    , usernameMightExist : Bool
+    , usernameValid : Bool
     , sentEmail : WebData ()
     }
 
@@ -67,20 +75,24 @@ type alias Step1State =
 
 
 type Msg
-    = UrlChanged Url
+    = -- URL
+      UrlChanged Url
     | UrlChangedFromOutside String
     | UrlRequested UrlRequest
-    | NoOp
-    | SelectedBackup (List File)
-    | VerifyBackupFailed VerifyBackupError
-    | VerifyBackupSucceeded SecureBackup
-    | UploadedBackup String
-    | ClickedSendEmail
+      -- Account Recovery Screen
+    | RecoverySelectedBackup (List File)
+    | RecoveryVerifyBackupFailed VerifyBackupError
+    | RecoveryVerifyBackupSucceeded SecureBackup
+    | RecoveryUploadedBackup String
+    | RecoveryClickedSendEmail
     | RecoveryEmailSent (Result Http.Error ())
-    | ClickedIHaveNoBackup
-    | ClickedGoBack
-    | UsernameInput String
-    | UsernameExists { username : String, exists : Bool, valid : Bool }
+      -- Regain Account Screen
+    | RegainEmailSent (Result Http.Error ())
+    | RegainClickedIHaveNoBackup
+    | RegainClickedGoBack
+    | RegainUsernameInput String
+    | RegainUsernameExists { username : String, exists : Bool, valid : Bool }
+    | RegainClickedSendEmail
 
 
 type alias VerifyBackupError =

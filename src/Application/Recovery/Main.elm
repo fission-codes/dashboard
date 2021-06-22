@@ -44,7 +44,7 @@ init flags url navKey =
       , endpoints = flags.endpoints
       , url = url
       , recoveryState =
-            ScreenInitial
+            ScreenRecoverAccount
                 { backupUpload = RemoteData.NotAsked
                 , sentEmail = RemoteData.NotAsked
                 }
@@ -60,16 +60,13 @@ init flags url navKey =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        NoOp ->
-            ( model, Cmd.none )
-
-        SelectedBackup files ->
-            updateScreenInitial model
+        RecoverySelectedBackup files ->
+            updateScreenRecoverAccount model
                 (\state ->
                     case files of
                         [ file ] ->
                             ( { state | backupUpload = RemoteData.Loading }
-                            , Task.perform UploadedBackup (File.toString file)
+                            , Task.perform RecoveryUploadedBackup (File.toString file)
                             )
 
                         _ ->
@@ -78,7 +75,7 @@ update msg model =
                             )
                 )
 
-        UploadedBackup content ->
+        RecoveryUploadedBackup content ->
             case parseBackup content of
                 Ok backup ->
                     ( model, Ports.verifyBackup backup )
@@ -86,7 +83,7 @@ update msg model =
                 Err error ->
                     ( { model
                         | recoveryState =
-                            ScreenInitial
+                            ScreenRecoverAccount
                                 { backupUpload = RemoteData.Failure error
                                 , sentEmail = RemoteData.NotAsked
                                 }
@@ -94,10 +91,10 @@ update msg model =
                     , Cmd.none
                     )
 
-        VerifyBackupFailed error ->
+        RecoveryVerifyBackupFailed error ->
             ( { model
                 | recoveryState =
-                    ScreenInitial
+                    ScreenRecoverAccount
                         { backupUpload = RemoteData.Failure error
                         , sentEmail = RemoteData.NotAsked
                         }
@@ -105,10 +102,10 @@ update msg model =
             , Cmd.none
             )
 
-        VerifyBackupSucceeded backup ->
+        RecoveryVerifyBackupSucceeded backup ->
             ( { model
                 | recoveryState =
-                    ScreenInitial
+                    ScreenRecoverAccount
                         { backupUpload = RemoteData.Success backup
                         , sentEmail = RemoteData.NotAsked
                         }
@@ -116,8 +113,8 @@ update msg model =
             , Cmd.none
             )
 
-        ClickedSendEmail ->
-            updateScreenInitial model
+        RecoveryClickedSendEmail ->
+            updateScreenRecoverAccount model
                 (\state ->
                     case state.backupUpload of
                         RemoteData.Success backup ->
@@ -138,7 +135,7 @@ update msg model =
                 )
 
         RecoveryEmailSent result ->
-            updateScreenInitial model
+            updateScreenRecoverAccount model
                 (\state ->
                     ( { state
                         | sentEmail = RemoteData.fromResult result
@@ -155,22 +152,23 @@ update msg model =
                     )
                 )
 
-        ClickedIHaveNoBackup ->
+        RegainClickedIHaveNoBackup ->
             ( { model
                 | recoveryState =
                     ScreenRegainAccess
                         { username = ""
                         , usernameMightExist = True
                         , usernameValid = True
+                        , sentEmail = RemoteData.NotAsked
                         }
               }
             , Cmd.none
             )
 
-        ClickedGoBack ->
+        RegainClickedGoBack ->
             ( { model
                 | recoveryState =
-                    ScreenInitial
+                    ScreenRecoverAccount
                         { backupUpload = RemoteData.NotAsked
                         , sentEmail = RemoteData.NotAsked
                         }
@@ -178,7 +176,7 @@ update msg model =
             , Cmd.none
             )
 
-        UsernameInput username ->
+        RegainUsernameInput username ->
             case model.recoveryState of
                 ScreenRegainAccess state ->
                     ( { model
@@ -200,7 +198,7 @@ update msg model =
                 _ ->
                     ( model, Cmd.none )
 
-        UsernameExists { username, exists, valid } ->
+        RegainUsernameExists { username, exists, valid } ->
             case model.recoveryState of
                 ScreenRegainAccess state ->
                     if state.username == username then
@@ -221,6 +219,19 @@ update msg model =
 
                 _ ->
                     ( model, Cmd.none )
+
+        RegainClickedSendEmail ->
+            updateScreenRegainAccess model
+                (\state ->
+                    ( { state | sentEmail = RemoteData.Loading }
+                    , -- TODO
+                      Cmd.none
+                    )
+                )
+
+        RegainEmailSent result ->
+            -- TODO
+            ( model, Cmd.none )
 
         -----------------------------------------
         -- URL
@@ -255,15 +266,31 @@ update msg model =
                     )
 
 
-updateScreenInitial : Model -> (Step1State -> ( Step1State, Cmd Msg )) -> ( Model, Cmd Msg )
-updateScreenInitial model updateState =
+updateScreenRecoverAccount : Model -> (StateRecoverAccount -> ( StateRecoverAccount, Cmd Msg )) -> ( Model, Cmd Msg )
+updateScreenRecoverAccount model updateState =
     case model.recoveryState of
-        ScreenInitial state ->
+        ScreenRecoverAccount state ->
             let
                 ( updatedState, cmds ) =
                     updateState state
             in
-            ( { model | recoveryState = ScreenInitial updatedState }
+            ( { model | recoveryState = ScreenRecoverAccount updatedState }
+            , cmds
+            )
+
+        _ ->
+            ( model, Cmd.none )
+
+
+updateScreenRegainAccess : Model -> (StateRegainAccess -> ( StateRegainAccess, Cmd Msg )) -> ( Model, Cmd Msg )
+updateScreenRegainAccess model updateState =
+    case model.recoveryState of
+        ScreenRegainAccess state ->
+            let
+                ( updatedState, cmds ) =
+                    updateState state
+            in
+            ( { model | recoveryState = ScreenRegainAccess updatedState }
             , cmds
             )
 
@@ -278,14 +305,14 @@ updateScreenInitial model updateState =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     case model.recoveryState of
-        ScreenInitial _ ->
+        ScreenRecoverAccount _ ->
             Sub.batch
-                [ Ports.verifyBackupFailed VerifyBackupFailed
-                , Ports.verifyBackupSucceeded VerifyBackupSucceeded
+                [ Ports.verifyBackupFailed RecoveryVerifyBackupFailed
+                , Ports.verifyBackupSucceeded RecoveryVerifyBackupSucceeded
                 ]
 
         ScreenRegainAccess _ ->
-            Ports.usernameExistsResponse UsernameExists
+            Ports.usernameExistsResponse RegainUsernameExists
 
 
 
@@ -298,7 +325,7 @@ view model =
     , body =
         [ View.Recovery.appShell
             (case model.recoveryState of
-                ScreenInitial state ->
+                ScreenRecoverAccount state ->
                     if
                         RemoteData.isSuccess state.backupUpload
                             && RemoteData.isSuccess state.sentEmail
@@ -306,7 +333,7 @@ view model =
                         viewScreenWaitingForEmail
 
                     else
-                        viewScreenInitial state
+                        viewScreenRecoverAccount state
 
                 ScreenRegainAccess state ->
                     viewScreenRegainAccess state
@@ -316,8 +343,8 @@ view model =
     }
 
 
-viewScreenInitial : Step1State -> List (Html Msg)
-viewScreenInitial state =
+viewScreenRecoverAccount : StateRecoverAccount -> List (Html Msg)
+viewScreenRecoverAccount state =
     let
         error =
             case state.backupUpload of
@@ -341,7 +368,7 @@ viewScreenInitial state =
                         , View.Recovery.buttonSendEmail
                             { isLoading = RemoteData.isLoading state.sentEmail
                             , disabled = False
-                            , onClick = Just ClickedSendEmail
+                            , onClick = Just RecoveryClickedSendEmail
                             }
                         ]
                         (if RemoteData.isFailure state.sentEmail then
@@ -361,13 +388,13 @@ viewScreenInitial state =
                         [ [ View.Recovery.backupUpload
                                 { onUpload =
                                     Json.at [ "target", "files" ] (Json.list File.decoder)
-                                        |> Json.map SelectedBackup
+                                        |> Json.map RecoverySelectedBackup
                                 , isLoading = RemoteData.isLoading state.backupUpload
                                 }
                           ]
                         , error
                         , [ View.Recovery.iHaveNoBackupButton
-                                { onClick = ClickedIHaveNoBackup }
+                                { onClick = RegainClickedIHaveNoBackup }
                           ]
                         ]
     in
@@ -410,7 +437,7 @@ viewScreenWaitingForEmail =
     ]
 
 
-viewScreenRegainAccess : { username : String, usernameMightExist : Bool, usernameValid : Bool } -> List (Html Msg)
+viewScreenRegainAccess : StateRegainAccess -> List (Html Msg)
 viewScreenRegainAccess state =
     [ View.Dashboard.heading [ Html.text "Regain Account Access" ]
     , View.Common.sectionSpacer
@@ -433,9 +460,9 @@ viewScreenRegainAccess state =
             , Html.text "Don’t worry, if you eventually find your backup, you’ll still be able to recover your private files."
             ]
         , View.Recovery.inputsRegainAccount
-            { onSubmit = NoOp
+            { onSubmit = RegainClickedSendEmail
             , username = state.username
-            , onInputUsername = UsernameInput
+            , onInputUsername = RegainUsernameInput
             , errors =
                 if not state.usernameValid then
                     [ View.Common.warning [ Html.text "That's not a valid fission username." ] ]
@@ -447,7 +474,11 @@ viewScreenRegainAccess state =
                     [ View.Common.warning [ Html.text "Couldn't find an account with this username." ] ]
             }
         , View.Dashboard.sectionGroup []
-            [ View.Recovery.buttonGoBack { onGoBack = ClickedGoBack } ]
+            [ View.Recovery.buttonGoBack
+                { onGoBack = RegainClickedGoBack
+                , disabled = not (RemoteData.isNotAsked state.sentEmail)
+                }
+            ]
         ]
     ]
 
