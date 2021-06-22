@@ -16,7 +16,7 @@ specifiers:
   postcss-import: ^14.0.0
   tailwindcss: ^2.0.3
   uint8arrays: ^2.1.5
-  webnative: https://github.com/fission-suite/webnative#cbb2fec74d1f4dd2e0322184634fc595ae531209
+  webnative: https://github.com/fission-suite/webnative#48bb593f6001ef81204c5e1a4d3690b8a66907c0
   webnative-elm: ^4.0.0-3
   workbox-cli: ^6.1.0
   workbox-strategies: ^6.1.0
@@ -26,7 +26,7 @@ dependencies:
   lodash: 4.17.21
   tailwindcss: 2.0.3_759587f5361760629983e9fe457a3aed
   uint8arrays: 2.1.5
-  webnative: github.com/fission-suite/webnative/cbb2fec74d1f4dd2e0322184634fc595ae531209
+  webnative: github.com/fission-suite/webnative/48bb593f6001ef81204c5e1a4d3690b8a66907c0
   webnative-elm: 4.0.0-3_webnative@0.25.2
 
 devDependencies:
@@ -5968,7 +5968,7 @@ packages:
     peerDependencies:
       webnative: '> 0.0.0'
     dependencies:
-      webnative: github.com/fission-suite/webnative/cbb2fec74d1f4dd2e0322184634fc595ae531209
+      webnative: github.com/fission-suite/webnative/48bb593f6001ef81204c5e1a4d3690b8a66907c0
     dev: false
 
   /whatwg-url/7.1.0:
@@ -6282,8 +6282,8 @@ packages:
     version: 0.2.0
     dev: false
 
-  github.com/fission-suite/webnative/cbb2fec74d1f4dd2e0322184634fc595ae531209:
-    resolution: {tarball: https://codeload.github.com/fission-suite/webnative/tar.gz/cbb2fec74d1f4dd2e0322184634fc595ae531209}
+  github.com/fission-suite/webnative/48bb593f6001ef81204c5e1a4d3690b8a66907c0:
+    resolution: {tarball: https://codeload.github.com/fission-suite/webnative/tar.gz/48bb593f6001ef81204c5e1a4d3690b8a66907c0}
     name: webnative
     version: 0.25.2
     engines: {node: '>=15'}
