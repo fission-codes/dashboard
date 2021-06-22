@@ -401,7 +401,7 @@ viewScreenWaitingForEmail =
             [ Html.text "We’ve sent you an e-mail with further instructions for account recovery."
             , Html.br [] []
             , Html.br [] []
-            , Html.text "This email will only be valid for 24 hours."
+            , Html.text "That email will only be valid for one hour."
             , Html.br [] []
             , Html.br [] []
             , Html.text "You can go to your inbox and close this site."
