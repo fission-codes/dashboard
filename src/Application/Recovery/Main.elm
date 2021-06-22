@@ -8,6 +8,7 @@ import Html.Styled as Html exposing (Html)
 import Http
 import Json.Decode as Json
 import Json.Encode as E
+import Recovery.Api as Api
 import Recovery.Ports as Ports
 import Recovery.Radix exposing (..)
 import RemoteData
@@ -119,14 +120,10 @@ update msg model =
                     case state.backupUpload of
                         RemoteData.Success backup ->
                             ( { state | sentEmail = RemoteData.Loading }
-                            , Http.request
-                                { method = "POST"
-                                , headers = []
-                                , url = model.endpoints.api ++ "/user/email/recover/" ++ backup.username
-                                , body = Http.emptyBody
-                                , expect = Http.expectWhatever RecoveryEmailSent
-                                , timeout = Just 10000
-                                , tracker = Nothing
+                            , Api.sendRecoveryEmail
+                                { endpoints = model.endpoints
+                                , username = backup.username
+                                , onResult = RecoveryEmailSent
                                 }
                             )
 
@@ -157,8 +154,7 @@ update msg model =
                 | recoveryState =
                     ScreenRegainAccess
                         { username = ""
-                        , usernameMightExist = True
-                        , usernameValid = True
+                        , usernameValidation = RemoteData.NotAsked
                         , sentEmail = RemoteData.NotAsked
                         }
               }
@@ -177,16 +173,12 @@ update msg model =
             )
 
         RegainUsernameInput username ->
-            case model.recoveryState of
-                ScreenRegainAccess state ->
-                    ( { model
-                        | recoveryState =
-                            ScreenRegainAccess
-                                { state
-                                    | username = username
-                                    , usernameMightExist = True
-                                    , usernameValid = True
-                                }
+            updateScreenRegainAccess model
+                (\state ->
+                    ( { state
+                        | username = username
+                        , usernameValidation = RemoteData.Loading
+                        , sentEmail = RemoteData.NotAsked
                       }
                     , if username |> String.trim |> String.isEmpty then
                         Cmd.none
@@ -194,44 +186,77 @@ update msg model =
                       else
                         Ports.usernameExists (String.trim username)
                     )
-
-                _ ->
-                    ( model, Cmd.none )
+                )
 
         RegainUsernameExists { username, exists, valid } ->
-            case model.recoveryState of
-                ScreenRegainAccess state ->
+            updateScreenRegainAccess model
+                (\state ->
                     if state.username == username then
-                        ( { model
-                            | recoveryState =
-                                ScreenRegainAccess
-                                    { state
-                                        | username = username
-                                        , usernameMightExist = exists
-                                        , usernameValid = valid
-                                    }
+                        ( { state
+                            | username = username
+                            , usernameValidation =
+                                if not valid then
+                                    RemoteData.Failure UsernameInvalid
+
+                                else if not exists then
+                                    RemoteData.Failure UsernameNotFound
+
+                                else
+                                    RemoteData.Success username
+                            , sentEmail =
+                                -- If validation was kicked off before we knew about the username being valid,
+                                -- and it turns out it wasn't, we'll reset the button to be clickable again.
+                                if RemoteData.isLoading state.sentEmail && (not valid || not exists) then
+                                    RemoteData.NotAsked
+
+                                else
+                                    state.sentEmail
                           }
-                        , Cmd.none
+                        , -- The validation might have been kicked off after the user pressed
+                          -- "Send Email". If so, we have to do that once the username was
+                          -- verified.
+                          if RemoteData.isLoading state.sentEmail && valid && exists then
+                            Api.sendRecoveryEmail
+                                { endpoints = model.endpoints
+                                , username = username
+                                , onResult = RegainEmailSent
+                                }
+
+                          else
+                            Cmd.none
                         )
 
                     else
-                        ( model, Cmd.none )
-
-                _ ->
-                    ( model, Cmd.none )
+                        ( state, Cmd.none )
+                )
 
         RegainClickedSendEmail ->
             updateScreenRegainAccess model
                 (\state ->
                     ( { state | sentEmail = RemoteData.Loading }
-                    , -- TODO
-                      Cmd.none
+                    , -- We validate the username before we send an API request.
+                      -- If it turns out we haven't done that yet, we do that and
+                      -- will send an API request later once it's verified
+                      case getValidUsername state of
+                        Just username ->
+                            Api.sendRecoveryEmail
+                                { endpoints = model.endpoints
+                                , username = username
+                                , onResult = RegainEmailSent
+                                }
+
+                        Nothing ->
+                            Ports.usernameExists state.username
                     )
                 )
 
         RegainEmailSent result ->
-            -- TODO
-            ( model, Cmd.none )
+            updateScreenRegainAccess model
+                (\state ->
+                    ( { state | sentEmail = RemoteData.fromResult result }
+                    , Cmd.none
+                    )
+                )
 
         -----------------------------------------
         -- URL
@@ -298,6 +323,20 @@ updateScreenRegainAccess model updateState =
             ( model, Cmd.none )
 
 
+getValidUsername : StateRegainAccess -> Maybe String
+getValidUsername state =
+    case state.usernameValidation of
+        RemoteData.Success validUsername ->
+            if validUsername == state.username then
+                Just validUsername
+
+            else
+                Nothing
+
+        _ ->
+            Nothing
+
+
 
 -- 📰
 
@@ -330,13 +369,17 @@ view model =
                         RemoteData.isSuccess state.backupUpload
                             && RemoteData.isSuccess state.sentEmail
                     then
-                        viewScreenWaitingForEmail
+                        viewScreenWaitingForEmail FlowRecoverAccount
 
                     else
                         viewScreenRecoverAccount state
 
                 ScreenRegainAccess state ->
-                    viewScreenRegainAccess state
+                    if RemoteData.isSuccess state.sentEmail then
+                        viewScreenWaitingForEmail FlowRegainAccess
+
+                    else
+                        viewScreenRegainAccess state
             )
             |> Html.toUnstyled
         ]
@@ -414,13 +457,35 @@ viewScreenRecoverAccount state =
     ]
 
 
-viewScreenWaitingForEmail : List (Html Msg)
-viewScreenWaitingForEmail =
-    [ View.Dashboard.heading [ Html.text "Recover your Account" ]
+type Flow
+    = FlowRecoverAccount
+    | FlowRegainAccess
+
+
+viewScreenWaitingForEmail : Flow -> List (Html Msg)
+viewScreenWaitingForEmail flow =
+    let
+        heading =
+            case flow of
+                FlowRegainAccess ->
+                    "Regain Your Account"
+
+                FlowRecoverAccount ->
+                    "Recover your Account"
+
+        firstStep =
+            case flow of
+                FlowRegainAccess ->
+                    "enter your username"
+
+                FlowRecoverAccount ->
+                    "upload your secure backup file"
+    in
+    [ View.Dashboard.heading [ Html.text heading ]
     , View.Common.sectionSpacer
     , View.Dashboard.section []
         [ View.Recovery.steps
-            [ View.Recovery.step 1 False "upload your secure backup file"
+            [ View.Recovery.step 1 False firstStep
             , View.Recovery.step 2 True "verify your e-mail address"
             , View.Recovery.step 3 False "re-link your fission account"
             ]
@@ -462,18 +527,32 @@ viewScreenRegainAccess state =
         , View.Recovery.inputsRegainAccount
             { onSubmit = RegainClickedSendEmail
             , isLoading = RemoteData.isLoading state.sentEmail
-            , disabled = not state.usernameValid || not state.usernameMightExist || RemoteData.isLoading state.sentEmail
+            , disabled = RemoteData.isFailure state.usernameValidation || RemoteData.isLoading state.sentEmail
             , username = state.username
             , onInputUsername = RegainUsernameInput
             , errors =
-                if not state.usernameValid then
-                    [ View.Common.warning [ Html.text "That's not a valid fission username." ] ]
+                case state.usernameValidation of
+                    RemoteData.Failure UsernameInvalid ->
+                        [ View.Common.warning [ Html.text "That's not a valid fission username." ] ]
 
-                else if state.usernameMightExist then
-                    []
+                    RemoteData.Failure UsernameNotFound ->
+                        [ View.Common.warning [ Html.text "Couldn't find an account with this username." ] ]
 
-                else
-                    [ View.Common.warning [ Html.text "Couldn't find an account with this username." ] ]
+                    _ ->
+                        case state.sentEmail of
+                            RemoteData.Failure httpError ->
+                                case httpError of
+                                    Http.BadStatus 422 ->
+                                        [ View.Common.warning [ Html.text "Couldn't find an account with this username." ] ]
+
+                                    _ ->
+                                        [ View.Common.warning [ Html.text "Something went wrong when trying to send an email." ]
+                                        , Html.br [] []
+                                        , View.Recovery.contactSupportMessage True
+                                        ]
+
+                            _ ->
+                                []
             }
         , View.Dashboard.sectionGroup []
             [ View.Recovery.buttonGoBack

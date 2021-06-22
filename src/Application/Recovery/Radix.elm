@@ -63,10 +63,14 @@ type alias StateRecoverAccount =
 
 type alias StateRegainAccess =
     { username : String
-    , usernameMightExist : Bool
-    , usernameValid : Bool
+    , usernameValidation : RemoteData UsernameError String
     , sentEmail : WebData ()
     }
+
+
+type UsernameError
+    = UsernameInvalid
+    | UsernameNotFound
 
 
 
