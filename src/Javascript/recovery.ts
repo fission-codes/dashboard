@@ -1,6 +1,7 @@
 import * as webnative from "webnative"
 import * as dataRoot from "webnative/data-root"
 import * as webnativeIpfs from "webnative/ipfs/index"
+import * as crypto from "webnative/crypto/index"
 import * as namefilter from "webnative/fs/protocol/private/namefilter"
 import MMPT from "webnative/fs/protocol/private/mmpt"
 import throttle from "lodash/throttle"
@@ -26,6 +27,11 @@ webnative.setup.endpoints(window.endpoints)
 
 const RECOVERY_USERNAME_KEY = "account-recovery-username"
 const RECOVERY_BACKUP_KEY = "account-recovery-backup"
+
+window.clearBackup = () => {
+  localStorage.removeItem(RECOVERY_USERNAME_KEY)
+  localStorage.removeItem(RECOVERY_BACKUP_KEY)
+}
 
 
 //----------------------------------------
@@ -146,7 +152,9 @@ elmApp.ports.saveBackup.subscribe(async (backup: string) => {
   localStorage.setItem(RECOVERY_BACKUP_KEY, backup)
 })
 
-window.clearBackup = () => {
-  localStorage.removeItem(RECOVERY_USERNAME_KEY)
-  localStorage.removeItem(RECOVERY_BACKUP_KEY)
-}
+
+elmApp.ports.fetchWritePublicKey.subscribe(async () => {
+  await crypto.keystore.clear()
+  const pubKeyBase64 = await crypto.keystore.publicWriteKey()
+  console.log(pubKeyBase64)
+})

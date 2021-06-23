@@ -37,3 +37,13 @@ port saveUsername : String -> Cmd msg
 
 
 port saveBackup : String -> Cmd msg
+
+
+
+-- Account Recovery
+
+
+port fetchWritePublicKey : () -> Cmd msg
+
+
+port writePublicKeyFetched : (String -> msg) -> Sub msg

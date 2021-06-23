@@ -53,7 +53,7 @@ type alias SecureBackup =
 type State
     = ScreenRecoverAccount StateRecoverAccount
     | ScreenRegainAccess StateRegainAccess
-    | ScreenVerifiedEmail
+    | ScreenVerifiedEmail StateVerifiedEmail
     | ScreenWrongBrowser
 
 
@@ -73,6 +73,13 @@ type alias StateRegainAccess =
 type UsernameError
     = UsernameInvalid
     | UsernameNotFound
+
+
+type alias StateVerifiedEmail =
+    { username : String
+    , challenge : String
+    , updateDID : WebData ()
+    }
 
 
 
@@ -99,6 +106,8 @@ type Msg
     | RegainUsernameInput String
     | RegainUsernameExists { username : String, exists : Bool, valid : Bool }
     | RegainClickedSendEmail
+      -- Verified Email Screen
+    | VerifiedRecoverAccount
 
 
 type alias VerifyBackupError =

@@ -255,6 +255,45 @@ primaryButtonStyle =
         ]
 
 
+primaryDangerButtonStyle : Css.Style
+primaryDangerButtonStyle =
+    Css.batch
+        [ dark [ bg_darkmode_red ]
+        , Css.disabled
+            [ dark
+                [ bg_gray_200
+                , text_gray_400
+                ]
+            , text_gray_600
+            , bg_gray_400
+            ]
+        , Css.active
+            [ transform_gpu
+            , scale_95
+            ]
+
+        --
+        , antialiased
+        , appearance_none
+        , bg_red
+        , font_semibold
+        , leading_normal
+        , px_5
+        , py_3
+        , relative
+        , rounded
+        , text_sm
+        , text_white
+        , tracking_wider
+        , transition_colors
+        , transition_transform
+
+        --
+        , duration_100
+        , ease_out
+        ]
+
+
 primaryButtonLoaderStyle : Css.Style
 primaryButtonLoaderStyle =
     text_white

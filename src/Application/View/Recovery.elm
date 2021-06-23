@@ -336,3 +336,16 @@ buttonGoBack element =
         , style = View.Common.secondaryButtonStyle
         , spinnerStyle = []
         }
+
+
+buttonRecoverAccount : { onRecoverAccount : msg, isLoading : Bool } -> Html msg
+buttonRecoverAccount element =
+    View.Common.button
+        { icon = Just FeatherIcons.unlock
+        , label = "Recover Account"
+        , onClick = Just element.onRecoverAccount
+        , isLoading = element.isLoading
+        , disabled = element.isLoading
+        , style = View.Common.primaryDangerButtonStyle
+        , spinnerStyle = [ View.Common.primaryButtonLoaderStyle ]
+        }

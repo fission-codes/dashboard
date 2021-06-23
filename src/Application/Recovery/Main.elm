@@ -51,6 +51,10 @@ init flags url navKey =
                     case flags.savedRecovery.username of
                         Just username ->
                             ScreenVerifiedEmail
+                                { username = username
+                                , challenge = challenge
+                                , updateDID = RemoteData.NotAsked
+                                }
 
                         Nothing ->
                             ScreenWrongBrowser
@@ -269,6 +273,14 @@ update msg model =
                     )
                 )
 
+        VerifiedRecoverAccount ->
+            updateScreenVerifiedEmail model
+                (\state ->
+                    ( { state | updateDID = RemoteData.Loading }
+                    , Ports.fetchWritePublicKey ()
+                    )
+                )
+
         -----------------------------------------
         -- URL
         -----------------------------------------
@@ -334,6 +346,22 @@ updateScreenRegainAccess model updateState =
             ( model, Cmd.none )
 
 
+updateScreenVerifiedEmail : Model -> (StateVerifiedEmail -> ( StateVerifiedEmail, Cmd Msg )) -> ( Model, Cmd Msg )
+updateScreenVerifiedEmail model updateState =
+    case model.recoveryState of
+        ScreenVerifiedEmail state ->
+            let
+                ( updatedState, cmds ) =
+                    updateState state
+            in
+            ( { model | recoveryState = ScreenVerifiedEmail updatedState }
+            , cmds
+            )
+
+        _ ->
+            ( model, Cmd.none )
+
+
 getValidUsername : StateRegainAccess -> Maybe String
 getValidUsername state =
     case state.usernameValidation of
@@ -364,7 +392,7 @@ subscriptions model =
         ScreenRegainAccess _ ->
             Ports.usernameExistsResponse RegainUsernameExists
 
-        ScreenVerifiedEmail ->
+        ScreenVerifiedEmail _ ->
             Sub.none
 
         ScreenWrongBrowser ->
@@ -398,8 +426,8 @@ view model =
                     else
                         viewScreenRegainAccess state
 
-                ScreenVerifiedEmail ->
-                    viewScreenVerifiedEmail
+                ScreenVerifiedEmail state ->
+                    viewScreenVerifiedEmail state
 
                 ScreenWrongBrowser ->
                     viewScreenWrongBrowser
@@ -587,8 +615,8 @@ viewScreenRegainAccess state =
     ]
 
 
-viewScreenVerifiedEmail : List (Html Msg)
-viewScreenVerifiedEmail =
+viewScreenVerifiedEmail : StateVerifiedEmail -> List (Html Msg)
+viewScreenVerifiedEmail state =
     [ View.Dashboard.heading [ Html.text "Recover your Account" ]
     , View.Common.sectionSpacer
     , View.Dashboard.section []
@@ -598,7 +626,9 @@ viewScreenVerifiedEmail =
             , View.Recovery.step 3 False "re-link your fission account"
             ]
         , View.Dashboard.sectionParagraph
-            [ Html.text "Hello <username>,"
+            [ Html.text "Hello "
+            , Html.i [] [ Html.text state.username ]
+            , Html.text ","
             , Html.br [] []
             , Html.br [] []
             , Html.text "You’ve triggered a request to recover your account. We now know it was truly you."
@@ -607,9 +637,12 @@ viewScreenVerifiedEmail =
             , Html.text "Any devices that might be linked to your fission account right now will need to be re-linked."
             , Html.br [] []
             , Html.text "Any apps you’re still signed in with need to be signed out and in again."
-            , Html.br [] []
-            , Html.br [] []
-            , Html.text "<button>"
+            ]
+        , View.Dashboard.sectionGroup []
+            [ View.Recovery.buttonRecoverAccount
+                { onRecoverAccount = VerifiedRecoverAccount
+                , isLoading = RemoteData.isLoading state.updateDID
+                }
             ]
         ]
     ]
