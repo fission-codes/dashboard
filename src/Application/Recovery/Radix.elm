@@ -78,6 +78,7 @@ type UsernameError
 
 type alias StateVerifiedEmail =
     { username : String
+    , savedKey : Maybe String
     , challenge : String
     , publicWriteKey : RemoteData String String
     , updateDID : WebData ()
@@ -86,6 +87,7 @@ type alias StateVerifiedEmail =
 
 type alias StateLinkingStep1 =
     { username : String
+    , savedKey : Maybe String
     }
 
 

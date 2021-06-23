@@ -59,6 +59,7 @@ stateFromUrl flags url =
                 Just username ->
                     ScreenVerifiedEmail
                         { username = username
+                        , savedKey = flags.savedRecovery.key
                         , challenge = challenge
                         , publicWriteKey = RemoteData.NotAsked
                         , updateDID = RemoteData.NotAsked
@@ -236,11 +237,14 @@ update msg model =
                           -- "Send Email". If so, we have to do that once the username was
                           -- verified.
                           if RemoteData.isLoading state.sentEmail && valid && exists then
-                            Api.sendRecoveryEmail
-                                { endpoints = model.endpoints
-                                , username = username
-                                , onResult = RegainEmailSent
-                                }
+                            Cmd.batch
+                                [ Ports.saveUsername username
+                                , Api.sendRecoveryEmail
+                                    { endpoints = model.endpoints
+                                    , username = username
+                                    , onResult = RegainEmailSent
+                                    }
+                                ]
 
                           else
                             Cmd.none
@@ -259,11 +263,14 @@ update msg model =
                       -- will send an API request later once it's verified
                       case getValidUsername state of
                         Just username ->
-                            Api.sendRecoveryEmail
-                                { endpoints = model.endpoints
-                                , username = username
-                                , onResult = RegainEmailSent
-                                }
+                            Cmd.batch
+                                [ Ports.saveUsername username
+                                , Api.sendRecoveryEmail
+                                    { endpoints = model.endpoints
+                                    , username = username
+                                    , onResult = RegainEmailSent
+                                    }
+                                ]
 
                         Nothing ->
                             Ports.usernameExists state.username
@@ -315,7 +322,9 @@ update msg model =
                             ( { model
                                 | recoveryState =
                                     ScreenLinkingStep1
-                                        { username = state.username }
+                                        { username = state.username
+                                        , savedKey = state.savedKey
+                                        }
                               }
                             , -- TODO
                               Cmd.none
@@ -572,29 +581,11 @@ viewScreenRecoverAccount state =
     ]
 
 
-type Flow
-    = FlowRecoverAccount
-    | FlowRegainAccess
-
-
 viewScreenWaitingForEmail : Flow -> List (Html Msg)
 viewScreenWaitingForEmail flow =
     let
-        heading =
-            case flow of
-                FlowRegainAccess ->
-                    "Regain Your Account"
-
-                FlowRecoverAccount ->
-                    "Recover your Account"
-
-        firstStep =
-            case flow of
-                FlowRegainAccess ->
-                    "enter your username"
-
-                FlowRecoverAccount ->
-                    "upload your secure backup file"
+        { heading, firstStep } =
+            flowWording flow
     in
     [ View.Dashboard.heading [ Html.text heading ]
     , View.Common.sectionSpacer
@@ -687,11 +678,15 @@ viewScreenRegainAccess state =
 
 viewScreenVerifiedEmail : Url -> StateVerifiedEmail -> List (Html Msg)
 viewScreenVerifiedEmail url state =
-    [ View.Dashboard.heading [ Html.text "Recover your Account" ]
+    let
+        { heading, firstStep, requestName } =
+            flowWording (flowFromKey state)
+    in
+    [ View.Dashboard.heading [ Html.text heading ]
     , View.Common.sectionSpacer
     , View.Dashboard.section []
         [ View.Recovery.steps
-            [ View.Recovery.step 1 False "upload your secure backup file"
+            [ View.Recovery.step 1 False firstStep
             , View.Recovery.step 2 True "verify your e-mail address"
             , View.Recovery.step 3 False "re-link your fission account"
             ]
@@ -701,7 +696,9 @@ viewScreenVerifiedEmail url state =
             , Html.text ","
             , Html.br [] []
             , Html.br [] []
-            , Html.text "You’ve triggered a request to recover your account. We now know it was truly you."
+            , Html.text "You’ve triggered a request to "
+            , Html.text requestName
+            , Html.text ". We now know it was truly you."
             , Html.br [] []
             , Html.br [] []
             , Html.text "Any devices that might be linked to your fission account right now will need to be re-linked."
@@ -784,11 +781,15 @@ viewScreenWrongBrowser =
 
 viewScreenLinkingStep1 : String -> StateLinkingStep1 -> List (Html Msg)
 viewScreenLinkingStep1 lobbyUrl state =
-    [ View.Dashboard.heading [ Html.text "Recover your Account" ]
+    let
+        { heading, firstStep } =
+            flowWording (flowFromKey state)
+    in
+    [ View.Dashboard.heading [ Html.text heading ]
     , View.Common.sectionSpacer
     , View.Dashboard.section []
         [ View.Recovery.steps
-            [ View.Recovery.step 1 False "upload your secure backup file"
+            [ View.Recovery.step 1 False firstStep
             , View.Recovery.step 2 False "verify your e-mail address"
             , View.Recovery.step 3 True "re-link your fission account"
             ]
@@ -831,6 +832,41 @@ parseBackup content =
         |> Result.fromMaybe
             { message = "Couldn’t validate the backup."
             , contactSupport = True
+            }
+
+
+
+-- Wording
+
+
+type Flow
+    = FlowRecoverAccount
+    | FlowRegainAccess
+
+
+flowFromKey : { r | savedKey : Maybe String } -> Flow
+flowFromKey { savedKey } =
+    case savedKey of
+        Just _ ->
+            FlowRecoverAccount
+
+        Nothing ->
+            FlowRegainAccess
+
+
+flowWording : Flow -> { heading : String, firstStep : String, requestName : String }
+flowWording flow =
+    case flow of
+        FlowRecoverAccount ->
+            { heading = "Recover your Account"
+            , firstStep = "upload your secure backup file"
+            , requestName = "recover your account"
+            }
+
+        FlowRegainAccess ->
+            { heading = "Regain Account Access"
+            , firstStep = "enter your username"
+            , requestName = "regain account access for you"
             }
 
 
