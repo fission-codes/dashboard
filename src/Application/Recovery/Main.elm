@@ -11,6 +11,7 @@ import Json.Encode as E
 import Recovery.Api as Api
 import Recovery.Ports as Ports
 import Recovery.Radix exposing (..)
+import Recovery.Route as Route
 import RemoteData
 import Task
 import Url exposing (Url)
@@ -45,10 +46,20 @@ init flags url navKey =
       , endpoints = flags.endpoints
       , url = url
       , recoveryState =
-            ScreenRecoverAccount
-                { backupUpload = RemoteData.NotAsked
-                , sentEmail = RemoteData.NotAsked
-                }
+            case Route.parseChallenge url of
+                Just challenge ->
+                    case flags.savedRecovery.username of
+                        Just username ->
+                            ScreenVerifiedEmail
+
+                        Nothing ->
+                            ScreenWrongBrowser
+
+                Nothing ->
+                    ScreenRecoverAccount
+                        { backupUpload = RemoteData.NotAsked
+                        , sentEmail = RemoteData.NotAsked
+                        }
       }
     , Cmd.none
     )
@@ -353,6 +364,12 @@ subscriptions model =
         ScreenRegainAccess _ ->
             Ports.usernameExistsResponse RegainUsernameExists
 
+        ScreenVerifiedEmail ->
+            Sub.none
+
+        ScreenWrongBrowser ->
+            Sub.none
+
 
 
 -- 🌄
@@ -380,6 +397,12 @@ view model =
 
                     else
                         viewScreenRegainAccess state
+
+                ScreenVerifiedEmail ->
+                    viewScreenVerifiedEmail
+
+                ScreenWrongBrowser ->
+                    viewScreenWrongBrowser
             )
             |> Html.toUnstyled
         ]
@@ -559,6 +582,54 @@ viewScreenRegainAccess state =
                 { onGoBack = RegainClickedGoBack
                 , disabled = not (RemoteData.isNotAsked state.sentEmail)
                 }
+            ]
+        ]
+    ]
+
+
+viewScreenVerifiedEmail : List (Html Msg)
+viewScreenVerifiedEmail =
+    [ View.Dashboard.heading [ Html.text "Recover your Account" ]
+    , View.Common.sectionSpacer
+    , View.Dashboard.section []
+        [ View.Recovery.steps
+            [ View.Recovery.step 1 False "upload your secure backup file"
+            , View.Recovery.step 2 True "verify your e-mail address"
+            , View.Recovery.step 3 False "re-link your fission account"
+            ]
+        , View.Dashboard.sectionParagraph
+            [ Html.text "Hello <username>,"
+            , Html.br [] []
+            , Html.br [] []
+            , Html.text "You’ve triggered a request to recover your account. We now know it was truly you."
+            , Html.br [] []
+            , Html.br [] []
+            , Html.text "Any devices that might be linked to your fission account right now will need to be re-linked."
+            , Html.br [] []
+            , Html.text "Any apps you’re still signed in with need to be signed out and in again."
+            , Html.br [] []
+            , Html.br [] []
+            , Html.text "<button>"
+            ]
+        ]
+    ]
+
+
+viewScreenWrongBrowser : List (Html Msg)
+viewScreenWrongBrowser =
+    [ View.Dashboard.heading [ Html.text "Recover your Account" ]
+    , View.Common.sectionSpacer
+    , View.Dashboard.section []
+        [ View.Recovery.steps
+            [ View.Recovery.step 1 False "upload your secure backup file"
+            , View.Recovery.step 2 True "verify your e-mail address"
+            , View.Recovery.step 3 False "re-link your fission account"
+            ]
+        , View.Dashboard.sectionParagraph
+            [ View.Common.warning [ Html.text "We couldn’t find a backup in this browser." ] ]
+        , View.Dashboard.sectionParagraph
+            [ Html.text "Did you start the recovery process in another browser?"
+            , Html.text "If you can’t remember having started a recovery process, then please just delete the e-mail you received."
             ]
         ]
     ]

@@ -145,3 +145,8 @@ elmApp.ports.saveUsername.subscribe(async (username: string) => {
 elmApp.ports.saveBackup.subscribe(async (backup: string) => {
   localStorage.setItem(RECOVERY_BACKUP_KEY, backup)
 })
+
+window.clearBackup = () => {
+  localStorage.removeItem(RECOVERY_USERNAME_KEY)
+  localStorage.removeItem(RECOVERY_BACKUP_KEY)
+}

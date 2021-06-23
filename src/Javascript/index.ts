@@ -25,6 +25,8 @@ declare global {
     }
     webnative: typeof webnative
     fs: FileSystem
+    // For recovery.ts
+    clearBackup: () => void
   }
 
   const Elm: any

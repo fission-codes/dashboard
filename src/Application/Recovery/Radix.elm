@@ -53,6 +53,8 @@ type alias SecureBackup =
 type State
     = ScreenRecoverAccount StateRecoverAccount
     | ScreenRegainAccess StateRegainAccess
+    | ScreenVerifiedEmail
+    | ScreenWrongBrowser
 
 
 type alias StateRecoverAccount =
