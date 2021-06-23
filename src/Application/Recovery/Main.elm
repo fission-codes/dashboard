@@ -53,6 +53,7 @@ init flags url navKey =
                             ScreenVerifiedEmail
                                 { username = username
                                 , challenge = challenge
+                                , publicWriteKey = RemoteData.NotAsked
                                 , updateDID = RemoteData.NotAsked
                                 }
 
@@ -276,8 +277,16 @@ update msg model =
         VerifiedRecoverAccount ->
             updateScreenVerifiedEmail model
                 (\state ->
-                    ( { state | updateDID = RemoteData.Loading }
+                    ( { state | publicWriteKey = RemoteData.Loading }
                     , Ports.fetchWritePublicKey ()
+                    )
+                )
+
+        VerifiedPublicKeyFetched result ->
+            updateScreenVerifiedEmail model
+                (\state ->
+                    ( { state | publicWriteKey = RemoteData.fromResult result }
+                    , Cmd.none
                     )
                 )
 
@@ -393,7 +402,10 @@ subscriptions model =
             Ports.usernameExistsResponse RegainUsernameExists
 
         ScreenVerifiedEmail _ ->
-            Sub.none
+            Sub.batch
+                [ Ports.writePublicKeyFetched (Ok >> VerifiedPublicKeyFetched)
+                , Ports.writePublicKeyFailure (Err >> VerifiedPublicKeyFetched)
+                ]
 
         ScreenWrongBrowser ->
             Sub.none
@@ -641,7 +653,9 @@ viewScreenVerifiedEmail state =
         , View.Dashboard.sectionGroup []
             [ View.Recovery.buttonRecoverAccount
                 { onRecoverAccount = VerifiedRecoverAccount
-                , isLoading = RemoteData.isLoading state.updateDID
+                , isLoading =
+                    RemoteData.isLoading state.publicWriteKey
+                        || RemoteData.isLoading state.updateDID
                 }
             ]
         ]

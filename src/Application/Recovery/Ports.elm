@@ -47,3 +47,6 @@ port fetchWritePublicKey : () -> Cmd msg
 
 
 port writePublicKeyFetched : (String -> msg) -> Sub msg
+
+
+port writePublicKeyFailure : (String -> msg) -> Sub msg

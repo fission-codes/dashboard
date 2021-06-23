@@ -48,6 +48,8 @@ const elmApp = Elm.Recovery.Main.init({
   }
 })
 
+window["elmApp"] = elmApp
+
 elmApp.ports.verifyBackup.subscribe(async (backup: { username: string, key: string }) => {
   try {
     const ipfsPromise = webnativeIpfs.get()
@@ -154,7 +156,11 @@ elmApp.ports.saveBackup.subscribe(async (backup: string) => {
 
 
 elmApp.ports.fetchWritePublicKey.subscribe(async () => {
-  await crypto.keystore.clear()
-  const pubKeyBase64 = await crypto.keystore.publicWriteKey()
-  console.log(pubKeyBase64)
+  try {
+    await webnative.keystore.clear()
+    const publicKeyBase64 = await crypto.keystore.publicWriteKey()
+    elmApp.ports.writePublicKeyFetched.send(publicKeyBase64)
+  } catch (e) {
+    elmApp.ports.writePublicKeyFailure.send(e.message)
+  }
 })

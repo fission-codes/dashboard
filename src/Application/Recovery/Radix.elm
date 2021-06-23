@@ -78,6 +78,7 @@ type UsernameError
 type alias StateVerifiedEmail =
     { username : String
     , challenge : String
+    , publicWriteKey : RemoteData String String
     , updateDID : WebData ()
     }
 
@@ -108,6 +109,7 @@ type Msg
     | RegainClickedSendEmail
       -- Verified Email Screen
     | VerifiedRecoverAccount
+    | VerifiedPublicKeyFetched (Result String String)
 
 
 type alias VerifyBackupError =
