@@ -45,29 +45,33 @@ init flags url navKey =
     ( { navKey = navKey
       , endpoints = flags.endpoints
       , url = url
-      , recoveryState =
-            case Route.parseChallenge url of
-                Just challenge ->
-                    case flags.savedRecovery.username of
-                        Just username ->
-                            ScreenVerifiedEmail
-                                { username = username
-                                , challenge = challenge
-                                , publicWriteKey = RemoteData.NotAsked
-                                , updateDID = RemoteData.NotAsked
-                                }
-
-                        Nothing ->
-                            ScreenWrongBrowser
-
-                Nothing ->
-                    ScreenRecoverAccount
-                        { backupUpload = RemoteData.NotAsked
-                        , sentEmail = RemoteData.NotAsked
-                        }
+      , recoveryState = stateFromUrl flags url
       }
     , Cmd.none
     )
+
+
+stateFromUrl : Flags -> Url -> State
+stateFromUrl flags url =
+    case Route.parseChallenge url of
+        Just challenge ->
+            case flags.savedRecovery.username of
+                Just username ->
+                    ScreenVerifiedEmail
+                        { username = username
+                        , challenge = challenge
+                        , publicWriteKey = RemoteData.NotAsked
+                        , updateDID = RemoteData.NotAsked
+                        }
+
+                Nothing ->
+                    ScreenWrongBrowser
+
+        Nothing ->
+            ScreenRecoverAccount
+                { backupUpload = RemoteData.NotAsked
+                , sentEmail = RemoteData.NotAsked
+                }
 
 
 
@@ -285,8 +289,30 @@ update msg model =
         VerifiedPublicKeyFetched result ->
             updateScreenVerifiedEmail model
                 (\state ->
-                    ( { state | publicWriteKey = RemoteData.fromResult result }
-                    , Cmd.none
+                    case result of
+                        Ok writeKey ->
+                            ( { state | publicWriteKey = RemoteData.Success writeKey }
+                            , Api.updateUserDID
+                                { endpoints = model.endpoints
+                                , username = state.username
+                                , publicKey = writeKey
+                                , challenge = state.challenge
+                                , onResult = VerifiedUserDIDUpdated
+                                }
+                            )
+
+                        Err error ->
+                            ( { state | publicWriteKey = RemoteData.Failure error }
+                            , Cmd.none
+                            )
+                )
+
+        VerifiedUserDIDUpdated result ->
+            updateScreenVerifiedEmail model
+                (\state ->
+                    ( { state | updateDID = RemoteData.fromResult result }
+                    , -- TODO
+                      Cmd.none
                     )
                 )
 
@@ -294,26 +320,30 @@ update msg model =
         -- URL
         -----------------------------------------
         UrlChanged url ->
-            ( { model | url = url }
+            ( { model
+                | url = url
+                , recoveryState =
+                    stateFromUrl
+                        { endpoints = model.endpoints
+                        , savedRecovery = { username = Nothing, key = Nothing }
+                        }
+                        url
+              }
             , Cmd.none
             )
-
-        UrlChangedFromOutside str ->
-            case Url.fromString str of
-                Just url ->
-                    ( { model | url = url }
-                    , Cmd.none
-                    )
-
-                Nothing ->
-                    ( model
-                    , Ports.log [ E.string "Couldn't parse url:", E.string str ]
-                    )
 
         UrlRequested request ->
             case request of
                 Browser.Internal url ->
-                    ( { model | url = url }
+                    ( { model
+                        | url = url
+                        , recoveryState =
+                            stateFromUrl
+                                { endpoints = model.endpoints
+                                , savedRecovery = { username = Nothing, key = Nothing }
+                                }
+                                url
+                      }
                     , Navigation.pushUrl model.navKey (Url.toString url)
                     )
 
@@ -439,7 +469,7 @@ view model =
                         viewScreenRegainAccess state
 
                 ScreenVerifiedEmail state ->
-                    viewScreenVerifiedEmail state
+                    viewScreenVerifiedEmail model.url state
 
                 ScreenWrongBrowser ->
                     viewScreenWrongBrowser
@@ -608,6 +638,12 @@ viewScreenRegainAccess state =
                                     Http.BadStatus 422 ->
                                         [ View.Common.warning [ Html.text "Couldn't find an account with this username." ] ]
 
+                                    Http.Timeout ->
+                                        [ timeoutErrorMessage ]
+
+                                    Http.NetworkError ->
+                                        [ networkErrorMessage ]
+
                                     _ ->
                                         [ View.Common.warning [ Html.text "Something went wrong when trying to send an email." ]
                                         , Html.br [] []
@@ -627,8 +663,8 @@ viewScreenRegainAccess state =
     ]
 
 
-viewScreenVerifiedEmail : StateVerifiedEmail -> List (Html Msg)
-viewScreenVerifiedEmail state =
+viewScreenVerifiedEmail : Url -> StateVerifiedEmail -> List (Html Msg)
+viewScreenVerifiedEmail url state =
     [ View.Dashboard.heading [ Html.text "Recover your Account" ]
     , View.Common.sectionSpacer
     , View.Dashboard.section []
@@ -651,13 +687,55 @@ viewScreenVerifiedEmail state =
             , Html.text "Any apps you’re still signed in with need to be signed out and in again."
             ]
         , View.Dashboard.sectionGroup []
-            [ View.Recovery.buttonRecoverAccount
-                { onRecoverAccount = VerifiedRecoverAccount
-                , isLoading =
-                    RemoteData.isLoading state.publicWriteKey
-                        || RemoteData.isLoading state.updateDID
-                }
-            ]
+            (List.append
+                [ View.Recovery.buttonRecoverAccount
+                    { onRecoverAccount = VerifiedRecoverAccount
+                    , isLoading =
+                        RemoteData.isLoading state.publicWriteKey
+                            || RemoteData.isLoading state.updateDID
+                    }
+                ]
+                (case ( state.updateDID, state.publicWriteKey ) of
+                    ( RemoteData.Failure httpError, _ ) ->
+                        case httpError of
+                            Http.BadStatus 422 ->
+                                [ View.Common.warning [ Html.text "Couldn't find an account with the username referred to in the backup." ] ]
+
+                            Http.BadStatus 404 ->
+                                [ View.Common.warning
+                                    [ Html.text "The recovery code isn't valid."
+                                    , Html.br [] []
+                                    , Html.text "It might have expired or only valid for another user."
+                                    ]
+                                , View.Recovery.restartRecoveryLink { url | query = Nothing }
+                                ]
+
+                            Http.Timeout ->
+                                [ timeoutErrorMessage ]
+
+                            Http.NetworkError ->
+                                [ networkErrorMessage ]
+
+                            _ ->
+                                [ View.Common.warning
+                                    [ Html.text "Something went wrong when trying to recover your account."
+                                    , Html.br [] []
+                                    , View.Recovery.contactSupportMessage True
+                                    ]
+                                ]
+
+                    ( _, RemoteData.Failure _ ) ->
+                        [ View.Common.warning
+                            [ Html.text "Something went wrong when trying to generate a new identity for your account."
+                            , Html.br [] []
+                            , View.Recovery.contactSupportMessage True
+                            ]
+                        ]
+
+                    _ ->
+                        []
+                )
+            )
         ]
     ]
 
@@ -683,7 +761,7 @@ viewScreenWrongBrowser =
 
 
 
---
+-- Utilities
 
 
 parseBackup : String -> Result VerifyBackupError SecureBackup
@@ -714,3 +792,25 @@ parseBackup content =
             { message = "Couldn’t validate the backup."
             , contactSupport = True
             }
+
+
+
+-- Common Error Messages
+
+
+timeoutErrorMessage : Html msg
+timeoutErrorMessage =
+    View.Common.warning
+        [ Html.text "Timed out. Is the connection perhaps really slow?"
+        , Html.br [] []
+        , View.Recovery.contactSupportMessage True
+        ]
+
+
+networkErrorMessage : Html msg
+networkErrorMessage =
+    View.Common.warning
+        [ Html.text "Something went wrong while trying to talk to fission servers. Are you perhaps offline?"
+        , Html.br [] []
+        , View.Recovery.contactSupportMessage False
+        ]

@@ -9,6 +9,7 @@ import Html.Styled.Events as Events
 import Json.Decode as Json
 import Tailwind.Breakpoints exposing (..)
 import Tailwind.Utilities exposing (..)
+import Url exposing (Url)
 import View.Common exposing (dark)
 import View.Dashboard
 
@@ -187,17 +188,22 @@ iHaveNoBackupButton : { onClick : msg } -> Html msg
 iHaveNoBackupButton element =
     button
         [ Events.onClick element.onClick
-        , css
-            [ decoration_color_gray_300
-            , font_display
-            , italic
-            , mx_auto
-            , text_gray_300
-            , text_sm
-            , underline
-            ]
+        , css [ secondaryLinkStyle ]
         ]
         [ text "I don’t have a backup" ]
+
+
+secondaryLinkStyle : Css.Style
+secondaryLinkStyle =
+    Css.batch
+        [ decoration_color_gray_300
+        , font_display
+        , italic
+        , mx_auto
+        , text_gray_300
+        , text_sm
+        , underline
+        ]
 
 
 contactSupportMessage : Bool -> Html msg
@@ -349,3 +355,12 @@ buttonRecoverAccount element =
         , style = View.Common.primaryDangerButtonStyle
         , spinnerStyle = [ View.Common.primaryButtonLoaderStyle ]
         }
+
+
+restartRecoveryLink : Url -> Html msg
+restartRecoveryLink url =
+    a
+        [ href (Url.toString url)
+        , css [ secondaryLinkStyle ]
+        ]
+        [ text "Restart Recovery Process" ]

@@ -91,7 +91,6 @@ type alias StateVerifiedEmail =
 type Msg
     = -- URL
       UrlChanged Url
-    | UrlChangedFromOutside String
     | UrlRequested UrlRequest
       -- Account Recovery Screen
     | RecoverySelectedBackup (List File)
@@ -110,6 +109,7 @@ type Msg
       -- Verified Email Screen
     | VerifiedRecoverAccount
     | VerifiedPublicKeyFetched (Result String String)
+    | VerifiedUserDIDUpdated (Result Http.Error ())
 
 
 type alias VerifyBackupError =
