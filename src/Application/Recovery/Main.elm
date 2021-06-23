@@ -308,13 +308,29 @@ update msg model =
                 )
 
         VerifiedUserDIDUpdated result ->
-            updateScreenVerifiedEmail model
-                (\state ->
-                    ( { state | updateDID = RemoteData.fromResult result }
-                    , -- TODO
-                      Cmd.none
-                    )
-                )
+            case model.recoveryState of
+                ScreenVerifiedEmail state ->
+                    case result of
+                        Ok () ->
+                            ( { model
+                                | recoveryState =
+                                    ScreenLinkingStep1
+                                        { username = state.username }
+                              }
+                            , -- TODO
+                              Cmd.none
+                            )
+
+                        Err httpError ->
+                            ( { model
+                                | recoveryState =
+                                    ScreenVerifiedEmail { state | updateDID = RemoteData.Failure httpError }
+                              }
+                            , Cmd.none
+                            )
+
+                _ ->
+                    ( model, Cmd.none )
 
         -----------------------------------------
         -- URL
@@ -440,6 +456,9 @@ subscriptions model =
         ScreenWrongBrowser ->
             Sub.none
 
+        ScreenLinkingStep1 _ ->
+            Sub.none
+
 
 
 -- 🌄
@@ -473,6 +492,9 @@ view model =
 
                 ScreenWrongBrowser ->
                     viewScreenWrongBrowser
+
+                ScreenLinkingStep1 state ->
+                    viewScreenLinkingStep1 model.endpoints.lobby state
             )
             |> Html.toUnstyled
         ]
@@ -756,6 +778,24 @@ viewScreenWrongBrowser =
             [ Html.text "Did you start the recovery process in another browser?"
             , Html.text "If you can’t remember having started a recovery process, then please just delete the e-mail you received."
             ]
+        ]
+    ]
+
+
+viewScreenLinkingStep1 : String -> StateLinkingStep1 -> List (Html Msg)
+viewScreenLinkingStep1 lobbyUrl state =
+    [ View.Dashboard.heading [ Html.text "Recover your Account" ]
+    , View.Common.sectionSpacer
+    , View.Dashboard.section []
+        [ View.Recovery.steps
+            [ View.Recovery.step 1 False "upload your secure backup file"
+            , View.Recovery.step 2 False "verify your e-mail address"
+            , View.Recovery.step 3 True "re-link your fission account"
+            ]
+        , View.Recovery.openAuthLobbyMessage
+            { lobbyUrl = lobbyUrl
+            , username = state.username
+            }
         ]
     ]
 

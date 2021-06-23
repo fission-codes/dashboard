@@ -55,6 +55,7 @@ type State
     | ScreenRegainAccess StateRegainAccess
     | ScreenVerifiedEmail StateVerifiedEmail
     | ScreenWrongBrowser
+    | ScreenLinkingStep1 StateLinkingStep1
 
 
 type alias StateRecoverAccount =
@@ -83,8 +84,12 @@ type alias StateVerifiedEmail =
     }
 
 
+type alias StateLinkingStep1 =
+    { username : String
+    }
 
--- | UploadSuccess SecureBackup
+
+
 -- 📣
 
 

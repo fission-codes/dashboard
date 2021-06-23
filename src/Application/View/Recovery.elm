@@ -364,3 +364,29 @@ restartRecoveryLink url =
         , css [ secondaryLinkStyle ]
         ]
         [ text "Restart Recovery Process" ]
+
+
+openAuthLobbyMessage : { lobbyUrl : String, username : String } -> Html msg
+openAuthLobbyMessage element =
+    View.Dashboard.sectionGroup [ min_h_120px ]
+        [ div
+            [ css
+                [ m_auto
+                , max_w_sm
+                , text_center
+                , View.Common.infoTextStyle
+                ]
+            ]
+            [ text "Keep this page open."
+            , br [] []
+            , text "Open "
+            , View.Common.underlinedLink []
+                { location = element.lobbyUrl
+                , external = True
+                }
+                [ text element.lobbyUrl ]
+            , text " and sign in as "
+            , i [] [ text element.username ]
+            , text " to complete recovery."
+            ]
+        ]
