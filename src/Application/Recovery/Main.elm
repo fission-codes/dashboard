@@ -285,7 +285,7 @@ update msg model =
                     )
                 )
 
-        VerifiedRecoverAccount ->
+        VerifiedClickedRecoverAccount ->
             updateScreenVerifiedEmail model
                 (\state ->
                     ( { state | publicWriteKey = RemoteData.Loading }
@@ -304,7 +304,7 @@ update msg model =
                                 , username = state.username
                                 , publicKey = writeKey
                                 , challenge = state.challenge
-                                , onResult = VerifiedUserDIDUpdated
+                                , onResult = Result.map (\_ -> writeKey) >> VerifiedUserDIDUpdated
                                 }
                             )
 
@@ -318,7 +318,7 @@ update msg model =
             case model.recoveryState of
                 ScreenVerifiedEmail state ->
                     case result of
-                        Ok () ->
+                        Ok writePublicKey ->
                             ( { model
                                 | recoveryState =
                                     ScreenLinkingStep1
@@ -326,8 +326,10 @@ update msg model =
                                         , savedKey = state.savedKey
                                         }
                               }
-                            , -- TODO
-                              Cmd.none
+                            , Ports.justLikeLinkTheAccountsAndStuff
+                                { username = state.username
+                                , rootPublicKey = writePublicKey
+                                }
                             )
 
                         Err httpError ->
@@ -708,7 +710,7 @@ viewScreenVerifiedEmail url state =
         , View.Dashboard.sectionGroup []
             (List.append
                 [ View.Recovery.buttonRecoverAccount
-                    { onRecoverAccount = VerifiedRecoverAccount
+                    { onRecoverAccount = VerifiedClickedRecoverAccount
                     , isLoading =
                         RemoteData.isLoading state.publicWriteKey
                             || RemoteData.isLoading state.updateDID

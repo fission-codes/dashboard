@@ -114,9 +114,9 @@ type Msg
     | RegainUsernameExists { username : String, exists : Bool, valid : Bool }
     | RegainClickedSendEmail
       -- Verified Email Screen
-    | VerifiedRecoverAccount
+    | VerifiedClickedRecoverAccount
     | VerifiedPublicKeyFetched (Result String String)
-    | VerifiedUserDIDUpdated (Result Http.Error ())
+    | VerifiedUserDIDUpdated (Result Http.Error String)
 
 
 type alias VerifyBackupError =

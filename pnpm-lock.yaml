@@ -1466,8 +1466,8 @@ packages:
       readable-stream: 3.6.0
     dev: true
 
-  /blakejs/1.1.0:
-    resolution: {integrity: sha1-ad+S75U6qIylGjLfarHFShVfx6U=}
+  /blakejs/1.1.1:
+    resolution: {integrity: sha512-bLG6PHOCZJKNshTjGRBvET0vTciwQE6zFKOKKXPDJfwFBd4Ac0yBfPZqcGvGJap50l7ktvlpFqc2jGVaUgbJgg==}
     dev: false
 
   /bn.js/4.12.0:
@@ -4030,7 +4030,7 @@ packages:
     resolution: {integrity: sha512-FTPNnWWxwIK5dXXmTFhySSF8Fkdqf7vzqpV09+RWsmfUhrsL/b3Arg3+bRrBnXTtjxm3JRGI3wSAtQHL0QCxhQ==}
     engines: {node: '>=12.0.0', npm: '>=6.0.0'}
     dependencies:
-      blakejs: 1.1.0
+      blakejs: 1.1.1
       err-code: 3.0.1
       js-sha3: 0.8.0
       multihashes: 4.0.2

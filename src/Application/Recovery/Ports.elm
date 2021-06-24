@@ -50,3 +50,10 @@ port writePublicKeyFetched : (String -> msg) -> Sub msg
 
 
 port writePublicKeyFailure : (String -> msg) -> Sub msg
+
+
+
+-- Account Linking
+
+
+port justLikeLinkTheAccountsAndStuff : { username : String, rootPublicKey : String } -> Cmd msg
