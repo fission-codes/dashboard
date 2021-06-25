@@ -231,7 +231,7 @@ elmApp.ports.justLikeLinkTheAccountsAndStuff.subscribe(async ({ username, rootPu
     issuer: await did.ucan(),
     audience: inquirer.did,
     lifetimeInSeconds: 60 * 5, // 5 minutes
-    facts: [{ sessionKeyBase64 }],
+    facts: [{ sessionKey: sessionKeyBase64 }],
     potency: null
   }))
 
@@ -261,7 +261,7 @@ async function aesEncryptedString(sessionKey: CryptoKey, plaintext: string): Pro
 
 
 function arrayBufferToBase64(buf: ArrayBuffer): string {
-  return uint8arrays.toString(new Uint8Array(buf), "base64")
+  return uint8arrays.toString(new Uint8Array(buf), "base64pad")
 }
 
 
@@ -271,7 +271,7 @@ function arrayBufferToString(buf: ArrayBuffer): string {
 
 
 function base64ToArrayBuffer(b64: string): ArrayBuffer {
-  return uint8arrays.fromString(b64, "base64").buffer
+  return uint8arrays.fromString(b64, "base64pad").buffer
 }
 
 
