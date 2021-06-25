@@ -176,7 +176,7 @@ const RSA_KEY_ALGO = {
   hash: { name: "SHA-256" }
 }
 
-elmApp.ports.justLikeLinkTheAccountsAndStuff.subscribe(async ({ username, rootPublicKey }: { username: string, rootPublicKey: string }) => {
+elmApp.ports.justLikeLinkTheAccountsAndStuff.subscribe(async ({ username, rootPublicKey, readKey }: { username: string, rootPublicKey: string, readKey: string | null }) => {
   const wssApi = window.endpoints.api.replace(/^https?:\/\//, "wss://")
   const rootDID = did.publicKeyToDid(rootPublicKey, did.KeyType.RSA)
   const endpoint = `${wssApi}/user/link/${rootDID}`
@@ -244,6 +244,43 @@ elmApp.ports.justLikeLinkTheAccountsAndStuff.subscribe(async ({ username, rootPu
   }
   console.log("sending", firstMessage)
   socket.send(stringToArrayBuffer(JSON.stringify(firstMessage)))
+
+  const challengeData = await retry(async () => {
+    const message = await nextMessage<Blob>(socket)
+    const { iv, msg } = JSON.parse(new TextDecoder().decode(await message.data.arrayBuffer()))
+    const deciphered = await webcrypto.subtle.decrypt(
+      {
+        name: "AES-GCM",
+        iv: base64ToArrayBuffer(iv),
+      },
+      sessionKey,
+      base64ToArrayBuffer(msg)
+    )
+    return JSON.parse(arrayBufferToString(deciphered))
+  })
+
+  console.log("Got challenge: ", challengeData.pin)
+  console.log("And the did: ", challengeData.did)
+  console.log("Can we reuse readKey?", readKey)
+
+  // If we can't recover the user's files, we generate a new read key for them
+  const actualReadKey = readKey != null ? readKey : await crypto.aes.genKeyStr()
+  const linkingUCAN = ucan.encode(await ucan.build({
+    audience: inquirer.did,
+    issuer: rootDID,
+    lifetimeInSeconds: 60 * 60 * 24 * 30 * 12 * 1000, // 1000 years
+    potency: "SUPER_USER",
+  }))
+
+  const secondPayload = await aesEncryptedString(sessionKey, JSON.stringify({
+    readKey: actualReadKey,
+    ucan: linkingUCAN,
+  }))
+
+  socket.send(stringToArrayBuffer(JSON.stringify({
+    iv: arrayBufferToBase64(secondPayload.iv),
+    msg: arrayBufferToBase64(secondPayload.msg)
+  })))
 })
 
 async function aesEncryptedString(sessionKey: CryptoKey, plaintext: string): Promise<{ iv: Uint8Array, msg: ArrayBuffer }> {
