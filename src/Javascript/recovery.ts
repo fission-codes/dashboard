@@ -160,7 +160,8 @@ elmApp.ports.saveBackup.subscribe(async (backup: string) => {
 
 elmApp.ports.fetchWritePublicKey.subscribe(async () => {
   try {
-    // await webnative.keystore.clear() FIXME commented out for testing
+    // Make sure to generate a new publicWriteKey
+    await webnative.keystore.clear()
     const publicKeyBase64 = await crypto.keystore.publicWriteKey()
     elmApp.ports.writePublicKeyFetched.send(publicKeyBase64)
   } catch (e) {
@@ -177,6 +178,11 @@ const RSA_KEY_ALGO = {
 }
 
 elmApp.ports.justLikeLinkTheAccountsAndStuff.subscribe(async ({ username, rootPublicKey, readKey }: { username: string, rootPublicKey: string, readKey: string | null }) => {
+  const keystorePublicWriteKey = await crypto.keystore.publicWriteKey()
+  if (keystorePublicWriteKey !== rootPublicKey) {
+    console.error("The public key in the keystore is not the same as the public key used for account recovery", keystorePublicWriteKey, rootPublicKey)
+  }
+
   const wssApi = window.endpoints.api.replace(/^https?:\/\//, "wss://")
   const rootDID = did.publicKeyToDid(rootPublicKey, did.KeyType.RSA)
   const endpoint = `${wssApi}/user/link/${rootDID}`
@@ -189,7 +195,7 @@ elmApp.ports.justLikeLinkTheAccountsAndStuff.subscribe(async ({ username, rootPu
     console.log("Cool. I got a message:", messageRaw)
   }
 
-  const inquirer = await retry(async () => {
+  const inquirerThrowawayKeys = await retry(async () => {
     const msg = await nextMessage<Blob>(socket)
     const raw = new TextDecoder().decode(await msg.data.arrayBuffer())
     const { publicKey } = did.didToPublicKey(raw) // Also ensures that it's a valid did
@@ -207,7 +213,7 @@ elmApp.ports.justLikeLinkTheAccountsAndStuff.subscribe(async ({ username, rootPu
     };
   })
 
-  console.log("Got the public key!", inquirer.did)
+  console.log("Got the throwaway exchange key!", inquirerThrowawayKeys.did)
 
   const sessionKey = await webcrypto.subtle.generateKey(
     {
@@ -223,16 +229,17 @@ elmApp.ports.justLikeLinkTheAccountsAndStuff.subscribe(async ({ username, rootPu
 
   const encryptedSessionKey = await webcrypto.subtle.encrypt(
     { name: "RSA-OAEP" },
-    inquirer.importedPublicKey,
+    inquirerThrowawayKeys.importedPublicKey,
     sessionKeyRaw
   )
 
   const sessionKeyExchangeUcan = ucan.encode(await ucan.build({
-    issuer: await did.ucan(),
-    audience: inquirer.did,
+    issuer: await did.write(),
+    audience: inquirerThrowawayKeys.did,
     lifetimeInSeconds: 60 * 5, // 5 minutes
     facts: [{ sessionKey: sessionKeyBase64 }],
-    potency: null
+    potency: null,
+    proof: null, // We just reconstructed the account. did.write is the user's root did, so we don't need to have delegated rights
   }))
 
   const { iv, msg } = await aesEncryptedString(sessionKey, sessionKeyExchangeUcan)
@@ -266,11 +273,18 @@ elmApp.ports.justLikeLinkTheAccountsAndStuff.subscribe(async ({ username, rootPu
   // If we can't recover the user's files, we generate a new read key for them
   const actualReadKey = readKey != null ? readKey : await crypto.aes.genKeyStr()
   const linkingUCAN = ucan.encode(await ucan.build({
-    audience: inquirer.did,
+    audience: challengeData.did,
     issuer: rootDID,
     lifetimeInSeconds: 60 * 60 * 24 * 30 * 12 * 1000, // 1000 years
     potency: "SUPER_USER",
   }))
+
+  if (!await ucan.isValid(ucan.decode(linkingUCAN))) {
+    console.error("Ucan is invalid. Have to stop")
+    return
+  } else {
+    console.log("UCAN IS VALID")
+  }
 
   const secondPayload = await aesEncryptedString(sessionKey, JSON.stringify({
     readKey: actualReadKey,

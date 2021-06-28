@@ -329,6 +329,7 @@ update msg model =
                             , Ports.justLikeLinkTheAccountsAndStuff
                                 { username = state.username
                                 , rootPublicKey = writePublicKey
+                                , readKey = state.savedKey
                                 }
                             )
 
