@@ -196,7 +196,7 @@ elmApp.ports.justLikeLinkTheAccountsAndStuff.subscribe(async ({ username, rootPu
   
   console.log("Successfully established a secure connection")
 
-  const challengeData: { pin: number, did: string } = await retry(encryptedChannel.receive, { interval: 200, maxRetries: 10 })
+  const challengeData: { pin: number, did: string } = await retry(async () => await encryptedChannel.receive(), { interval: 200, maxRetries: 10 })
 
   console.log("Got challenge: ", challengeData.pin)
   console.log("And the did: ", challengeData.did)
