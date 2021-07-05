@@ -298,7 +298,10 @@ update msg model =
                 (\state ->
                     case result of
                         Ok writeKey ->
-                            ( { state | publicWriteKey = RemoteData.Success writeKey }
+                            ( { state
+                                | publicWriteKey = RemoteData.Success writeKey
+                                , updateDID = RemoteData.Loading
+                              }
                             , Api.updateUserDID
                                 { endpoints = model.endpoints
                                 , username = state.username
