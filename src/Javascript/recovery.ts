@@ -184,6 +184,10 @@ elmApp.ports.justLikeLinkTheAccountsAndStuff.subscribe(async ({ username, rootPu
   const socketChannel = new WebSocketChannel(socket)
   const textChannel = new TextEncodedChannel(socketChannel)
 
+  console.log("Connected to websocket at", endpoint)
+
+  socket.onmessage = m => console.log("got websocket response", m.data)
+
   while (socket.readyState === socket.OPEN || socket.readyState === socket.CONNECTING) {
     try {
       console.log("Trying to run awake protocol")
@@ -201,6 +205,10 @@ elmApp.ports.justLikeLinkTheAccountsAndStuff.subscribe(async ({ username, rootPu
           // FIXME: Change to elmApp.ports.*.subscribe and *.send, etc.
           resolve(true)
         })
+      }, {
+        log: console.log,
+        retriesOnMessages: 10,
+        retryIntervalMs: 200,
       })
 
       if (authorized) {
