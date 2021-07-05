@@ -3,12 +3,12 @@ import * as did from "webnative/did/index"
 import * as dataRoot from "webnative/data-root"
 import * as webnativeIpfs from "webnative/ipfs/index"
 import * as crypto from "webnative/crypto/index"
-import * as ucan from "webnative/ucan/index"
-import { WebSocketChannel, EncryptedChannel, TextEncodedChannel, JSONChannel, Channel } from "webnative/realtime/channel"
 import * as namefilter from "webnative/fs/protocol/private/namefilter"
-import * as uint8arrays from "uint8arrays"
 import MMPT from "webnative/fs/protocol/private/mmpt"
 import throttle from "lodash/throttle"
+
+import * as awake from "./awake"
+import { WebSocketChannel, EncryptedChannel, TextEncodedChannel, JSONChannel, Channel } from "./channel"
 
 //----------------------------------------
 // GLOBALS / CONFIG
@@ -170,12 +170,6 @@ elmApp.ports.fetchWritePublicKey.subscribe(async () => {
   }
 })
 
-const RSA_KEY_ALGO = {
-  name: "RSA-OAEP",
-  modulusLength: 2048,
-  publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
-  hash: { name: "SHA-256" }
-}
 
 elmApp.ports.justLikeLinkTheAccountsAndStuff.subscribe(async ({ username, rootPublicKey, readKey }: { username: string, rootPublicKey: string, readKey: string | null }) => {
   const keystorePublicWriteKey = await crypto.keystore.publicWriteKey()
@@ -189,144 +183,26 @@ elmApp.ports.justLikeLinkTheAccountsAndStuff.subscribe(async ({ username, rootPu
   const socketChannel = new WebSocketChannel(new WebSocket(endpoint))
   const textChannel = new TextEncodedChannel(socketChannel)
 
-  const encryptedChannel = new JSONChannel(new TextEncodedChannel(await retry(async () => {
-    const throwawayDID = await textChannel.receive()
-    return await establishSecureChannelWith(throwawayDID, socketChannel)
-  })))
-  
-  console.log("Successfully established a secure connection")
-
-  const challengeData: { pin: number, did: string } = await retry(async () => await encryptedChannel.receive(), { interval: 200, maxRetries: 10 })
-
-  console.log("Got challenge: ", challengeData.pin)
-  console.log("And the did: ", challengeData.did)
-  console.log("Can we reuse readKey?", readKey != null)
-
-  // If we can't recover the user's files, we generate a new read key for them
-  const actualReadKey = readKey != null ? readKey : await crypto.aes.genKeyStr()
-  const linkingUCAN = ucan.encode(await ucan.build({
-    audience: challengeData.did,
-    issuer: rootDID,
-    lifetimeInSeconds: 60 * 60 * 24 * 30 * 12 * 1000, // 1000 years
-    potency: "SUPER_USER",
-  }))
-
-  if (!await ucan.isValid(ucan.decode(linkingUCAN))) {
-    console.error("Ucan is invalid. Have to stop")
-    return
-  }
-
-  console.log("Sending Ucan")
-
-  encryptedChannel.send({
-    readKey: actualReadKey,
-    ucan: linkingUCAN,
-  })
-})
-
-async function establishSecureChannelWith(recipientDID: string, baseChannel: Channel<ArrayBuffer>, crypto?: SubtleCrypto): Promise<EncryptedChannel> {
-  crypto = crypto || (globalThis.crypto as any).webcrypto?.subtle || globalThis.crypto.subtle
-  const { publicKey } = did.didToPublicKey(recipientDID) // Also ensures that it's a valid did
-  const recipientPubKey = await crypto.importKey(
-    "spki",
-    base64ToArrayBuffer(publicKey),
-    RSA_KEY_ALGO,
-    false,
-    [ "encrypt" ]
-  )
-
-  const sessionKey = await crypto.generateKey(
-    {
-      name: "AES-GCM",
-      length: 256
-    },
-    true,
-    [ "encrypt", "decrypt" ]
-  )
-
-  const sessionKeyRaw = await crypto.exportKey("raw", sessionKey)
-  const sessionKeyBase64 = arrayBufferToBase64(sessionKeyRaw)
-
-  const encryptedSessionKey = await crypto.encrypt(
-    { name: "RSA-OAEP" },
-    recipientPubKey,
-    sessionKeyRaw
-  )
-
-  const sessionKeyExchangeUcan = ucan.encode(await ucan.build({
-    issuer: await did.write(),
-    audience: recipientDID,
-    lifetimeInSeconds: 60 * 5, // 5 minutes
-    facts: [{ sessionKey: sessionKeyBase64 }],
-    potency: null,
-    proof: null, // We just reconstructed the account. did.write is the user's root did, so we don't need to have delegated rights
-  }))
-
-  const { iv, msg } = await aesEncryptedString(sessionKey, sessionKeyExchangeUcan)
-
-  const firstMessage = {
-    iv: arrayBufferToBase64(iv),
-    msg: arrayBufferToBase64(msg),
-    sessionKey: arrayBufferToBase64(encryptedSessionKey),
-  }
-  console.log("sending", firstMessage)
-  baseChannel.send(stringToArrayBuffer(JSON.stringify(firstMessage)))
-
-  return new EncryptedChannel(sessionKey, baseChannel, crypto)
-}
-
-async function aesEncryptedString(sessionKey: CryptoKey, plaintext: string): Promise<{ iv: Uint8Array, msg: ArrayBuffer }> {
-  const iv = window.crypto.getRandomValues(new Uint8Array(16))
-  const msg = await window.crypto.subtle.encrypt(
-    {
-      name: "AES-GCM",
-      iv: iv
-    },
-    sessionKey,
-    uint8arrays.fromString(plaintext)
-  )
-  return { iv, msg }
-}
-
-
-function arrayBufferToBase64(buf: ArrayBuffer): string {
-  return uint8arrays.toString(new Uint8Array(buf), "base64pad")
-}
-
-
-function arrayBufferToString(buf: ArrayBuffer): string {
-  return new TextDecoder().decode(buf)
-}
-
-
-function base64ToArrayBuffer(b64: string): ArrayBuffer {
-  return uint8arrays.fromString(b64, "base64pad").buffer
-}
-
-
-function stringToArrayBuffer(str: string): ArrayBuffer {
-  return new TextEncoder().encode(str).buffer
-}
-
-
-async function retry<T>(
-    action: () => Promise<T>,
-    { maxRetries, signal, interval }: { maxRetries?: number, signal?: AbortSignal | null, interval?: number } = { maxRetries: -1, signal: null, interval: 200 }
-  ): Promise<T> {
-  const errors = []
-  maxRetries = maxRetries || -1
-  interval = interval || 200
-  while (maxRetries-- !== 0) {
-    if (signal != null && signal.aborted) {
-      errors.push(new Error("Action aborted."))
-      throw errors
-    }
+  while (true) {
     try {
-      return await action()
-    } catch (e) {
-      errors.push(e)
-    }
-    await new Promise(resolve => setTimeout(resolve, interval))
+      const throwawayDID = await textChannel.receive()
+
+      // If we can't recover the user's files, we generate a new read key for them
+      const actualReadKey = readKey != null ? readKey : await crypto.aes.genKeyStr()
+
+      const authorized = awake.authorize({
+        inquirerThrowawayDID: throwawayDID,
+        channel: socketChannel,
+        readKey: actualReadKey,
+        validChallenge: challenge => new Promise((resolve, reject) => {
+          // FIXME: Change to elmApp.ports.*.subscribe and *.send, etc.
+          resolve(true)
+        })
+      })
+
+      if (authorized) {
+        return
+      }
+    } catch { }
   }
-  throw errors
-}
+})
