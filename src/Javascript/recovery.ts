@@ -180,11 +180,14 @@ elmApp.ports.justLikeLinkTheAccountsAndStuff.subscribe(async ({ username, rootPu
   const wssApi = window.endpoints.api.replace(/^https?:\/\//, "wss://")
   const rootDID = did.publicKeyToDid(rootPublicKey, did.KeyType.RSA)
   const endpoint = `${wssApi}/user/link/${rootDID}`
-  const socketChannel = new WebSocketChannel(new WebSocket(endpoint))
+  const socket = new WebSocket(endpoint)
+  const socketChannel = new WebSocketChannel(socket)
   const textChannel = new TextEncodedChannel(socketChannel)
 
-  while (true) {
+  while (socket.readyState === socket.OPEN || socket.readyState === socket.CONNECTING) {
     try {
+      console.log("Trying to run awake protocol")
+
       const throwawayDID = await textChannel.receive()
 
       // If we can't recover the user's files, we generate a new read key for them
@@ -203,6 +206,9 @@ elmApp.ports.justLikeLinkTheAccountsAndStuff.subscribe(async ({ username, rootPu
       if (authorized) {
         return
       }
-    } catch { }
+    } catch (e) {
+      console.error("Failed an awake protocol try")
+      console.error(e)
+    }
   }
 })
