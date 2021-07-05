@@ -329,7 +329,7 @@ update msg model =
                                         , savedKey = state.savedKey
                                         }
                               }
-                            , Ports.justLikeLinkTheAccountsAndStuff
+                            , Ports.linkingInitiate
                                 { username = state.username
                                 , rootPublicKey = writePublicKey
                                 , readKey = state.savedKey
@@ -343,6 +343,52 @@ update msg model =
                               }
                             , Cmd.none
                             )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        LinkingGotPin challenge ->
+            case model.recoveryState of
+                ScreenLinkingStep1 state ->
+                    ( { model
+                        | recoveryState =
+                            ScreenLinkingStep2
+                                state
+                                { pin = challenge.pin
+                                , waitingForLinking = False
+                                }
+                      }
+                    , Cmd.none
+                    )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        LinkingVerifyPin ->
+            case model.recoveryState of
+                ScreenLinkingStep2 step1 step2 ->
+                    ( { model
+                        | recoveryState =
+                            ScreenLinkingStep2
+                                step1
+                                { step2 | waitingForLinking = True }
+                      }
+                    , Ports.linkingPinVerified True
+                    )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        LinkingDenyPin ->
+            case model.recoveryState of
+                ScreenLinkingStep2 step1 step2 ->
+                    if not step2.waitingForLinking then
+                        ( { model | recoveryState = ScreenLinkingStep1 step1 }
+                        , Ports.linkingPinVerified False
+                        )
+
+                    else
+                        ( model, Cmd.none )
 
                 _ ->
                     ( model, Cmd.none )
@@ -472,6 +518,10 @@ subscriptions model =
             Sub.none
 
         ScreenLinkingStep1 _ ->
+            Ports.linkingPinVerification LinkingGotPin
+
+        ScreenLinkingStep2 _ _ ->
+            -- TODO
             Sub.none
 
 
@@ -510,6 +560,9 @@ view model =
 
                 ScreenLinkingStep1 state ->
                     viewScreenLinkingStep1 model.endpoints.lobby state
+
+                ScreenLinkingStep2 step1 step2 ->
+                    viewScreenLinkingStep2 step1 step2
             )
             |> Html.toUnstyled
         ]
@@ -802,6 +855,31 @@ viewScreenLinkingStep1 lobbyUrl state =
         , View.Recovery.openAuthLobbyMessage
             { lobbyUrl = lobbyUrl
             , username = state.username
+            }
+        ]
+    ]
+
+
+viewScreenLinkingStep2 : StateLinkingStep1 -> StateLinkingStep2 -> List (Html Msg)
+viewScreenLinkingStep2 step1 step2 =
+    let
+        { heading, firstStep } =
+            flowWording (flowFromKey step1)
+    in
+    [ View.Dashboard.heading [ Html.text heading ]
+    , View.Common.sectionSpacer
+    , View.Dashboard.section []
+        [ View.Recovery.steps
+            [ View.Recovery.step 1 False firstStep
+            , View.Recovery.step 2 False "verify your e-mail address"
+            , View.Recovery.step 3 True "re-link your fission account"
+            ]
+        , View.Recovery.verifyPin
+            { username = step1.username
+            , pin = step2.pin
+            , onVerify = LinkingVerifyPin
+            , onDeny = LinkingDenyPin
+            , verificationLoading = step2.waitingForLinking
             }
         ]
     ]

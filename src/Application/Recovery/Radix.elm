@@ -56,6 +56,7 @@ type State
     | ScreenVerifiedEmail StateVerifiedEmail
     | ScreenWrongBrowser
     | ScreenLinkingStep1 StateLinkingStep1
+    | ScreenLinkingStep2 StateLinkingStep1 StateLinkingStep2
 
 
 type alias StateRecoverAccount =
@@ -91,6 +92,12 @@ type alias StateLinkingStep1 =
     }
 
 
+type alias StateLinkingStep2 =
+    { pin : List Int
+    , waitingForLinking : Bool
+    }
+
+
 
 -- 📣
 
@@ -117,6 +124,10 @@ type Msg
     | VerifiedClickedRecoverAccount
     | VerifiedPublicKeyFetched (Result String String)
     | VerifiedUserDIDUpdated (Result Http.Error String)
+      -- Linking Screen
+    | LinkingGotPin { did : String, pin : List Int }
+    | LinkingVerifyPin
+    | LinkingDenyPin
 
 
 type alias VerifyBackupError =

@@ -56,4 +56,10 @@ port writePublicKeyFailure : (String -> msg) -> Sub msg
 -- Account Linking
 
 
-port justLikeLinkTheAccountsAndStuff : { username : String, rootPublicKey : String, readKey : Maybe String } -> Cmd msg
+port linkingInitiate : { username : String, rootPublicKey : String, readKey : Maybe String } -> Cmd msg
+
+
+port linkingPinVerification : ({ did : String, pin : List Int } -> msg) -> Sub msg
+
+
+port linkingPinVerified : Bool -> Cmd msg

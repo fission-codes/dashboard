@@ -171,7 +171,7 @@ elmApp.ports.fetchWritePublicKey.subscribe(async () => {
 })
 
 
-elmApp.ports.justLikeLinkTheAccountsAndStuff.subscribe(async ({ username, rootPublicKey, readKey }: { username: string, rootPublicKey: string, readKey: string | null }) => {
+elmApp.ports.linkingInitiate.subscribe(async ({ username, rootPublicKey, readKey }: { username: string, rootPublicKey: string, readKey: string | null }) => {
   const keystorePublicWriteKey = await crypto.keystore.publicWriteKey()
   if (keystorePublicWriteKey !== rootPublicKey) {
     console.error("The public key in the keystore is not the same as the public key used for account recovery", keystorePublicWriteKey, rootPublicKey)
@@ -201,9 +201,15 @@ elmApp.ports.justLikeLinkTheAccountsAndStuff.subscribe(async ({ username, rootPu
         inquirerThrowawayDID: throwawayDID,
         channel: socketChannel,
         readKey: actualReadKey,
-        validChallenge: challenge => new Promise((resolve, reject) => {
-          // FIXME: Change to elmApp.ports.*.subscribe and *.send, etc.
-          resolve(true)
+        validChallenge: challenge => new Promise(resolve => {
+          elmApp.ports.linkingPinVerified.subscribe(pinVerified)
+
+          function pinVerified(isVerified: boolean) {
+            elmApp.ports.linkingPinVerified.unsubscribe(pinVerified)
+            resolve(isVerified)
+          }
+
+          elmApp.ports.linkingPinVerification.send(challenge)
         })
       }, {
         log: console.log,

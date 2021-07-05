@@ -368,7 +368,7 @@ restartRecoveryLink url =
 
 openAuthLobbyMessage : { lobbyUrl : String, username : String } -> Html msg
 openAuthLobbyMessage element =
-    View.Dashboard.sectionGroup [ min_h_120px ]
+    View.Dashboard.sectionGroup [ min_h_240px ]
         [ div
             [ css
                 [ m_auto
@@ -388,5 +388,84 @@ openAuthLobbyMessage element =
             , text " and sign in as "
             , i [] [ text element.username ]
             , text " to complete recovery."
+            ]
+        ]
+
+
+verifyPin :
+    { username : String
+    , pin : List Int
+    , onVerify : msg
+    , onDeny : msg
+    , verificationLoading : Bool
+    }
+    -> Html msg
+verifyPin element =
+    View.Dashboard.sectionGroup [ min_h_240px ]
+        [ div
+            [ css
+                [ flex
+                , flex_col
+                , m_auto
+                , px_5
+                , space_y_5
+                ]
+            ]
+            [ ul
+                [ css
+                    [ flex
+                    , flex_row
+                    , mx_auto
+                    , space_x_2
+                    ]
+                ]
+                (List.map
+                    (\digit ->
+                        li
+                            [ css
+                                [ font_display
+                                , text_3xl
+                                , text_gray_200
+                                , p_2
+                                , bg_gray_600
+                                , rounded_md
+                                , w_10
+                                , text_center
+                                , mx_auto
+                                ]
+                            ]
+                            [ text (String.fromInt digit) ]
+                    )
+                    element.pin
+                )
+            , span [] [ text "Do these numbers match what’s viewed on the other page?" ]
+            , div
+                [ css
+                    [ flex
+                    , font_bold
+                    , flex_row
+                    , mx_auto
+                    , space_x_5
+                    ]
+                ]
+                [ View.Common.button
+                    { label = "Yes"
+                    , icon = Just FeatherIcons.check
+                    , style = View.Common.primaryButtonStyle
+                    , spinnerStyle = [ View.Common.primaryButtonLoaderStyle ]
+                    , disabled = element.verificationLoading
+                    , isLoading = element.verificationLoading
+                    , onClick = Just element.onVerify
+                    }
+                , View.Common.button
+                    { label = "No"
+                    , icon = Just FeatherIcons.x
+                    , style = View.Common.secondaryButtonStyle
+                    , spinnerStyle = [ View.Common.primaryButtonLoaderStyle ]
+                    , disabled = element.verificationLoading
+                    , isLoading = False
+                    , onClick = Just element.onDeny
+                    }
+                ]
             ]
         ]
