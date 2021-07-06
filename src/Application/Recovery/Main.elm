@@ -32,7 +32,7 @@ main =
         , update = update
         , subscriptions = subscriptions
         , onUrlChange = UrlChanged
-        , onUrlRequest = UrlRequested
+        , onUrlRequest = LinkClicked
         }
 
 
@@ -393,6 +393,22 @@ update msg model =
                 _ ->
                     ( model, Cmd.none )
 
+        LinkingDone ->
+            case model.recoveryState of
+                ScreenLinkingStep2 state _ ->
+                    ( { model
+                        | recoveryState =
+                            ScreenFinished
+                                { username = state.username
+                                , flow = flowFromKey state
+                                }
+                      }
+                    , Cmd.none
+                    )
+
+                _ ->
+                    ( model, Cmd.none )
+
         -----------------------------------------
         -- URL
         -----------------------------------------
@@ -409,8 +425,8 @@ update msg model =
             , Cmd.none
             )
 
-        UrlRequested request ->
-            case request of
+        LinkClicked request ->
+            case Route.detectExternal request of
                 Browser.Internal url ->
                     ( { model
                         | url = url
@@ -521,7 +537,9 @@ subscriptions model =
             Ports.linkingPinVerification LinkingGotPin
 
         ScreenLinkingStep2 _ _ ->
-            -- TODO
+            Ports.linkingDone (\_ -> LinkingDone)
+
+        ScreenFinished _ ->
             Sub.none
 
 
@@ -563,6 +581,9 @@ view model =
 
                 ScreenLinkingStep2 step1 step2 ->
                     viewScreenLinkingStep2 step1 step2
+
+                ScreenFinished state ->
+                    viewScreenFinished state
             )
             |> Html.toUnstyled
         ]
@@ -885,6 +906,19 @@ viewScreenLinkingStep2 step1 step2 =
     ]
 
 
+viewScreenFinished : StateFinished -> List (Html Msg)
+viewScreenFinished state =
+    let
+        { heading } =
+            flowWording state.flow
+    in
+    [ View.Dashboard.heading [ Html.text heading ]
+    , View.Common.sectionSpacer
+    , View.Dashboard.section []
+        [ View.Recovery.finished state.username ]
+    ]
+
+
 
 -- Utilities
 
@@ -921,11 +955,6 @@ parseBackup content =
 
 
 -- Wording
-
-
-type Flow
-    = FlowRecoverAccount
-    | FlowRegainAccess
 
 
 flowFromKey : { r | savedKey : Maybe String } -> Flow

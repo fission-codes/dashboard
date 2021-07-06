@@ -63,3 +63,6 @@ port linkingPinVerification : ({ did : String, pin : List Int } -> msg) -> Sub m
 
 
 port linkingPinVerified : Bool -> Cmd msg
+
+
+port linkingDone : ({} -> msg) -> Sub msg

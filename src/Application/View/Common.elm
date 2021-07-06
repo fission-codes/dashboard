@@ -68,6 +68,7 @@ type IconSize
     | Small
     | Medium
     | Big
+    | Large
 
 
 loadingAnimation : IconSize -> List Css.Style -> Html msg
@@ -104,6 +105,9 @@ icon element =
 
                 Big ->
                     32
+
+                Large ->
+                    48
             )
         |> FeatherIcons.toHtml []
         |> fromUnstyled

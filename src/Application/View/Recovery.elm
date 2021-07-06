@@ -469,3 +469,43 @@ verifyPin element =
                 ]
             ]
         ]
+
+
+finished : String -> Html msg
+finished username =
+    View.Dashboard.sectionGroup [ min_h_240px ]
+        [ div
+            [ css
+                [ flex
+                , flex_col
+                , m_auto
+                , px_5
+                , space_y_5
+                , items_center
+                ]
+            ]
+            [ View.Common.icon
+                { icon = FeatherIcons.checkCircle
+                , size = View.Common.Large
+                , tag =
+                    span
+                        [ css
+                            [ dark
+                                [ text_darkmode_purple
+                                ]
+                            , text_purple
+                            ]
+                        ]
+                }
+            , span [ css [ View.Common.infoTextStyle ] ]
+                [ text "You’ve successfully recovered access to your account "
+                , text username
+                , text "!"
+                ]
+            , a
+                [ href "/"
+                , css [ secondaryLinkStyle ]
+                ]
+                [ text "go to the dashboard" ]
+            ]
+        ]

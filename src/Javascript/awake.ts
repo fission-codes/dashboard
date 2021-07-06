@@ -172,6 +172,8 @@ export async function authorize(
         ucan: linkingUCAN,
     })
 
+    options.log("Authorization done")
+
     return true
 }
 

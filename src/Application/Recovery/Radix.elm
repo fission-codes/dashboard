@@ -57,6 +57,7 @@ type State
     | ScreenWrongBrowser
     | ScreenLinkingStep1 StateLinkingStep1
     | ScreenLinkingStep2 StateLinkingStep1 StateLinkingStep2
+    | ScreenFinished StateFinished
 
 
 type alias StateRecoverAccount =
@@ -98,6 +99,17 @@ type alias StateLinkingStep2 =
     }
 
 
+type alias StateFinished =
+    { username : String
+    , flow : Flow
+    }
+
+
+type Flow
+    = FlowRecoverAccount
+    | FlowRegainAccess
+
+
 
 -- 📣
 
@@ -105,7 +117,7 @@ type alias StateLinkingStep2 =
 type Msg
     = -- URL
       UrlChanged Url
-    | UrlRequested UrlRequest
+    | LinkClicked UrlRequest
       -- Account Recovery Screen
     | RecoverySelectedBackup (List File)
     | RecoveryVerifyBackupFailed VerifyBackupError
@@ -128,6 +140,7 @@ type Msg
     | LinkingGotPin { did : String, pin : List Int }
     | LinkingVerifyPin
     | LinkingDenyPin
+    | LinkingDone
 
 
 type alias VerifyBackupError =

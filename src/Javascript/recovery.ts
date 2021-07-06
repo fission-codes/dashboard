@@ -8,7 +8,7 @@ import MMPT from "webnative/fs/protocol/private/mmpt"
 import throttle from "lodash/throttle"
 
 import * as awake from "./awake"
-import { WebSocketChannel, EncryptedChannel, TextEncodedChannel, JSONChannel, Channel } from "./channel"
+import { WebSocketChannel, TextEncodedChannel } from "./channel"
 
 //----------------------------------------
 // GLOBALS / CONFIG
@@ -32,10 +32,12 @@ webnative.setup.endpoints(window.endpoints)
 const RECOVERY_USERNAME_KEY = "account-recovery-username"
 const RECOVERY_BACKUP_KEY = "account-recovery-backup"
 
-window.clearBackup = () => {
+function clearBackup () {
   localStorage.removeItem(RECOVERY_USERNAME_KEY)
   localStorage.removeItem(RECOVERY_BACKUP_KEY)
 }
+
+window["clearBackup"] = clearBackup
 
 
 //----------------------------------------
@@ -197,7 +199,7 @@ elmApp.ports.linkingInitiate.subscribe(async ({ username, rootPublicKey, readKey
       // If we can't recover the user's files, we generate a new read key for them
       const actualReadKey = readKey != null ? readKey : await crypto.aes.genKeyStr()
 
-      const authorized = awake.authorize({
+      const authorized = await awake.authorize({
         inquirerThrowawayDID: throwawayDID,
         channel: socketChannel,
         readKey: actualReadKey,
@@ -218,6 +220,9 @@ elmApp.ports.linkingInitiate.subscribe(async ({ username, rootPublicKey, readKey
       })
 
       if (authorized) {
+        clearBackup()
+        await webnative.keystore.clear()
+        elmApp.ports.linkingDone.send({})
         return
       }
     } catch (e) {
