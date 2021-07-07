@@ -10,7 +10,9 @@
     "@types/wicg-entries-api": "^2020.8.0",
     "@types/wicg-file-system-access": "^2020.9.1",
     "autoprefixer": "^10.2.4",
+    "elm-format": "^0.8.5",
     "elm-live": "^4.0.2",
+    "elm-review": "^2.5.3",
     "elm-tailwind-css": "^1.1.1",
     "elm-tailwind-modules": "0.3.0",
     "esbuild": "^0.12.8",
@@ -20,7 +22,6 @@
     "workbox-strategies": "^6.1.0"
   },
   "dependencies": {
-    "elm-review": "^2.5.3",
     "fission-kit": "fission-suite/kit#aed7844ccd76f6ca7feeca95981b47d4b1114a7c",
     "lodash": "^4.17.21",
     "tailwindcss": "^2.0.3",
