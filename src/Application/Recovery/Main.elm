@@ -676,13 +676,12 @@ viewScreenWaitingForEmail flow =
             , View.Recovery.step 3 False "re-link your fission account"
             ]
         , View.Dashboard.sectionParagraph
-            [ Html.text "We’ve sent you an e-mail with further instructions for account recovery."
+            [ Html.text "Please check your email account for an email from Fission."
+            , Html.br [] []
+            , Html.text "This email will only be valid for 24 hours. "
             , Html.br [] []
             , Html.br [] []
-            , Html.text "That email will only be valid for one hour."
-            , Html.br [] []
-            , Html.br [] []
-            , Html.text "You can go to your inbox and close this site."
+            , Html.text "Click on the link to verify your email and initiate the account process. Remember: you can still recovery your private data at a later date if you find your recovery kit."
             ]
         ]
     ]
@@ -702,13 +701,12 @@ viewScreenRegainAccess state =
             [ Html.text "Your private files are stored encrypted. Not even fission can read them."
             , Html.br [] []
             , Html.br [] []
-            , Html.text "If you’ve lost your secure backup, we can’t recover your private files."
+            , Html.text "If you’ve lost your recovery kit, we will be unable to recover your private files and data, however we "
+            , Html.i [] [ Html.text "can" ]
+            , Html.text " restore access to your username and public files. To do this, we need to verify the email address associated with your account."
             , Html.br [] []
             , Html.br [] []
-            , Html.text "However, we can restore access to your username and public files, if you can verify your e-mail address."
-            , Html.br [] []
-            , Html.br [] []
-            , Html.text "Don’t worry, if you eventually find your backup, you’ll still be able to recover your private files."
+            , Html.i [] [ Html.text "(Don’t worry, if you eventually find your backup, you’ll still be able to recover your private files!)" ]
             ]
         , View.Recovery.inputsRegainAccount
             { onSubmit = RegainClickedSendEmail
@@ -778,12 +776,7 @@ viewScreenVerifiedEmail url state =
             , Html.br [] []
             , Html.text "You’ve triggered a request to "
             , Html.text requestName
-            , Html.text ". We now know it was truly you."
-            , Html.br [] []
-            , Html.br [] []
-            , Html.text "Any devices that might be linked to your fission account right now will need to be re-linked."
-            , Html.br [] []
-            , Html.text "Any apps you’re still signed in with need to be signed out and in again."
+            , Html.text ". Once you complete this process, you will need to sign in again on any devices where you were previously logged in."
             ]
         , View.Dashboard.sectionGroup []
             (List.append
