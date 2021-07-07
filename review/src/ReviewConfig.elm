@@ -11,6 +11,9 @@ when inside the directory containing this file.
 
 -}
 
+import NoMissingSubscriptionsCall
+import NoMissingTypeExpose
+import NoRecursiveUpdate
 import NoUnused.CustomTypeConstructorArgs
 import NoUnused.CustomTypeConstructors
 import NoUnused.Dependencies
@@ -26,6 +29,10 @@ config : List Rule
 config =
     List.concat
         [ noUnused
+        , [ NoMissingTypeExpose.rule
+          , NoMissingSubscriptionsCall.rule
+          , NoRecursiveUpdate.rule
+          ]
         ]
 
 
@@ -43,6 +50,8 @@ noUnused =
         |> List.map
             (Rule.ignoreErrorsForDirectories
                 [ "src/Generated/"
+
+                -- Because it's more like a mini-library inside our application
                 , "src/Application/Webnative/"
                 ]
             )
