@@ -40,6 +40,6 @@ jobs:
         run: nix-shell --run "just install-deps"
 
       - name: Run elm-review
-      - uses: sparksp/elm-review-action@v1
+        uses: sparksp/elm-review-action@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
