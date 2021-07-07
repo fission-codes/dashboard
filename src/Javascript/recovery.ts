@@ -1,4 +1,8 @@
 import * as webnative from "webnative"
+import FileSystem from "webnative/fs/filesystem"
+import PrivateTree from "webnative/fs/v1/PrivateTree"
+import * as path from "webnative/path"
+import * as ucan from "webnative/ucan/index"
 import * as did from "webnative/did/index"
 import * as dataRoot from "webnative/data-root"
 import * as webnativeIpfs from "webnative/ipfs/index"
@@ -179,6 +183,15 @@ elmApp.ports.linkingInitiate.subscribe(async ({ username, rootPublicKey, readKey
     console.error("The public key in the keystore is not the same as the public key used for account recovery", keystorePublicWriteKey, rootPublicKey)
   }
 
+  // If we can't recover the user's files, we generate a new read key for them
+  const actualReadKey = readKey != null ? readKey : await crypto.aes.genKeyStr()
+
+  // as well as create a new private root in their filesystem
+  if (readKey == null) {
+    await addNewPrivateRootToFileSystem(username, actualReadKey)
+  }
+
+  // After that, we can start authorizing auth lobbies
   const wssApi = window.endpoints.api.replace(/^https?:\/\//, "wss://")
   const rootDID = did.publicKeyToDid(rootPublicKey, did.KeyType.RSA)
   const endpoint = `${wssApi}/user/link/${rootDID}`
@@ -195,9 +208,6 @@ elmApp.ports.linkingInitiate.subscribe(async ({ username, rootPublicKey, readKey
       console.log("Trying to run awake protocol")
 
       const throwawayDID = await textChannel.receive()
-
-      // If we can't recover the user's files, we generate a new read key for them
-      const actualReadKey = readKey != null ? readKey : await crypto.aes.genKeyStr()
 
       const authorized = await awake.authorize({
         inquirerThrowawayDID: throwawayDID,
@@ -231,3 +241,42 @@ elmApp.ports.linkingInitiate.subscribe(async ({ username, rootPublicKey, readKey
     }
   }
 })
+
+
+async function addNewPrivateRootToFileSystem(username: string, readKey: string): Promise<void> {
+  console.log("Loading filesystem")
+
+  const cid = await dataRoot.lookup(username)
+
+  const fs = await FileSystem.fromCID(cid, {
+    permissions: {
+      fs: {
+        public: [path.root()],
+        private: [],
+      }
+    }
+  })
+
+  console.log("Adding new private root")
+
+  const newPrivateRoot = await PrivateTree.create(fs.root.mmpt, readKey, null)
+  fs.root.privateNodes[path.toPosix(path.directory("private"))] = newPrivateRoot
+  await newPrivateRoot.put()
+  fs.root.updatePuttable("private", fs.root.mmpt)
+  const newCID = await fs.root.mmpt.put()
+  await fs.root.addPrivateLogEntry(newCID)
+
+  console.log("updating data root")
+
+  const issuer = await did.write()
+  const fsUcan = await ucan.build({
+    potency: "APPEND",
+    resource: "*",
+
+    audience: issuer,
+    issuer
+  })
+  await dataRoot.update(await fs.root.put(), ucan.encode(fsUcan))
+
+  console.log("reinitialised private filesystem")
+}
