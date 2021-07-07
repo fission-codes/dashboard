@@ -16,7 +16,7 @@ specifiers:
   postcss-import: ^14.0.0
   tailwindcss: ^2.0.3
   uint8arrays: ^2.1.5
-  webnative: https://github.com/fission-suite/webnative#b1e0a1049f5ce100f67094c9352e6114599ff26d
+  webnative: '0.26'
   webnative-elm: ^4.0.0-3
   workbox-cli: ^6.1.0
   workbox-strategies: ^6.1.0
@@ -26,8 +26,8 @@ dependencies:
   lodash: 4.17.21
   tailwindcss: 2.0.3_759587f5361760629983e9fe457a3aed
   uint8arrays: 2.1.5
-  webnative: github.com/fission-suite/webnative/b1e0a1049f5ce100f67094c9352e6114599ff26d
-  webnative-elm: 4.0.0-3_webnative@0.25.2
+  webnative: 0.26.0
+  webnative-elm: 4.0.0-3_webnative@0.26.0
 
 devDependencies:
   '@tailwindcss/aspect-ratio': 0.2.0
@@ -1181,8 +1181,8 @@ packages:
     resolution: {integrity: sha512-lg55ArB+ZiHHbBBttLpzD07akz0QPrZgUODNakeC09i62dnrywr9mFErHuaPlB6I7z+sEbK+IYmplahvplCj2g==}
     dev: true
 
-  /@types/node/15.12.4:
-    resolution: {integrity: sha512-zrNj1+yqYF4WskCMOHwN+w9iuD12+dGm0rQ35HLl9/Ouuq52cEtd0CH9qMgrdNmi5ejC1/V7vKEXYubB+65DkA==}
+  /@types/node/16.0.0:
+    resolution: {integrity: sha512-TmCW5HoZ2o2/z2EYi109jLqIaPIi9y/lc2LmDCWzuCi35bcaQ+OtUh6nwBiFK7SOu25FAU5+YKdqFZUwtqGSdg==}
     dev: false
 
   /@types/normalize-package-data/2.4.0:
@@ -1658,8 +1658,8 @@ packages:
     resolution: {integrity: sha512-63OrUnwJj5T1rUmoyqYTdRWBqFFxZFlyZnRRjDR8NSUQFB6A+j/uBORU/SyJ5WzDLg4SPiZH40hQCBNdZ/jmAw==}
     dev: true
 
-  /cborg/1.3.4:
-    resolution: {integrity: sha512-w/sCTLy2k4AI6XbDMiaPsGc07bBAcX/It3VYQBwKJ5fvAAyUOXi5nC1wjW0OXIfY5ROkOGJCAUOR5AW1ykkiCQ==}
+  /cborg/1.3.5:
+    resolution: {integrity: sha512-dfN9489kdFHCt3anJLYLuG2LEgO8kT9lWu0CK4AMA7JQA+4Tv7uis/Ec8mhe8O0gHDRLre85kKreMTCXAsuIww==}
     hasBin: true
     dev: false
 
@@ -1748,7 +1748,7 @@ packages:
     engines: {node: '>=4.0.0', npm: '>=3.0.0'}
     dependencies:
       multibase: 4.0.4
-      multicodec: 3.0.1
+      multicodec: 3.1.0
       multihashes: 4.0.2
       uint8arrays: 2.1.5
     dev: false
@@ -2113,6 +2113,19 @@ packages:
         optional: true
     dependencies:
       ms: 2.1.2
+    dev: true
+
+  /debug/4.3.2:
+    resolution: {integrity: sha512-mOp8wKcvj7XxC78zLgw/ZA+6TSgkoE2C/ienthhRD298T7UNwAg9diBpLRxC0mOezLl4B0xV7M0cCO6P/O0Xhw==}
+    engines: {node: '>=6.0'}
+    peerDependencies:
+      supports-color: '*'
+    peerDependenciesMeta:
+      supports-color:
+        optional: true
+    dependencies:
+      ms: 2.1.2
+    dev: false
 
   /decamelize-keys/1.1.0:
     resolution: {integrity: sha1-0XGoeTMlKAfrPLYdwcFEXQeN8tk=}
@@ -2245,7 +2258,7 @@ packages:
   /dns-over-http-resolver/1.2.3:
     resolution: {integrity: sha512-miDiVSI6KSNbi4SVifzO/reD8rMnxgrlnkrlkugOLQpWQTe2qMdHsZp5DmfKjxNE+/T3VAAYLQUZMv9SMr6+AA==}
     dependencies:
-      debug: 4.3.1
+      debug: 4.3.2
       native-fetch: 3.0.0
       receptacle: 1.3.2
     transitivePeerDependencies:
@@ -3097,7 +3110,7 @@ packages:
     resolution: {integrity: sha512-/df/uHRUxE9LtTJaC1QAwgmHUjdVxvCvQKQLoMo2k4Ilu3uSob5vNmZqXXnuQQM4M5tZjyRbqMm+A+hvWbki8w==}
     dependencies:
       cids: 1.1.7
-      multicodec: 3.0.1
+      multicodec: 3.1.0
       multihashes: 4.0.2
     dev: false
 
@@ -3156,7 +3169,7 @@ packages:
     dependencies:
       cids: 1.1.7
       interface-ipld-format: 1.0.0
-      multicodec: 3.0.1
+      multicodec: 3.1.0
       multihashing-async: 2.1.2
       protobufjs: 6.11.2
       stable: 0.1.8
@@ -3684,7 +3697,7 @@ packages:
       iso-random-stream: 2.0.0
       keypair: 1.0.3
       multibase: 4.0.4
-      multicodec: 3.0.1
+      multicodec: 3.1.0
       multihashes: 4.0.2
       multihashing-async: 2.1.2
       node-forge: 0.10.0
@@ -4010,11 +4023,11 @@ packages:
       '@multiformats/base-x': 4.0.1
     dev: false
 
-  /multicodec/3.0.1:
-    resolution: {integrity: sha512-Y6j3wiPojvkF/z6KFIGt84KdJdP2oILEdzc/3YbD3qQ3EerhqtYlfsZTPPNVoCCxNZZdzIpCKrdYFSav17sIrQ==}
+  /multicodec/3.1.0:
+    resolution: {integrity: sha512-f6d4DhbQ9a8WiJ/wpbKgeJSeR0/juP/1wnjbKdZ0KAWDkC/z7Lb3xOegMUG+uTcfwSYf6j1eTvFf8HDgqPRGmQ==}
     dependencies:
       uint8arrays: 2.1.5
-      varint: 5.0.2
+      varint: 6.0.0
     dev: false
 
   /multihashes/4.0.2:
@@ -4082,8 +4095,8 @@ packages:
     resolution: {integrity: sha512-1nh45deeb5olNY7eX82BkPO7SSxR5SSYJiPTrTdFUVYwAl8CKMA5N9PjTYkHiRjisVcxcQ1HXdLhx2qxxJzLNQ==}
     dev: true
 
-  /noble-ed25519/1.2.4:
-    resolution: {integrity: sha512-IwV+j1xDYIF0ouiUhqH4Ot5jTLCWNbQZTUlCvYDQT4LRiGVwoK8FvkLlCeOlvMv3nXxLixSf05Kfi2nugtiBAQ==}
+  /noble-ed25519/1.2.5:
+    resolution: {integrity: sha512-7vst+4UhM5QU3jJ3pUqPMKBCOePrxBojmoQa59qcSnYvjFF/T4jqb4WISlfslcWyBw7G5H9V/acpcAxMd8DzUQ==}
     dev: false
 
   /node-addon-api/2.0.2:
@@ -4818,7 +4831,7 @@ packages:
       '@protobufjs/pool': 1.1.0
       '@protobufjs/utf8': 1.1.0
       '@types/long': 4.0.1
-      '@types/node': 15.12.4
+      '@types/node': 16.0.0
       long: 4.0.0
     dev: false
 
@@ -5941,6 +5954,10 @@ packages:
     resolution: {integrity: sha512-lKxKYG6H03yCZUpAGOPOsMcGxd1RHCu1iKvEHYDPmTyq2HueGhD73ssNBqqQWfvYs04G9iUFRvmAVLW20Jw6ow==}
     dev: false
 
+  /varint/6.0.0:
+    resolution: {integrity: sha512-cXEIW6cfr15lFv563k4GuVuW/fiwjknytD37jIOLSdSWuOI6WnO/oKwmP2FQTU2l01LP8/M5TSAJpzUaGe3uWg==}
+    dev: false
+
   /vendors/1.0.4:
     resolution: {integrity: sha512-/juG65kTL4Cy2su4P8HjtkTxk6VmJDiOPBufWniqQ6wknac6jNiXS9vU+hO3wgusiyqWlzTbVHi0dyJqRONg3w==}
     dev: true
@@ -5963,12 +5980,33 @@ packages:
     resolution: {integrity: sha512-YQ+BmxuTgd6UXZW3+ICGfyqRyHXVlD5GtQr5+qjiNW7bF0cqrzX500HVXPBOvgXb5YnzDd+h0zqyv61KUD7+Sg==}
     dev: true
 
-  /webnative-elm/4.0.0-3_webnative@0.25.2:
+  /webnative-elm/4.0.0-3_webnative@0.26.0:
     resolution: {integrity: sha512-74y9J2Vj1XEO078GAJEohqroJmJQMyZDbB8MouHEpscLiTxlOstgqlW5JyHNSQ9y2LAVv9Il/lG48QtI4a6LVg==}
     peerDependencies:
       webnative: '> 0.0.0'
     dependencies:
-      webnative: github.com/fission-suite/webnative/b1e0a1049f5ce100f67094c9352e6114599ff26d
+      webnative: 0.26.0
+    dev: false
+
+  /webnative/0.26.0:
+    resolution: {integrity: sha512-/33ofpIbYJL0nKOkyCkizJogHwKRLk67XWWeX+3K/k0DtbFC2wHKhR+YS4mHnDDntxhDjITNwFH8CQCt7T1cRA==}
+    engines: {node: '>=15'}
+    dependencies:
+      base58-universal: github.com/digitalbazaar/base58-universal/de970560f005de0f7054723c35ef6e0ff4b328b7
+      buffer: 6.0.3
+      cborg: 1.3.5
+      cids: 1.1.7
+      fission-bloom-filters: 1.7.1
+      ipfs-message-port-client: '@ipfs.runfission.com/ipfs/bafybeigx6q4aezve7my76s5vvfuiinbxtepapqvmjf2jbgrozrut6cjape/p/ipfs-message-port-client.tar.gz'
+      ipfs-message-port-protocol: '@ipfs.runfission.com/ipfs/bafybeigx6q4aezve7my76s5vvfuiinbxtepapqvmjf2jbgrozrut6cjape/p/ipfs-message-port-protocol.tar.gz'
+      ipld-dag-pb: 0.22.2
+      keystore-idb: 0.14.2
+      localforage: 1.9.0
+      noble-ed25519: 1.2.5
+      throttle-debounce: 3.0.1
+    transitivePeerDependencies:
+      - node-fetch
+      - supports-color
     dev: false
 
   /whatwg-url/7.1.0:
@@ -6280,29 +6318,4 @@ packages:
     resolution: {tarball: https://codeload.github.com/fission-suite/kit/tar.gz/aed7844ccd76f6ca7feeca95981b47d4b1114a7c}
     name: fission-kit
     version: 0.2.0
-    dev: false
-
-  github.com/fission-suite/webnative/b1e0a1049f5ce100f67094c9352e6114599ff26d:
-    resolution: {tarball: https://codeload.github.com/fission-suite/webnative/tar.gz/b1e0a1049f5ce100f67094c9352e6114599ff26d}
-    name: webnative
-    version: 0.25.2
-    engines: {node: '>=15'}
-    prepare: true
-    requiresBuild: true
-    dependencies:
-      base58-universal: github.com/digitalbazaar/base58-universal/de970560f005de0f7054723c35ef6e0ff4b328b7
-      buffer: 6.0.3
-      cborg: 1.3.4
-      cids: 1.1.7
-      fission-bloom-filters: 1.7.1
-      ipfs-message-port-client: '@ipfs.runfission.com/ipfs/bafybeigx6q4aezve7my76s5vvfuiinbxtepapqvmjf2jbgrozrut6cjape/p/ipfs-message-port-client.tar.gz'
-      ipfs-message-port-protocol: '@ipfs.runfission.com/ipfs/bafybeigx6q4aezve7my76s5vvfuiinbxtepapqvmjf2jbgrozrut6cjape/p/ipfs-message-port-protocol.tar.gz'
-      ipld-dag-pb: 0.22.2
-      keystore-idb: 0.14.2
-      localforage: 1.9.0
-      noble-ed25519: 1.2.4
-      throttle-debounce: 3.0.1
-    transitivePeerDependencies:
-      - node-fetch
-      - supports-color
     dev: false
