@@ -131,9 +131,6 @@ updateOther msg model =
                         ]
                     )
 
-        GotWebnativeResponse _ ->
-            ( model, Cmd.none )
-
         GotWebnativeError error ->
             case error of
                 "INSECURE_CONTEXT" ->
@@ -245,8 +242,7 @@ onUrlChange url model =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
-        [ Ports.webnativeResponse GotWebnativeResponse
-        , Ports.webnativeInitialized (Json.decodeValue Webnative.Types.decoderState >> InitializedWebnative)
+        [ Ports.webnativeInitialized (Json.decodeValue Webnative.Types.decoderState >> InitializedWebnative)
         , Ports.webnativeError GotWebnativeError
         , Ports.urlChanged UrlChangedFromOutside
         , case model.state of

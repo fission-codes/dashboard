@@ -16,16 +16,13 @@ port module Ports exposing
     , webnativeAppIndexFetched
     , webnativeError
     , webnativeInitialized
-    , webnativeRequest
     , webnativeResendVerificationEmail
-    , webnativeResponse
     , webnativeVerificationEmailSent
     )
 
 import Data.App as App
 import Json.Decode as Json
 import Json.Encode as E
-import Webnative
 import Webnative.Types
 
 
@@ -33,16 +30,6 @@ port log : List Json.Value -> Cmd msg
 
 
 port urlChanged : (String -> msg) -> Sub msg
-
-
-
--- Webnative-Elm Ports
-
-
-port webnativeRequest : Webnative.Request -> Cmd msg
-
-
-port webnativeResponse : (Webnative.Response -> msg) -> Sub msg
 
 
 

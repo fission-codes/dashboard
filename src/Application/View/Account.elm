@@ -1,9 +1,7 @@
 module View.Account exposing (..)
 
-import Css.Global
-import FeatherIcons
 import Html.Styled exposing (..)
-import Html.Styled.Attributes exposing (class, css)
+import Html.Styled.Attributes exposing (css)
 import Tailwind.Breakpoints exposing (..)
 import Tailwind.Utilities exposing (..)
 import View.Common exposing (dark, infoTextStyle)
@@ -111,54 +109,3 @@ groupHeading content =
             ]
         ]
         content
-
-
-type VerificationStatus
-    = NotVerified
-    | Verified
-
-
-verificationStatus : VerificationStatus -> Html msg
-verificationStatus status =
-    span
-        [ css
-            [ flex
-            , flex_row
-            , items_center
-            , space_x_2
-            , Css.Global.withClass "verified"
-                [ dark [ text_darkmode_purple ]
-                , text_purple
-                ]
-            , Css.Global.withClass "not-verified"
-                [ dark [ text_darkmode_red ]
-                , text_red
-                ]
-            ]
-        , case status of
-            Verified ->
-                class "verified"
-
-            NotVerified ->
-                class "not-verified"
-        ]
-        [ View.Common.icon
-            { icon =
-                case status of
-                    Verified ->
-                        FeatherIcons.check
-
-                    NotVerified ->
-                        FeatherIcons.alertTriangle
-            , size = View.Common.Medium
-            , tag = span []
-            }
-        , span [ css [ font_display ] ]
-            [ case status of
-                Verified ->
-                    text "Verified"
-
-                NotVerified ->
-                    text "Not Verified"
-            ]
-        ]

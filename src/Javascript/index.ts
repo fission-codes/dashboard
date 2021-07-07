@@ -1,5 +1,4 @@
 import * as webnative from "webnative"
-import * as webnativeElm from "webnative-elm"
 import lodashMerge from "lodash/merge"
 import * as uint8arrays from "uint8arrays"
 import type FileSystem from "webnative/fs/index"
@@ -143,9 +142,7 @@ elmApp.ports.webnativeAppIndexFetch.subscribe(async () => {
 
 elmApp.ports.webnativeAppDelete.subscribe(async appUrl => {
   try {
-    try {
-      await webnative.apps.deleteByDomain(appUrl)
-    } catch (_) { /* TODO FIXME Ignoring CORS errors for now */ }
+    await webnative.apps.deleteByDomain(appUrl)
     elmApp.ports.webnativeAppDeleteSucceeded.send({ app: appUrl })
   } catch (error) {
     console.error("Error while fetching the app index", error)
@@ -161,9 +158,7 @@ elmApp.ports.webnativeAppRename.subscribe(async ({ from, to }: { from: string, t
     const cid = await getPublicPathCid(wnfsAppPublishPathInPublic(appNameOnly(from)))
     await webnative.apps.publish(newApp.domain, cid)
     await window.fs.mv(fromPath, toPath)
-    try {
-      await webnative.apps.deleteByDomain(from)
-    } catch (_) { /* TODO FIXME Ignoring CORS errors for now */ }
+    await webnative.apps.deleteByDomain(from)
     elmApp.ports.webnativeAppRenameSucceeded.send({ app: from, renamed: newApp.domain })
   } catch (error) {
     console.error(`Error while renaming an app from ${from} to ${to}`, error)
@@ -215,9 +210,6 @@ webnative
     savePermissionsWanted(null)
 
     if (state.authenticated) {
-      // No need for filesystem operations at the moment
-      webnativeElm.setup(elmApp, () => state.fs)
-
       window.fs = state.fs;
     }
 
