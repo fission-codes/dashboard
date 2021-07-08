@@ -308,7 +308,7 @@ appFooter =
             []
         , linkContainer
             [ footerLink { styles = [], text = "Discord", url = "https://fission.codes/discord" }
-            , footerLink { styles = [], text = "Guide", url = "https://guide.fission.codes/accounts-and-dashboard/dashboard" }
+            , footerLink { styles = [], text = "Guide", url = "https://guide.fission.codes/accounts/dashboard" }
             ]
         , linkContainer
             [ footerLink { styles = [], text = "Forum", url = "https://talk.fission.codes/" }
