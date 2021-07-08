@@ -131,9 +131,6 @@ updateOther msg model =
                         ]
                     )
 
-        GotWebnativeResponse _ ->
-            ( model, Cmd.none )
-
         GotWebnativeError error ->
             case error of
                 "INSECURE_CONTEXT" ->
@@ -177,14 +174,20 @@ updateOther msg model =
         UrlRequested request ->
             case request of
                 Browser.Internal url ->
-                    onUrlChange url model
-                        |> Tuple.mapSecond
-                            (\commands ->
-                                Cmd.batch
-                                    [ Navigation.pushUrl model.navKey (Url.toString url)
-                                    , commands
-                                    ]
-                            )
+                    if Route.isRecovery url then
+                        ( model
+                        , Navigation.load (Url.toString url)
+                        )
+
+                    else
+                        onUrlChange url model
+                            |> Tuple.mapSecond
+                                (\commands ->
+                                    Cmd.batch
+                                        [ Navigation.pushUrl model.navKey (Url.toString url)
+                                        , commands
+                                        ]
+                                )
 
                 Browser.External url ->
                     ( model
@@ -239,8 +242,7 @@ onUrlChange url model =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
-        [ Ports.webnativeResponse GotWebnativeResponse
-        , Ports.webnativeInitialized (Json.decodeValue Webnative.Types.decoderState >> InitializedWebnative)
+        [ Ports.webnativeInitialized (Json.decodeValue Webnative.Types.decoderState >> InitializedWebnative)
         , Ports.webnativeError GotWebnativeError
         , Ports.urlChanged UrlChangedFromOutside
         , case model.state of

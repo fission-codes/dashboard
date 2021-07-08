@@ -16,9 +16,10 @@ import Tailwind.Utilities exposing (..)
 logo :
     { styles : List Css.Style
     , imageStyles : List Css.Style
+    , subtitle : String
     }
     -> Html msg
-logo { styles, imageStyles } =
+logo { styles, imageStyles, subtitle } =
     span
         [ css
             [ Css.batch styles
@@ -29,7 +30,7 @@ logo { styles, imageStyles } =
             ]
         ]
         [ img
-            [ src "images/logo-dark-textonly.svg"
+            [ src "/images/logo-dark-textonly.svg"
             , css
                 [ Css.batch imageStyles
                 , dark [ hidden ]
@@ -37,7 +38,7 @@ logo { styles, imageStyles } =
             ]
             []
         , img
-            [ src "images/logo-light-textonly.svg"
+            [ src "/images/logo-light-textonly.svg"
             , css
                 [ Css.batch imageStyles
                 , dark [ block ]
@@ -58,7 +59,7 @@ logo { styles, imageStyles } =
                 , uppercase
                 ]
             ]
-            [ text "Dashboard" ]
+            [ text subtitle ]
         ]
 
 
@@ -67,6 +68,7 @@ type IconSize
     | Small
     | Medium
     | Big
+    | Large
 
 
 loadingAnimation : IconSize -> List Css.Style -> Html msg
@@ -103,6 +105,9 @@ icon element =
 
                 Big ->
                     32
+
+                Large ->
+                    48
             )
         |> FeatherIcons.toHtml []
         |> fromUnstyled
@@ -229,7 +234,7 @@ primaryButtonStyle =
             ]
         , Css.active
             [ transform_gpu
-            , scale_105
+            , scale_95
             ]
 
         --
@@ -237,7 +242,6 @@ primaryButtonStyle =
         , appearance_none
         , bg_purple
         , font_semibold
-        , inline_block
         , leading_normal
         , px_5
         , py_3
@@ -247,9 +251,49 @@ primaryButtonStyle =
         , text_white
         , tracking_wider
         , transition_colors
+        , transition_transform
 
         --
-        , duration_300
+        , duration_100
+        , ease_out
+        ]
+
+
+primaryDangerButtonStyle : Css.Style
+primaryDangerButtonStyle =
+    Css.batch
+        [ dark [ bg_darkmode_red ]
+        , Css.disabled
+            [ dark
+                [ bg_gray_200
+                , text_gray_400
+                ]
+            , text_gray_600
+            , bg_gray_400
+            ]
+        , Css.active
+            [ transform_gpu
+            , scale_95
+            ]
+
+        --
+        , antialiased
+        , appearance_none
+        , bg_red
+        , font_semibold
+        , leading_normal
+        , px_5
+        , py_3
+        , relative
+        , rounded
+        , text_sm
+        , text_white
+        , tracking_wider
+        , transition_colors
+        , transition_transform
+
+        --
+        , duration_100
         , ease_out
         ]
 
@@ -259,9 +303,44 @@ primaryButtonLoaderStyle =
     text_white
 
 
+secondaryButtonStyle : Css.Style
+secondaryButtonStyle =
+    Css.batch
+        [ Css.disabled
+            [ bg_gray_300
+            , text_gray_500
+            ]
+        , Css.active
+            [ transform_gpu
+            , scale_95
+            ]
+
+        --
+        , antialiased
+        , appearance_none
+        , bg_gray_200
+        , font_semibold
+        , leading_normal
+        , px_5
+        , py_3
+        , relative
+        , rounded
+        , text_sm
+        , text_white
+        , tracking_wider
+        , transition_colors
+        , transition_transform
+
+        --
+        , duration_100
+        , ease_out
+        ]
+
+
 button :
     { isLoading : Bool
     , disabled : Bool
+    , icon : Maybe FeatherIcons.Icon
     , label : String
     , onClick : Maybe msg
     , style : Css.Style
@@ -286,11 +365,34 @@ button element =
             ]
         ]
         (List.concat
-            [ [ span [ css [ text_center, mx_auto ] ] [ text element.label ] ]
+            [ case element.icon of
+                Just i ->
+                    [ icon
+                        { icon = i
+                        , size = Small
+                        , tag = span [ css [ ml_auto ] ]
+                        }
+                    ]
+
+                _ ->
+                    []
+            , [ span
+                    [ css
+                        [ text_center
+                        , case element.icon of
+                            Just _ ->
+                                Css.batch [ ml_2, mr_auto ]
+
+                            Nothing ->
+                                mx_auto
+                        ]
+                    ]
+                    [ text element.label ]
+              ]
             , Common.when element.isLoading
                 [ loadingAnimation Small
                     [ Css.batch element.spinnerStyle
-                    , ml_3
+                    , ml_2
                     ]
                 ]
             ]

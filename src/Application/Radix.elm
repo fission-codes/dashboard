@@ -7,7 +7,6 @@ import Dict exposing (Dict)
 import Json.Decode as Json
 import Route exposing (Route)
 import Url exposing (Url)
-import Webnative
 import Webnative.Types
 
 
@@ -67,8 +66,7 @@ type alias AuthenticatedModel =
 type BackupState
     = BackupWaiting
     | BackupFetchingKey
-    | BackupFetchedKey { key : String, visible : Bool }
-    | BackupStoredInPasswordManager { key : String }
+    | BackupFetchedKey { key : String, visible : Bool, createdAt : String }
     | BackupError
 
 
@@ -115,7 +113,6 @@ type Msg
       -- Webnative
       -----------------------------------------
     | InitializedWebnative (Result Json.Error Webnative.Types.State)
-    | GotWebnativeResponse Webnative.Response
     | GotWebnativeError String
     | RedirectToLobby Webnative.Types.Permissions
       -- Other
@@ -133,11 +130,8 @@ type AuthenticatedMsg
     | BackupAskForPermission
     | BackupStart
     | BackupCancel
-    | BackupReceivedKey String
-    | BackupFetchKeyError String
-    | BackupCopyToClipboard
-    | BackupStoreInBrowser
-    | BackupToggleKeyVisibility Bool
+    | BackupReceivedKey { key : String, createdAt : String }
+    | BackupFetchKeyError
       -- App List
     | FetchedAppList Json.Value
     | DropzonePublishStart
@@ -157,5 +151,5 @@ type AppPageMsg
     | AppPageDeleteAppFailed String
     | AppPageRenameAppInput String
     | AppPageRenameAppClicked
-    | AppPageRenameAppFailed String
+    | AppPageRenameAppFailed
     | AppPageRenameAppSucceeded App.Name

@@ -1,9 +1,8 @@
 import * as webnative from "webnative"
-import * as webnativeElm from "webnative-elm"
 import lodashMerge from "lodash/merge"
 import * as uint8arrays from "uint8arrays"
-import type FileSystem from "webnative/dist/fs"
-import type { DirectoryPath, FilePath } from "webnative/dist/path"
+import type FileSystem from "webnative/fs/index"
+import type { DirectoryPath, FilePath } from "webnative/path"
 
 
 //----------------------------------------
@@ -25,6 +24,8 @@ declare global {
     }
     webnative: typeof webnative
     fs: FileSystem
+    // For recovery.ts
+    clearBackup: () => void
   }
 
   const Elm: any
@@ -141,9 +142,7 @@ elmApp.ports.webnativeAppIndexFetch.subscribe(async () => {
 
 elmApp.ports.webnativeAppDelete.subscribe(async appUrl => {
   try {
-    try {
-      await webnative.apps.deleteByDomain(appUrl)
-    } catch (_) { /* TODO FIXME Ignoring CORS errors for now */ }
+    await webnative.apps.deleteByDomain(appUrl)
     elmApp.ports.webnativeAppDeleteSucceeded.send({ app: appUrl })
   } catch (error) {
     console.error("Error while fetching the app index", error)
@@ -159,9 +158,7 @@ elmApp.ports.webnativeAppRename.subscribe(async ({ from, to }: { from: string, t
     const cid = await getPublicPathCid(wnfsAppPublishPathInPublic(appNameOnly(from)))
     await webnative.apps.publish(newApp.domain, cid)
     await window.fs.mv(fromPath, toPath)
-    try {
-      await webnative.apps.deleteByDomain(from)
-    } catch (_) { /* TODO FIXME Ignoring CORS errors for now */ }
+    await webnative.apps.deleteByDomain(from)
     elmApp.ports.webnativeAppRenameSucceeded.send({ app: from, renamed: newApp.domain })
   } catch (error) {
     console.error(`Error while renaming an app from ${from} to ${to}`, error)
@@ -176,16 +173,14 @@ elmApp.ports.fetchReadKey.subscribe(async () => {
     const readKey = await keystore.getSymmKey(`wnfs__readKey__${privateHash}`)
     const exported = await window.crypto.subtle.exportKey("raw", readKey)
     const encoded = uint8arrays.toString(new Uint8Array(exported), "base64pad")
-    elmApp.ports.fetchedReadKey.send(encoded)
+    elmApp.ports.fetchedReadKey.send({
+      key: encoded,
+      createdAt: (new Date()).toDateString(),
+    })
   } catch (error) {
     console.error(`Error while trying to fetch the readKey for backup`, error)
     elmApp.ports.fetchReadKeyError.send(error.message)
   }
-})
-
-elmApp.ports.copyElementToClipboard.subscribe((id: string) => {
-  (document.getElementById(id) as HTMLInputElement).select()
-  document.execCommand("copy")
 })
 
 elmApp.ports.logout.subscribe(async () => {
@@ -215,9 +210,6 @@ webnative
     savePermissionsWanted(null)
 
     if (state.authenticated) {
-      // No need for filesystem operations at the moment
-      webnativeElm.setup(elmApp, () => state.fs)
-
       window.fs = state.fs;
     }
 

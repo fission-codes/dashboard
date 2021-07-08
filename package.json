@@ -1,18 +1,22 @@
 {
   "name": "fission-dashboard",
-  "description": "",
+  "description": "The frontend for the Fission Dashboard app.",
   "version": "0.1.0",
   "author": "Steven Vandevelde <icid.asset@gmail.com>, Philipp Krüger <philipp.krueger1@gmail.com>",
   "type": "module",
   "devDependencies": {
     "@tailwindcss/aspect-ratio": "^0.2.0",
+    "@types/lodash": "^4.14.170",
     "@types/wicg-entries-api": "^2020.8.0",
     "@types/wicg-file-system-access": "^2020.9.1",
     "autoprefixer": "^10.2.4",
+    "elm": "^0.19.1-5",
+    "elm-format": "^0.8.5",
     "elm-live": "^4.0.2",
+    "elm-review": "^2.5.3",
     "elm-tailwind-css": "^1.1.1",
     "elm-tailwind-modules": "0.3.0",
-    "esbuild": "^0.8.40",
+    "esbuild": "^0.12.8",
     "postcss": "^8.2.6",
     "postcss-import": "^14.0.0",
     "workbox-cli": "^6.1.0",
@@ -23,7 +27,6 @@
     "lodash": "^4.17.21",
     "tailwindcss": "^2.0.3",
     "uint8arrays": "^2.1.5",
-    "webnative": "0.24.1",
-    "webnative-elm": "^4.0.0-3"
+    "webnative": "0.26"
   }
 }

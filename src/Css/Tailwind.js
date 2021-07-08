@@ -50,6 +50,7 @@ export default {
 
       minHeight: {
         "120px": "7.5rem",
+        "240px": "15rem",
       },
       
       boxShadow: {

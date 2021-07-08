@@ -19,6 +19,7 @@ in
       pkgs.just
       pkgs.watchexec
       pkgs.jq
+      pkgs.niv
 
       # Elm
       pkgs.elmPackages.elm

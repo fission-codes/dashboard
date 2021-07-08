@@ -3,5 +3,5 @@ elm-stuff
 node_modules
 src/Library/Css/Classes.elm
 .vscode
-*.fission.yaml
+fission.yaml
 src/Generated

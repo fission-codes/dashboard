@@ -23,6 +23,13 @@ workbox_config := "./src/Javascript/workbox.config.cjs"
 	just config={{config}} watch-typescript-dev
 
 
+@hot-recovery:
+	just config={{config}} dev-build
+	just config={{config}} hot-server-recovery & \
+	just config={{config}} watch-css & \
+	just config={{config}} watch-html & \
+	just config={{config}} watch-typescript-dev
+
 
 # Parts
 # =====
@@ -32,21 +39,14 @@ workbox_config := "./src/Javascript/workbox.config.cjs"
 	pnpx node src/Javascript/generate-css-modules.js
 
 
-@css-old:
-	echo "💄  Compiling CSS"
-	mkdir -p src/Library/Css
-	pnpx etc src/Css/Application.css \
-		--config src/Css/Tailwind.js \
-		--elm-module Css.Classes \
-		--elm-path src/Library/Css/Classes.elm \
-		--output {{dist}}/application.css \
-		--post-plugin-before postcss-import
-
 @elm-dev:
 	echo "🌳  Compiling Elm"
 	elm make \
 		--output {{dist}}/application.js \
 		src/Application/Main.elm
+	elm make \
+		--output {{dist}}/recover/application.js \
+		src/Application/Recovery/Main.elm
 
 
 @elm-production:
@@ -55,6 +55,10 @@ workbox_config := "./src/Javascript/workbox.config.cjs"
 		src/Application/Main.elm \
 		--output {{dist}}/application.js \
 		--optimize
+	elm make \
+		--output {{dist}}/recover/application.js \
+		--optimize \
+		src/Application/Recovery/Main.elm
 
 
 @favicons:
@@ -71,6 +75,8 @@ workbox_config := "./src/Javascript/workbox.config.cjs"
 @html:
 	echo "📜  Copying HTML"
 	cp src/Html/Main.html {{dist}}/index.html
+	mkdir -p {{dist}}/recover
+	cp src/Html/Recovery/Main.html {{dist}}/recover/index.html
 
 
 @images:
@@ -90,6 +96,15 @@ workbox_config := "./src/Javascript/workbox.config.cjs"
 		--sourcemap \
 		--outfile={{dist}}/bundle.min.js \
 		src/Javascript/index.ts
+	{{node_bin}}/esbuild \
+		--define:CONFIG_ENVIRONMENT="\"{{config}}\"" \
+		--define:CONFIG_API_ENDPOINT="$(jq .API_ENDPOINT config/{{config}}.json)" \
+		--define:CONFIG_LOBBY="$(jq .LOBBY config/{{config}}.json)" \
+		--define:CONFIG_USER="$(jq .USER config/{{config}}.json)" \
+		--bundle \
+		--sourcemap \
+		--outfile={{dist}}/recover/bundle.min.js \
+		src/Javascript/recovery.ts
 
 
 @typescript-prod:
@@ -104,6 +119,16 @@ workbox_config := "./src/Javascript/workbox.config.cjs"
 		--sourcemap \
 		--outfile={{dist}}/bundle.min.js \
 		src/Javascript/index.ts
+	{{node_bin}}/esbuild \
+		--define:CONFIG_ENVIRONMENT="\"{{config}}\"" \
+		--define:CONFIG_API_ENDPOINT="$(jq .API_ENDPOINT config/{{config}}.json)" \
+		--define:CONFIG_LOBBY="$(jq .LOBBY config/{{config}}.json)" \
+		--define:CONFIG_USER="$(jq .USER config/{{config}}.json)" \
+		--bundle \
+		--minify \
+		--sourcemap \
+		--outfile={{dist}}/recover/bundle.min.js \
+		src/Javascript/recovery.ts
 
 
 @manifests:
@@ -152,6 +177,18 @@ workbox_config := "./src/Javascript/workbox.config.cjs"
 		--dir={{dist}} \
 		-- \
 		--output={{dist}}/application.js \
+		--debug
+
+
+@hot-server-recovery:
+	echo "🔥  Start a hot-reloading (only for the recovery app!) elm-live server at http://localhost:8004"
+	{{node_bin}}/elm-live src/Application/Recovery/Main.elm \
+		--hot \
+		--host 0.0.0.0 \
+		--port=8004 \
+		--dir={{dist}} \
+		-- \
+		--output={{dist}}/recover/application.js \
 		--debug
 
 

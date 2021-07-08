@@ -1,0 +1,5 @@
+{
+    "API_ENDPOINT": "https://runfission.com",
+    "LOBBY": "http://localhost:8001",
+    "USER": "fission.name"
+}
