@@ -1,4 +1,4 @@
-module Recovery.Main exposing (main, parseBackup)
+module Recovery.Main exposing (main)
 
 import Browser
 import Browser.Navigation as Navigation

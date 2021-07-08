@@ -177,7 +177,7 @@ update navKey msg model =
                     , Cmd.none
                     )
 
-        BackupFetchKeyError _ ->
+        BackupFetchKeyError ->
             case model.backupState of
                 BackupFetchingKey ->
                     ( { model | backupState = BackupError }
@@ -355,7 +355,7 @@ updateAppPage app model msg =
                 , Cmd.none
                 )
 
-        AppPageRenameAppFailed _ ->
+        AppPageRenameAppFailed ->
             ( { model | renamingState = AppRenamingFailed "Something went wrong when trying to rename. Maybe the app name is already taken? Please try to reload the website." }
             , Cmd.none
             )
@@ -1045,7 +1045,7 @@ subscriptions model =
             BackupFetchingKey ->
                 Sub.batch
                     [ Ports.fetchedReadKey (AuthenticatedMsg << BackupReceivedKey)
-                    , Ports.fetchReadKeyError (AuthenticatedMsg << BackupFetchKeyError)
+                    , Ports.fetchReadKeyError (\_ -> AuthenticatedMsg BackupFetchKeyError)
                     ]
 
             _ ->
@@ -1087,7 +1087,7 @@ appPageSubscriptions pageModel =
             AppRenameInProgress ->
                 Sub.batch
                     [ Ports.appRenameFailed
-                        (\app error -> AuthenticatedMsg (AppPageMsg app (AppPageRenameAppFailed error)))
+                        (\app _ -> AuthenticatedMsg (AppPageMsg app AppPageRenameAppFailed))
                         (subError "appRenameFailed")
                     , Ports.appRenameSucceeded
                         (\{ app, renamed } -> AuthenticatedMsg (AppPageMsg app (AppPageRenameAppSucceeded renamed)))
