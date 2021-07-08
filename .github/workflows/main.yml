@@ -54,3 +54,5 @@ jobs:
         uses: fission-suite/publish-action@v1
         with:
           machine_key: ${{ secrets.FISSION_KEY }}
+          build_dir: ./build
+          app_url: fission-dashboard.fission.app

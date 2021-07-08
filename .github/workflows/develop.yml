@@ -50,10 +50,11 @@ jobs:
       - name: Build
         run: nix-shell --run "just production-build"
 
-      - name: Switch to development publish
-        run: mv fission.yaml fission-production.yaml; mv fission-develop.yaml fission.yaml
-
       - name: Publish to Fission
         uses: fission-suite/publish-action@v1
         with:
-          machine_key: ${{ secrets.FISSION_KEY }}
+          machine_key: ${{ secrets.STAGING_FISSION_KEY }}
+          remote: staging
+          build_dir: ./build
+          app_url: fission-dashboard.fissionapp.net
+
