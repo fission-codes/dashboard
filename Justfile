@@ -152,10 +152,6 @@ workbox_config := "./src/Javascript/workbox.config.cjs"
 @build: clean html css elm-production typescript-prod fonts favicons manifests images production-service-worker
 
 
-@production-build:
-	just config=production build
-
-
 @production-service-worker:
 	echo "⚙️  Generating service worker"
 	NODE_ENV=production pnpx workbox generateSW {{workbox_config}}
