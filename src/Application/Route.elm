@@ -12,7 +12,7 @@ import Url.Parser exposing (..)
 
 type Route
     = Index
-    | Backup
+    | RecoveryKit
     | DeveloperAppList DeveloperAppListRoute
 
 
@@ -60,7 +60,10 @@ routeParser : Parser (Route -> a) a
 routeParser =
     oneOf
         [ map DeveloperAppList (top </> s "developers" </> s "apps" </> developerAppListParser)
-        , map Backup (s "backup")
+
+        -- backwards compatibility
+        , map RecoveryKit (s "backup")
+        , map RecoveryKit (s "recovery-kit")
         , map Index top
         ]
 
@@ -79,8 +82,8 @@ toUrl r =
         Index ->
             "/"
 
-        Backup ->
-            "/#backup"
+        RecoveryKit ->
+            "/#recovery-kit"
 
         DeveloperAppList DeveloperAppListIndex ->
             "/#developers/apps"
@@ -98,10 +101,10 @@ isSameFirstLevel routeOne routeTwo =
         ( Index, _ ) ->
             False
 
-        ( Backup, Backup ) ->
+        ( RecoveryKit, RecoveryKit ) ->
             True
 
-        ( Backup, _ ) ->
+        ( RecoveryKit, _ ) ->
             False
 
         ( DeveloperAppList _, DeveloperAppList _ ) ->

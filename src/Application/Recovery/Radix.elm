@@ -17,7 +17,7 @@ type alias Flags =
 
     -- Because there's an interruption in the account recovery process
     -- (you need to open your email inbox and go to the link in the recovery email)
-    -- so we need to make sure we save&load the submitted backup.
+    -- so we need to make sure we save&load the submitted recovery kit.
     , savedRecovery :
         { username : Maybe String
         , key : Maybe String
@@ -44,7 +44,7 @@ type alias Model =
     }
 
 
-type alias SecureBackup =
+type alias RecoveryKit =
     { username : String
     , key : String
     }
@@ -61,7 +61,7 @@ type State
 
 
 type alias StateRecoverAccount =
-    { backupUpload : RemoteData VerifyBackupError SecureBackup
+    { recoveryKitUpload : RemoteData VerifyRecoveryKitError RecoveryKit
     , sentEmail : WebData ()
     }
 
@@ -119,15 +119,15 @@ type Msg
       UrlChanged Url
     | LinkClicked UrlRequest
       -- Account Recovery Screen
-    | RecoverySelectedBackup (List File)
-    | RecoveryVerifyBackupFailed VerifyBackupError
-    | RecoveryVerifyBackupSucceeded SecureBackup
-    | RecoveryUploadedBackup String
+    | RecoverySelectedRecoveryKit (List File)
+    | RecoveryVerifyRecoveryKitFailed VerifyRecoveryKitError
+    | RecoveryVerifyRecoveryKitSucceeded RecoveryKit
+    | RecoveryUploadedRecoveryKit String
     | RecoveryClickedSendEmail
     | RecoveryEmailSent (Result Http.Error ())
       -- Regain Account Screen
     | RegainEmailSent (Result Http.Error ())
-    | RegainClickedIHaveNoBackup
+    | RegainClickedIHaveNoRecoveryKit
     | RegainClickedGoBack
     | RegainUsernameInput String
     | RegainUsernameExists { username : String, exists : Bool, valid : Bool }
@@ -143,5 +143,5 @@ type Msg
     | LinkingDone
 
 
-type alias VerifyBackupError =
+type alias VerifyRecoveryKitError =
     { message : String, contactSupport : Bool }

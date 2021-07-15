@@ -135,8 +135,8 @@ step number active description =
         ]
 
 
-backupUpload : { onUpload : Json.Decoder msg, isLoading : Bool } -> Html msg
-backupUpload element =
+recoveryKitUpload : { onUpload : Json.Decoder msg, isLoading : Bool } -> Html msg
+recoveryKitUpload element =
     label
         [ css
             [ dark [ border_gray_200 ]
@@ -167,7 +167,7 @@ backupUpload element =
                     , text_sm
                     ]
                 ]
-                [ text "drop or tap to upload your backup file" ]
+                [ text "drop or tap to upload your recovery kit" ]
             , input
                 [ type_ "file"
                 , Events.on "change" element.onUpload
@@ -184,13 +184,13 @@ backupUpload element =
         )
 
 
-iHaveNoBackupButton : { onClick : msg } -> Html msg
-iHaveNoBackupButton element =
+iHaveNoRecoveryKitButton : { onClick : msg } -> Html msg
+iHaveNoRecoveryKitButton element =
     button
         [ Events.onClick element.onClick
         , css [ secondaryLinkStyle ]
         ]
-        [ text "I don’t have a backup" ]
+        [ text "I don’t have a recovery kit" ]
 
 
 secondaryLinkStyle : Css.Style
@@ -227,8 +227,8 @@ contactSupportMessage shouldTryRetry =
         ]
 
 
-importedBackupCheckmark : Html msg
-importedBackupCheckmark =
+importedRecoveryKitCheckmark : Html msg
+importedRecoveryKitCheckmark =
     span
         [ css
             [ flex
@@ -244,7 +244,7 @@ importedBackupCheckmark =
             , tag = span [ css [ ml_auto ] ]
             }
         , span [ css [ ml_2, mr_auto ] ]
-            [ text "Imported Backup File" ]
+            [ text "Imported Recovery Kit" ]
         ]
 
 
@@ -338,7 +338,7 @@ buttonGoBack element =
         , disabled = element.disabled
         , onClick = Just element.onGoBack
         , icon = Just FeatherIcons.arrowLeft
-        , label = "I have no backup! Go Back"
+        , label = "I have a Recovery Kit! Go Back"
         , style = View.Common.secondaryButtonStyle
         , spinnerStyle = []
         }

@@ -70,7 +70,7 @@ stateFromUrl flags url =
 
         Nothing ->
             ScreenRecoverAccount
-                { backupUpload = RemoteData.NotAsked
+                { recoveryKitUpload = RemoteData.NotAsked
                 , sentEmail = RemoteData.NotAsked
                 }
 
@@ -82,13 +82,13 @@ stateFromUrl flags url =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        RecoverySelectedBackup files ->
+        RecoverySelectedRecoveryKit files ->
             updateScreenRecoverAccount model
                 (\state ->
                     case files of
                         [ file ] ->
-                            ( { state | backupUpload = RemoteData.Loading }
-                            , Task.perform RecoveryUploadedBackup (File.toString file)
+                            ( { state | recoveryKitUpload = RemoteData.Loading }
+                            , Task.perform RecoveryUploadedRecoveryKit (File.toString file)
                             )
 
                         _ ->
@@ -97,38 +97,38 @@ update msg model =
                             )
                 )
 
-        RecoveryUploadedBackup content ->
-            case parseBackup content of
-                Ok backup ->
-                    ( model, Ports.verifyBackup backup )
+        RecoveryUploadedRecoveryKit content ->
+            case parseRecoveryKit content of
+                Ok recoveryKit ->
+                    ( model, Ports.verifyRecoveryKit recoveryKit )
 
                 Err error ->
                     ( { model
                         | recoveryState =
                             ScreenRecoverAccount
-                                { backupUpload = RemoteData.Failure error
+                                { recoveryKitUpload = RemoteData.Failure error
                                 , sentEmail = RemoteData.NotAsked
                                 }
                       }
                     , Cmd.none
                     )
 
-        RecoveryVerifyBackupFailed error ->
+        RecoveryVerifyRecoveryKitFailed error ->
             ( { model
                 | recoveryState =
                     ScreenRecoverAccount
-                        { backupUpload = RemoteData.Failure error
+                        { recoveryKitUpload = RemoteData.Failure error
                         , sentEmail = RemoteData.NotAsked
                         }
               }
             , Cmd.none
             )
 
-        RecoveryVerifyBackupSucceeded backup ->
+        RecoveryVerifyRecoveryKitSucceeded recoveryKit ->
             ( { model
                 | recoveryState =
                     ScreenRecoverAccount
-                        { backupUpload = RemoteData.Success backup
+                        { recoveryKitUpload = RemoteData.Success recoveryKit
                         , sentEmail = RemoteData.NotAsked
                         }
               }
@@ -138,12 +138,12 @@ update msg model =
         RecoveryClickedSendEmail ->
             updateScreenRecoverAccount model
                 (\state ->
-                    case state.backupUpload of
-                        RemoteData.Success backup ->
+                    case state.recoveryKitUpload of
+                        RemoteData.Success recoveryKit ->
                             ( { state | sentEmail = RemoteData.Loading }
                             , Api.sendRecoveryEmail
                                 { endpoints = model.endpoints
-                                , username = backup.username
+                                , username = recoveryKit.username
                                 , onResult = RecoveryEmailSent
                                 }
                             )
@@ -158,11 +158,11 @@ update msg model =
                     ( { state
                         | sentEmail = RemoteData.fromResult result
                       }
-                    , case state.backupUpload of
-                        RemoteData.Success backup ->
+                    , case state.recoveryKitUpload of
+                        RemoteData.Success recoveryKit ->
                             Cmd.batch
-                                [ Ports.saveUsername backup.username
-                                , Ports.saveBackup backup.key
+                                [ Ports.saveUsername recoveryKit.username
+                                , Ports.saveRecoveryKit recoveryKit.key
                                 ]
 
                         _ ->
@@ -170,7 +170,7 @@ update msg model =
                     )
                 )
 
-        RegainClickedIHaveNoBackup ->
+        RegainClickedIHaveNoRecoveryKit ->
             ( { model
                 | recoveryState =
                     ScreenRegainAccess
@@ -186,7 +186,7 @@ update msg model =
             ( { model
                 | recoveryState =
                     ScreenRecoverAccount
-                        { backupUpload = RemoteData.NotAsked
+                        { recoveryKitUpload = RemoteData.NotAsked
                         , sentEmail = RemoteData.NotAsked
                         }
               }
@@ -517,8 +517,8 @@ subscriptions model =
     case model.recoveryState of
         ScreenRecoverAccount _ ->
             Sub.batch
-                [ Ports.verifyBackupFailed RecoveryVerifyBackupFailed
-                , Ports.verifyBackupSucceeded RecoveryVerifyBackupSucceeded
+                [ Ports.verifyRecoveryKitFailed RecoveryVerifyRecoveryKitFailed
+                , Ports.verifyRecoveryKitSucceeded RecoveryVerifyRecoveryKitSucceeded
                 ]
 
         ScreenRegainAccess _ ->
@@ -555,7 +555,7 @@ view model =
             (case model.recoveryState of
                 ScreenRecoverAccount state ->
                     if
-                        RemoteData.isSuccess state.backupUpload
+                        RemoteData.isSuccess state.recoveryKitUpload
                             && RemoteData.isSuccess state.sentEmail
                     then
                         viewScreenWaitingForEmail FlowRecoverAccount
@@ -594,7 +594,7 @@ viewScreenRecoverAccount : StateRecoverAccount -> List (Html Msg)
 viewScreenRecoverAccount state =
     let
         error =
-            case state.backupUpload of
+            case state.recoveryKitUpload of
                 RemoteData.Failure verifyError ->
                     [ View.Common.warning
                         [ Html.text verifyError.message
@@ -607,11 +607,11 @@ viewScreenRecoverAccount state =
                     []
 
         uploadSection =
-            case state.backupUpload of
-                RemoteData.Success backup ->
+            case state.recoveryKitUpload of
+                RemoteData.Success recoveryKit ->
                     List.append
-                        [ View.Recovery.importedBackupCheckmark
-                        , View.Recovery.welcomeBackMessage backup.username
+                        [ View.Recovery.importedRecoveryKitCheckmark
+                        , View.Recovery.welcomeBackMessage recoveryKit.username
                         , View.Recovery.buttonSendEmail
                             { isLoading = RemoteData.isLoading state.sentEmail
                             , disabled = RemoteData.isLoading state.sentEmail
@@ -632,16 +632,16 @@ viewScreenRecoverAccount state =
 
                 _ ->
                     List.concat
-                        [ [ View.Recovery.backupUpload
+                        [ [ View.Recovery.recoveryKitUpload
                                 { onUpload =
                                     Json.at [ "target", "files" ] (Json.list File.decoder)
-                                        |> Json.map RecoverySelectedBackup
-                                , isLoading = RemoteData.isLoading state.backupUpload
+                                        |> Json.map RecoverySelectedRecoveryKit
+                                , isLoading = RemoteData.isLoading state.recoveryKitUpload
                                 }
                           ]
                         , error
-                        , [ View.Recovery.iHaveNoBackupButton
-                                { onClick = RegainClickedIHaveNoBackup }
+                        , [ View.Recovery.iHaveNoRecoveryKitButton
+                                { onClick = RegainClickedIHaveNoRecoveryKit }
                           ]
                         ]
     in
@@ -649,7 +649,7 @@ viewScreenRecoverAccount state =
     , View.Common.sectionSpacer
     , View.Dashboard.section []
         [ View.Recovery.steps
-            [ View.Recovery.step 1 True "upload your secure backup file"
+            [ View.Recovery.step 1 True "upload your recovery kit"
             , View.Recovery.step 2 False "verify your e-mail address"
             , View.Recovery.step 3 False "re-link your fission account"
             ]
@@ -706,7 +706,7 @@ viewScreenRegainAccess state =
             , Html.text " restore access to your username and public files. To do this, we need to verify the email address associated with your account."
             , Html.br [] []
             , Html.br [] []
-            , Html.i [] [ Html.text "(Don’t worry, if you eventually find your backup, you’ll still be able to recover your private files!)" ]
+            , Html.i [] [ Html.text "(Don’t worry, if you eventually find your recovery kit, you’ll still be able to recover your private files!)" ]
             ]
         , View.Recovery.inputsRegainAccount
             { onSubmit = RegainClickedSendEmail
@@ -791,7 +791,7 @@ viewScreenVerifiedEmail url state =
                     ( RemoteData.Failure httpError, _ ) ->
                         case httpError of
                             Http.BadStatus 422 ->
-                                [ View.Common.warning [ Html.text "Couldn't find an account with the username referred to in the backup." ] ]
+                                [ View.Common.warning [ Html.text "Couldn't find an account with the username referred to in the recovery kit." ] ]
 
                             Http.BadStatus 404 ->
                                 [ View.Common.warning
@@ -838,12 +838,12 @@ viewScreenWrongBrowser =
     , View.Common.sectionSpacer
     , View.Dashboard.section []
         [ View.Recovery.steps
-            [ View.Recovery.step 1 False "upload your secure backup file"
+            [ View.Recovery.step 1 False "upload your secure recovery kit"
             , View.Recovery.step 2 True "verify your e-mail address"
             , View.Recovery.step 3 False "re-link your fission account"
             ]
         , View.Dashboard.sectionParagraph
-            [ View.Common.warning [ Html.text "We couldn’t find a backup in this browser." ] ]
+            [ View.Common.warning [ Html.text "We couldn’t find a recovery kit in this browser." ] ]
         , View.Dashboard.sectionParagraph
             [ Html.text "Did you start the recovery process in another browser?"
             , Html.text "If you can’t remember having started a recovery process, then please just delete the e-mail you received."
@@ -916,8 +916,8 @@ viewScreenFinished state =
 -- Utilities
 
 
-parseBackup : String -> Result VerifyBackupError SecureBackup
-parseBackup content =
+parseRecoveryKit : String -> Result VerifyRecoveryKitError RecoveryKit
+parseRecoveryKit content =
     let
         keyValues =
             content
@@ -937,11 +937,11 @@ parseBackup content =
                     )
                 |> Dict.fromList
     in
-    Maybe.map2 SecureBackup
+    Maybe.map2 RecoveryKit
         (Dict.get "username" keyValues)
         (Dict.get "key" keyValues)
         |> Result.fromMaybe
-            { message = "Couldn’t validate the backup."
+            { message = "Couldn’t validate the recovery kit."
             , contactSupport = True
             }
 
@@ -965,7 +965,7 @@ flowWording flow =
     case flow of
         FlowRecoverAccount ->
             { heading = "Recover your Account"
-            , firstStep = "upload your secure backup file"
+            , firstStep = "upload your secure recovery kit"
             , requestName = "recover your account"
             }
 

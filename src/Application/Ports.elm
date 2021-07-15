@@ -49,7 +49,7 @@ port webnativeError : (String -> msg) -> Sub msg
 
 
 
--- Secure Backup
+-- Recovery Kit
 
 
 port fetchReadKey : () -> Cmd msg
