@@ -7,16 +7,16 @@ port log : List Json.Value -> Cmd msg
 
 
 
--- verifyBackup
+-- verifyRecoveryKit
 
 
-port verifyBackup : { username : String, key : String } -> Cmd msg
+port verifyRecoveryKit : { username : String, key : String } -> Cmd msg
 
 
-port verifyBackupFailed : ({ message : String, contactSupport : Bool } -> msg) -> Sub msg
+port verifyRecoveryKitFailed : ({ message : String, contactSupport : Bool } -> msg) -> Sub msg
 
 
-port verifyBackupSucceeded : ({ username : String, key : String } -> msg) -> Sub msg
+port verifyRecoveryKitSucceeded : ({ username : String, key : String } -> msg) -> Sub msg
 
 
 
@@ -30,13 +30,13 @@ port usernameExistsResponse : ({ username : String, exists : Bool, valid : Bool 
 
 
 
--- save backup
+-- save recovery kit
 
 
 port saveUsername : String -> Cmd msg
 
 
-port saveBackup : String -> Cmd msg
+port saveRecoveryKit : String -> Cmd msg
 
 
 

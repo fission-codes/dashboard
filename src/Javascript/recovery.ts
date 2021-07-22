@@ -33,15 +33,15 @@ window.webnative = webnative
 webnative.setup.debug({ enabled: true })
 webnative.setup.endpoints(window.endpoints)
 
-const RECOVERY_USERNAME_KEY = "account-recovery-username"
-const RECOVERY_BACKUP_KEY = "account-recovery-backup"
+const RECOVERY_KIT_USERNAME_KEY = "account-recovery-username"
+const RECOVERY_KIT_KEY = "account-recovery-key"
 
-function clearBackup () {
-  localStorage.removeItem(RECOVERY_USERNAME_KEY)
-  localStorage.removeItem(RECOVERY_BACKUP_KEY)
+function clearRecoveryKit () {
+  localStorage.removeItem(RECOVERY_KIT_USERNAME_KEY)
+  localStorage.removeItem(RECOVERY_KIT_KEY)
 }
 
-window["clearBackup"] = clearBackup
+window["clearRecoveryKit"] = clearRecoveryKit
 
 
 //----------------------------------------
@@ -52,22 +52,22 @@ const elmApp = Elm.Recovery.Main.init({
   flags: {
     endpoints: window.endpoints,
     savedRecovery: {
-      username: localStorage.getItem(RECOVERY_USERNAME_KEY),
-      key: localStorage.getItem(RECOVERY_BACKUP_KEY)
+      username: localStorage.getItem(RECOVERY_KIT_USERNAME_KEY),
+      key: localStorage.getItem(RECOVERY_KIT_KEY)
     }
   }
 })
 
 window["elmApp"] = elmApp
 
-elmApp.ports.verifyBackup.subscribe(async (backup: { username: string, key: string }) => {
+elmApp.ports.verifyRecoveryKit.subscribe(async (recoveryKit: { username: string, key: string }) => {
   try {
     const ipfsPromise = webnativeIpfs.get()
     const rootCID = await tryRethrowing(
-      dataRoot.lookupOnFisson(backup.username),
+      dataRoot.lookupOnFisson(recoveryKit.username),
       e => ({
         isUserError: true,
-        message: `We couldn't find a user with name "${backup.username}".`,
+        message: `We couldn't find a user with name "${recoveryKit.username}".`,
         contactSupport: false,
         original: e,
       })
@@ -76,7 +76,7 @@ elmApp.ports.verifyBackup.subscribe(async (backup: { username: string, key: stri
     if (rootCID == null) {
       throw {
         isUserError: true,
-        message: `We couldn't find a user with name "${backup.username}".`,
+        message: `We couldn't find a user with name "${recoveryKit.username}".`,
         contactSupport: true,
         original: null,
       }
@@ -93,7 +93,7 @@ elmApp.ports.verifyBackup.subscribe(async (backup: { username: string, key: stri
       })
     )
 
-    const privateName = await getRootBlockPrivateName(backup.key)
+    const privateName = await getRootBlockPrivateName(recoveryKit.key)
 
     const mmpt = await tryRethrowing(
       MMPT.fromCID(mmptCID.toString()),
@@ -110,15 +110,15 @@ elmApp.ports.verifyBackup.subscribe(async (backup: { username: string, key: stri
     if (!privateRootExists) {
       throw {
         isUserError: true,
-        message: "This backup file is invalid.",
+        message: "This recovery kit is invalid.",
         contactSupport: true,
         original: null,
       }
     }
-    elmApp.ports.verifyBackupSucceeded.send(backup)
+    elmApp.ports.verifyRecoveryKitSucceeded.send(recoveryKit)
   } catch (e) {
     if (e.isUserError) {
-      elmApp.ports.verifyBackupFailed.send({ message: e.message, contactSupport: e.contactSupport })
+      elmApp.ports.verifyRecoveryKitFailed.send({ message: e.message, contactSupport: e.contactSupport })
     }
     if (e.original != null) {
       console.error(e.original)
@@ -158,10 +158,10 @@ elmApp.ports.usernameExists.subscribe(throttle(async (username: string) => {
 
 
 elmApp.ports.saveUsername.subscribe(async (username: string) => {
-  localStorage.setItem(RECOVERY_USERNAME_KEY, username)
+  localStorage.setItem(RECOVERY_KIT_USERNAME_KEY, username)
 })
-elmApp.ports.saveBackup.subscribe(async (backup: string) => {
-  localStorage.setItem(RECOVERY_BACKUP_KEY, backup)
+elmApp.ports.saveRecoveryKit.subscribe(async (recoveryKit: string) => {
+  localStorage.setItem(RECOVERY_KIT_KEY, recoveryKit)
 })
 
 
@@ -230,7 +230,7 @@ elmApp.ports.linkingInitiate.subscribe(async ({ username, rootPublicKey, readKey
       })
 
       if (authorized) {
-        clearBackup()
+        clearRecoveryKit()
         await webnative.keystore.clear()
         elmApp.ports.linkingDone.send({})
         return

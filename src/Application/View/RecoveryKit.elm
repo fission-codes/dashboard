@@ -1,4 +1,4 @@
-module View.Backup exposing (..)
+module View.RecoveryKit exposing (..)
 
 import Base64
 import Common
@@ -74,7 +74,7 @@ buttonAskForPermission msg =
         { isLoading = False
         , disabled = False
         , icon = Nothing
-        , label = "Give Permission for a Backup"
+        , label = "Allow Creating a Recovery Kit"
         , onClick = Just msg
         , style =
             Css.batch
@@ -86,13 +86,13 @@ buttonAskForPermission msg =
         }
 
 
-buttonSecureBackup : msg -> Html msg
-buttonSecureBackup msg =
+buttonCreateRecoveryKit : msg -> Html msg
+buttonCreateRecoveryKit msg =
     View.Common.button
         { isLoading = False
         , disabled = False
         , icon = Nothing
-        , label = "Secure Backup"
+        , label = "Create Recovery Kit"
         , onClick = Just msg
         , style =
             Css.batch
@@ -312,8 +312,8 @@ buttonDownload element =
         ]
 
 
-buttonBackupCancel : msg -> Html msg
-buttonBackupCancel msg =
+buttonRecoveryKitCancel : msg -> Html msg
+buttonRecoveryKitCancel msg =
     View.Common.button
         { icon = Nothing
         , label = "CANCEL"

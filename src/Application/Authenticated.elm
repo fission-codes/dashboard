@@ -19,10 +19,10 @@ import Tailwind.Utilities
 import Url exposing (Url)
 import View.Account
 import View.AppList
-import View.Backup
 import View.Common
 import View.Dashboard
 import View.Navigation
+import View.RecoveryKit
 import Webnative.Types
 
 
@@ -39,8 +39,8 @@ init url { username, permissions } =
       , navigationExpanded = False
       , route = route
 
-      -- Backup
-      , backupState = BackupWaiting
+      -- Recovery Kit
+      , recoveryKitState = RecoveryKitWaiting
 
       -- App List
       , appList = Nothing
@@ -58,7 +58,7 @@ onRouteChange route model =
     ( { model
         | route = route
         , navigationExpanded = False
-        , backupState = BackupWaiting
+        , recoveryKitState = RecoveryKitWaiting
       }
     , commandsByRoute route
     )
@@ -132,8 +132,8 @@ update navKey msg model =
             , Cmd.none
             )
 
-        -- Backup
-        BackupAskForPermission ->
+        -- Recovery Kit
+        RecoveryKitAskForPermission ->
             ( model
             , Ports.redirectToLobby
                 { permissions =
@@ -148,10 +148,10 @@ update navKey msg model =
                 }
             )
 
-        BackupStart ->
-            case model.backupState of
-                BackupWaiting ->
-                    ( { model | backupState = BackupFetchingKey }
+        RecoveryKitStart ->
+            case model.recoveryKitState of
+                RecoveryKitWaiting ->
+                    ( { model | recoveryKitState = RecoveryKitFetchingKey }
                     , Ports.fetchReadKey ()
                     )
 
@@ -160,15 +160,15 @@ update navKey msg model =
                     , Cmd.none
                     )
 
-        BackupCancel ->
-            ( { model | backupState = BackupWaiting }
+        RecoveryKitCancel ->
+            ( { model | recoveryKitState = RecoveryKitWaiting }
             , Cmd.none
             )
 
-        BackupReceivedKey { key, createdAt } ->
-            case model.backupState of
-                BackupFetchingKey ->
-                    ( { model | backupState = BackupFetchedKey { key = key, visible = False, createdAt = createdAt } }
+        RecoveryKitReceivedKey { key, createdAt } ->
+            case model.recoveryKitState of
+                RecoveryKitFetchingKey ->
+                    ( { model | recoveryKitState = RecoveryKitFetchedKey { key = key, visible = False, createdAt = createdAt } }
                     , Cmd.none
                     )
 
@@ -177,10 +177,10 @@ update navKey msg model =
                     , Cmd.none
                     )
 
-        BackupFetchKeyError ->
-            case model.backupState of
-                BackupFetchingKey ->
-                    ( { model | backupState = BackupError }
+        RecoveryKitFetchKeyError ->
+            case model.recoveryKitState of
+                RecoveryKitFetchingKey ->
+                    ( { model | recoveryKitState = RecoveryKitError }
                     , Cmd.none
                     )
 
@@ -392,8 +392,8 @@ view model =
                     Route.Index ->
                         viewAccount model
 
-                    Route.Backup ->
-                        viewBackup model
+                    Route.RecoveryKit ->
+                        viewRecoveryKit model
 
                     Route.DeveloperAppList Route.DeveloperAppListIndex ->
                         viewAppList model
@@ -416,8 +416,8 @@ navigationItems =
       , name = "Account"
       , icon = FeatherIcons.user
       }
-    , { route = Route.Backup
-      , name = "Secure Backup"
+    , { route = Route.RecoveryKit
+      , name = "Recovery Kit"
       , icon = FeatherIcons.key
       }
     , { route = Route.DeveloperAppList Route.DeveloperAppListIndex
@@ -460,8 +460,8 @@ viewAccount model =
         ]
 
 
-viewBackup : AuthenticatedModel -> List (Html Msg)
-viewBackup model =
+viewRecoveryKit : AuthenticatedModel -> List (Html Msg)
+viewRecoveryKit model =
     let
         hasPrivateFilesystemPermissions permissions =
             case permissions.fs of
@@ -481,70 +481,70 @@ viewBackup model =
                     False
     in
     [ View.Dashboard.heading
-        (List.append [ Html.span [] [ Html.text "Secure Backup" ] ]
-            (case model.backupState of
-                BackupWaiting ->
+        (List.append [ Html.span [] [ Html.text "Recovery Kit" ] ]
+            (case model.recoveryKitState of
+                RecoveryKitWaiting ->
                     []
 
                 _ ->
-                    [ View.Backup.buttonBackupCancel (AuthenticatedMsg BackupCancel) ]
+                    [ View.RecoveryKit.buttonRecoveryKitCancel (AuthenticatedMsg RecoveryKitCancel) ]
             )
         )
     , View.Common.sectionSpacer
     , View.Dashboard.section []
         (if hasPrivateFilesystemPermissions model.permissions then
-            viewBackupPermissioned model
+            viewRecoveryKitPermissioned model
 
          else
-            viewBackupInfoWith model
+            viewRecoveryKitInfoWith model
                 [ View.Dashboard.sectionParagraph
-                    [ Html.text "The dashboard will need access permissions to your private files to create a secure backup." ]
-                , View.Backup.buttonGroup
-                    [ View.Backup.buttonAskForPermission (AuthenticatedMsg BackupAskForPermission)
+                    [ Html.text "The dashboard will need access permissions to your private files to create a recovery kit." ]
+                , View.RecoveryKit.buttonGroup
+                    [ View.RecoveryKit.buttonAskForPermission (AuthenticatedMsg RecoveryKitAskForPermission)
                     ]
                 ]
         )
     ]
 
 
-viewBackupInfoWith : AuthenticatedModel -> List (Html Msg) -> List (Html Msg)
-viewBackupInfoWith model content =
+viewRecoveryKitInfoWith : AuthenticatedModel -> List (Html Msg) -> List (Html Msg)
+viewRecoveryKitInfoWith model content =
     List.append
         [ View.Dashboard.sectionParagraph
             [ Html.text "Fission accounts don't need passwords, because we use the encryption built into your web browser to link devices."
             , Html.br [] []
             , Html.br [] []
-            , Html.text "In case you lose access to all the devices you have linked to Fission, you need to store this secure backup in a safe place."
+            , Html.text "In case you lose access to all the devices you have linked to Fission, you need to store this recovery kit in a safe place."
             ]
-        , View.Backup.loggedInAs model.username
+        , View.RecoveryKit.loggedInAs model.username
         ]
         content
 
 
-viewBackupPermissioned : AuthenticatedModel -> List (Html Msg)
-viewBackupPermissioned model =
-    case model.backupState of
-        BackupWaiting ->
-            viewBackupInfoWith model
-                [ View.Backup.buttonGroup
-                    [ View.Backup.buttonSecureBackup (AuthenticatedMsg BackupStart) ]
+viewRecoveryKitPermissioned : AuthenticatedModel -> List (Html Msg)
+viewRecoveryKitPermissioned model =
+    case model.recoveryKitState of
+        RecoveryKitWaiting ->
+            viewRecoveryKitInfoWith model
+                [ View.RecoveryKit.buttonGroup
+                    [ View.RecoveryKit.buttonCreateRecoveryKit (AuthenticatedMsg RecoveryKitStart) ]
                 ]
 
-        BackupFetchingKey ->
-            viewBackupInfoWith model
-                [ View.Backup.buttonGroup
-                    [ View.Backup.buttonSecureBackup (AuthenticatedMsg BackupStart) ]
+        RecoveryKitFetchingKey ->
+            viewRecoveryKitInfoWith model
+                [ View.RecoveryKit.buttonGroup
+                    [ View.RecoveryKit.buttonCreateRecoveryKit (AuthenticatedMsg RecoveryKitStart) ]
                 ]
 
-        BackupFetchedKey backup ->
-            viewBackupShowingKey model backup
+        RecoveryKitFetchedKey recoveryKitInfo ->
+            viewRecoveryKitShowingKey model recoveryKitInfo
 
-        BackupError ->
-            viewBackupInfoWith model
-                [ View.Backup.buttonGroup
-                    [ View.Backup.buttonSecureBackup (AuthenticatedMsg BackupStart) ]
+        RecoveryKitError ->
+            viewRecoveryKitInfoWith model
+                [ View.RecoveryKit.buttonGroup
+                    [ View.RecoveryKit.buttonCreateRecoveryKit (AuthenticatedMsg RecoveryKitStart) ]
                 , View.Common.warning
-                    [ Html.text "Something went wrong while trying to create a backup. Please reload the page and try again or contact "
+                    [ Html.text "Something went wrong while trying to create a recovery kit. Please reload the page and try again or contact "
                     , View.Common.underlinedLink []
                         { location = "https://fission.codes/support"
                         , external = False
@@ -555,47 +555,42 @@ viewBackupPermissioned model =
                 ]
 
 
-backupKeyInputFieldId : String
-backupKeyInputFieldId =
-    "backup-key"
-
-
-viewBackupShowingKey : AuthenticatedModel -> { key : String, visible : Bool, createdAt : String } -> List (Html Msg)
-viewBackupShowingKey model backup =
+viewRecoveryKitShowingKey : AuthenticatedModel -> { key : String, visible : Bool, createdAt : String } -> List (Html Msg)
+viewRecoveryKitShowingKey model recoveryKitInfo =
     [ View.Dashboard.sectionParagraph
-        [ Html.text "This is your secure backup."
+        [ Html.text "This is your recovery kit."
         , Html.br [] []
         , Html.br [] []
         , Html.text "Store it somewhere safe. "
-        , Html.strong [] [ Html.text "Anyone with this backup will have read access to your private files" ]
+        , Html.strong [] [ Html.text "Anyone with this recovery kit will have read access to your private files" ]
         , Html.text " and "
         , Html.strong [] [ Html.text "losing it will mean you won’t be able to recover your private files" ]
-        , Html.text " in case you lose all your linked devices. You can create a backup at any point when logged in."
+        , Html.text " in case you lose all your linked devices. You can create a recovery kit at any point when logged in."
         , Html.br [] []
         , Html.br [] []
-        , Html.text "The fission team will never ask you to share your backup."
+        , Html.text "The fission team will never ask you to share your recovery kit."
         ]
     , View.Dashboard.sectionGroup []
-        [ View.Backup.buttonDownload
-            { filename = "FissionSecureBackup-" ++ model.username ++ ".txt"
+        [ View.RecoveryKit.buttonDownload
+            { filename = "FissionRecoveryKit-" ++ model.username ++ ".txt"
             , file =
-                backupFile
+                recoveryKit
                     { username = model.username
-                    , key = backup.key
-                    , createdAt = backup.createdAt
+                    , key = recoveryKitInfo.key
+                    , createdAt = recoveryKitInfo.createdAt
                     }
             }
         ]
     ]
 
 
-backupFile :
+recoveryKit :
     { username : String
     , key : String
     , createdAt : String
     }
     -> String
-backupFile { username, key, createdAt } =
+recoveryKit { username, key, createdAt } =
     [ "# MMMMMMMMMMMMMMMMMMMMMMMMWXkoccdxxookXWMM"
     , "# MWXOxolodkXWMMMMMMMMMMMWk;..cONWW0l',oXM"
     , "# Xd;.......,oKWMMMMMMMMWx'..oXMMMMMNd..:K"
@@ -617,13 +612,13 @@ backupFile { username, key, createdAt } =
     , "# WKd;;oOKOd,.'cOWMMMMMMMMMMMMMNK0OO0XWMMM"
     , "# MMWXklcc:;:o0NMMMMMMMMMMMMMMMMMMMMMMMMMM"
     , "# "
-    , "# This is your secure backup. (It’s a yaml text file)"
+    , "# This is your recovery kit. (It’s a yaml text file)"
     , "# "
     , "# Created for " ++ username ++ " on " ++ createdAt
     , "# "
     , "# Store this somewhere safe."
     , "# "
-    , "# Anyone with this backup will have read access to your private files."
+    , "# Anyone with this file will have read access to your private files."
     , "# Losing it means you won’t be able to recover your account"
     , "# in case you lose access to all your linked devices."
     , "# "
@@ -1041,11 +1036,11 @@ subscriptions model =
 
           else
             Sub.none
-        , case model.backupState of
-            BackupFetchingKey ->
+        , case model.recoveryKitState of
+            RecoveryKitFetchingKey ->
                 Sub.batch
-                    [ Ports.fetchedReadKey (AuthenticatedMsg << BackupReceivedKey)
-                    , Ports.fetchReadKeyError (\_ -> AuthenticatedMsg BackupFetchKeyError)
+                    [ Ports.fetchedReadKey (AuthenticatedMsg << RecoveryKitReceivedKey)
+                    , Ports.fetchReadKeyError (\_ -> AuthenticatedMsg RecoveryKitFetchKeyError)
                     ]
 
             _ ->

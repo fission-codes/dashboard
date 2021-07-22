@@ -51,8 +51,8 @@ type alias AuthenticatedModel =
     , navigationExpanded : Bool
     , route : Route
 
-    -- Secure Backup
-    , backupState : BackupState
+    -- Recovery Kit
+    , recoveryKitState : RecoveryKitState
 
     -- App List
     , appList : Maybe (List App.Name)
@@ -63,11 +63,11 @@ type alias AuthenticatedModel =
     }
 
 
-type BackupState
-    = BackupWaiting
-    | BackupFetchingKey
-    | BackupFetchedKey { key : String, visible : Bool, createdAt : String }
-    | BackupError
+type RecoveryKitState
+    = RecoveryKitWaiting
+    | RecoveryKitFetchingKey
+    | RecoveryKitFetchedKey { key : String, visible : Bool, createdAt : String }
+    | RecoveryKitError
 
 
 type alias AppPageModel =
@@ -126,12 +126,12 @@ type AuthenticatedMsg
       -- Account
     | EmailResendVerification
     | VerificationEmailSent
-      -- Backup
-    | BackupAskForPermission
-    | BackupStart
-    | BackupCancel
-    | BackupReceivedKey { key : String, createdAt : String }
-    | BackupFetchKeyError
+      -- Recovery Kit
+    | RecoveryKitAskForPermission
+    | RecoveryKitStart
+    | RecoveryKitCancel
+    | RecoveryKitReceivedKey { key : String, createdAt : String }
+    | RecoveryKitFetchKeyError
       -- App List
     | FetchedAppList Json.Value
     | DropzonePublishStart
