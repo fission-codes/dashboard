@@ -7,6 +7,7 @@ specifiers:
   '@types/wicg-file-system-access': ^2020.9.1
   autoprefixer: ^10.2.4
   elm: ^0.19.1-5
+  elm-book: ^1.0.1
   elm-format: ^0.8.5
   elm-live: ^4.0.2
   elm-review: ^2.5.3
@@ -37,6 +38,7 @@ devDependencies:
   '@types/wicg-file-system-access': 2020.9.1
   autoprefixer: 10.2.4_postcss@8.2.6
   elm: 0.19.1-5
+  elm-book: 1.0.1
   elm-format: 0.8.5
   elm-live: 4.0.2
   elm-review: 2.5.3
@@ -1218,6 +1220,11 @@ packages:
 
   /@types/node/16.0.1:
     resolution: {integrity: sha512-hBOx4SUlEPKwRi6PrXuTGw1z6lz0fjsibcWCM378YxsSu/6+C30L6CR49zIBKHiwNWCYIcOLjg4OHKZaFeLAug==}
+    dev: true
+
+  /@types/node/16.4.1:
+    resolution: {integrity: sha512-UW7cbLqf/Wu5XH2RKKY1cHwUNLicIDRLMraYKz+HHAerJ0ZffUEk+fMnd8qU2JaS6cAy0r8tsaf7yqHASf/Y0Q==}
+    dev: false
 
   /@types/normalize-package-data/2.4.0:
     resolution: {integrity: sha512-f5j5b/Gf71L+dbqxIpQ4Z2WlmI/mPJ0fOkGGmFgtb6sAu97EPczzbS3/tJKxmcYDj55OX6ssqwDAWOHIYDRDGA==}
@@ -2549,6 +2556,15 @@ packages:
       minimalistic-crypto-utils: 1.0.1
     dev: false
 
+  /elm-book/1.0.1:
+    resolution: {integrity: sha512-XI0Oc2jYiuUvnZMcB7Zo/v7eVcMmq9DAj0leisHjVL/C0L2XDKM2Yifbo3sc1AGIt6YBASEjyryy9OL0pHoaYQ==}
+    hasBin: true
+    dependencies:
+      elm-live: 4.0.2
+    transitivePeerDependencies:
+      - debug
+    dev: true
+
   /elm-format/0.8.5:
     resolution: {integrity: sha512-/Mjwz5RhJ8cdcMsHT98AEKprSIHyRde+URIPvnHez9WH7Xp+rFCOJx0FNMPIYrbHE9Ei7HDSVwhjDP0i+mlvpQ==}
     hasBin: true
@@ -2749,7 +2765,7 @@ packages:
       is-negative-zero: 2.0.1
       is-regex: 1.1.3
       is-string: 1.0.6
-      object-inspect: 1.10.3
+      object-inspect: 1.11.0
       object-keys: 1.1.1
       object.assign: 4.1.2
       string.prototype.trimend: 1.0.4
@@ -4135,20 +4151,20 @@ packages:
       package-json: 6.5.0
     dev: true
 
-  /libp2p-crypto/0.19.5:
-    resolution: {integrity: sha512-eAjA3bJen2pAMLzHcJY+/lhNnpf2RZot63JfLMaP4/QTBpgwcCPW6SUoSaogwsQ7/rl5PqJTxPvAZmvoBOlZ7g==}
+  /libp2p-crypto/0.19.6:
+    resolution: {integrity: sha512-oZaAomSLnEJPEvJaj4Dmp+JDuKsTndbdmdod9rCe8lX5f9hMP3p3wRADOeVGhgleiQ3LH+3XmFuULARMNXLiRw==}
     engines: {node: '>=12.0.0'}
     dependencies:
       err-code: 3.0.1
       is-typedarray: 1.0.0
       iso-random-stream: 2.0.0
       keypair: 1.0.3
-      multiformats: 9.1.2
+      multiformats: 9.4.3
       node-forge: 0.10.0
       pem-jwk: 2.0.0
       protobufjs: 6.11.2
       secp256k1: 4.0.2
-      uint8arrays: 2.1.5
+      uint8arrays: 2.1.7
       ursa-optional: 0.10.2
     dev: false
 
@@ -4520,8 +4536,8 @@ packages:
       varint: 6.0.0
     dev: false
 
-  /multiformats/9.1.2:
-    resolution: {integrity: sha512-ca/Mvp8iQmCyLomEpMHRr0MgyBN3nTZ9YznOsoCBajyI51Y9TL8UNsX1CQXW/RGsYcto+OHmGelFZzsmdl66wA==}
+  /multiformats/9.4.3:
+    resolution: {integrity: sha512-sCNjBP/NPCeQu83Mst8IQZq9+HuR7Catvk/m7CeH0r/nupsU6gM7GINf5E1HCDRxDeU+Cgda/WPmcwQhYs3dyA==}
     dev: false
 
   /multihashes/4.0.2:
@@ -4529,7 +4545,7 @@ packages:
     engines: {node: '>=12.0.0', npm: '>=6.0.0'}
     dependencies:
       multibase: 4.0.4
-      uint8arrays: 2.1.5
+      uint8arrays: 2.1.7
       varint: 5.0.2
     dev: false
 
@@ -4704,8 +4720,8 @@ packages:
     engines: {node: '>= 6'}
     dev: false
 
-  /object-inspect/1.10.3:
-    resolution: {integrity: sha512-e5mCJlSH7poANfC8z8S9s9S2IN5/4Zb3aZ33f5s8YqoazCFzNLloLU8r5VCG+G7WoqLvAAZoVMcy3tp/3X0Plw==}
+  /object-inspect/1.11.0:
+    resolution: {integrity: sha512-jp7ikS6Sd3GxQfZJPyH3cjcbJF6GZPClgdV+EFygjFLQ5FmW/dRUnTd9PQ9k0JhoNDabWFbpF1yCdSWCC6gexg==}
 
   /object-inspect/1.9.0:
     resolution: {integrity: sha512-i3Bp9iTqwhaLZBxGkRfo5ZbE07BQRT7MGu8+nNgwW9ItGp1TzCTw2DLEoWwjClxBjOFI/hWljTAmYGCEwmtnOw==}
@@ -4954,11 +4970,11 @@ packages:
     dependencies:
       cids: 1.1.7
       class-is: 1.1.0
-      libp2p-crypto: 0.19.5
+      libp2p-crypto: 0.19.6
       minimist: 1.2.5
       multihashes: 4.0.2
       protobufjs: 6.11.2
-      uint8arrays: 2.1.5
+      uint8arrays: 2.1.7
     dev: false
 
   /pem-jwk/2.0.0:
@@ -5390,7 +5406,7 @@ packages:
       '@protobufjs/pool': 1.1.0
       '@protobufjs/utf8': 1.1.0
       '@types/long': 4.0.1
-      '@types/node': 16.0.1
+      '@types/node': 16.4.1
       long: 4.0.0
     dev: false
 
@@ -6521,6 +6537,12 @@ packages:
     resolution: {integrity: sha512-CSR7AO+4AHUeSOnZ/NBNCElDeWfRh9bXtOck27083kc7SznmmHIhNEkEOCQOn0wvrIMjS3IH0TNLR16vuc46mA==}
     dependencies:
       multibase: 4.0.4
+    dev: false
+
+  /uint8arrays/2.1.7:
+    resolution: {integrity: sha512-k+yuEWEHQG/TuRaxL+JVEe8IBqyU5dhDkw+CISCDccOcW90dIju0A6i0Iwav0MK7kg73FZpowqOByS5e/B6GYA==}
+    dependencies:
+      multiformats: 9.4.3
     dev: false
 
   /unbox-primitive/1.0.1:

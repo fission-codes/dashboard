@@ -1,6 +1,6 @@
 module Book exposing (main)
 
-import ChapterCommon exposing (chapterCommon)
+import Chapter.Common
 import Css.Global
 import ElmBook exposing (withChapters, withThemeOptions)
 import ElmBook.ElmCSS exposing (Book, book)
@@ -16,5 +16,5 @@ main =
                 [ Css.Global.global Tailwind.Utilities.globalStyles ]
             ]
         |> withChapters
-            [ chapterCommon
+            [ Chapter.Common.it
             ]
