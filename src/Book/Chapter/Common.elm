@@ -13,9 +13,6 @@ import View.Common
 content : String
 content =
     """
-> Keep in mind that this book doesn't have fonts loaded, so
-that's why some things look... *off*
-
 ## Buttons
 
 There is view function for buttons in `View.Common` with this signature:
