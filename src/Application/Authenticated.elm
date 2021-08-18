@@ -1096,4 +1096,7 @@ appPageSubscriptions pageModel =
 
 appsIndexDecoder : Json.Decoder (List App.Name)
 appsIndexDecoder =
-    Json.list (Json.field "domain" App.decoder)
+    App.decoder
+        |> Json.index 0
+        |> Json.field "domains"
+        |> Json.list
