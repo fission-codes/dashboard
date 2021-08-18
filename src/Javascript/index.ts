@@ -156,10 +156,10 @@ elmApp.ports.webnativeAppRename.subscribe(async ({ from, to }: { from: string, t
     const toPath = wnfsAppPath(appNameOnly(to))
     const newApp = await webnative.apps.create(appNameOnly(to))
     const cid = await getPublicPathCid(wnfsAppPublishPathInPublic(appNameOnly(from)))
-    await webnative.apps.publish(newApp.domain, cid)
+    await webnative.apps.publish(newApp.domains[0], cid)
     await window.fs.mv(fromPath, toPath)
     await webnative.apps.deleteByDomain(from)
-    elmApp.ports.webnativeAppRenameSucceeded.send({ app: from, renamed: newApp.domain })
+    elmApp.ports.webnativeAppRenameSucceeded.send({ app: from, renamed: newApp.domains[0] })
   } catch (error) {
     console.error(`Error while renaming an app from ${from} to ${to}`, error)
     elmApp.ports.webnativeAppRenameFailed.send({ app: from, error: error.message })
@@ -356,7 +356,7 @@ customElements.define("dashboard-upload-dropzone", class extends HTMLElement {
     if (appDomain == null || appDomain === "") {
       this.dispatchPublishAction("Reserving a new subdomain for your app")
       const app = await webnative.apps.create(null)
-      return app.domain
+      return app.domains[0]
     }
     return appDomain
   }
