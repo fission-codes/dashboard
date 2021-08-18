@@ -193,7 +193,7 @@ update navKey msg model =
         FetchedAppList value ->
             case Json.decodeValue appsIndexDecoder value of
                 Ok appNames ->
-                    ( { model | appList = Just appNames }
+                    ( { model | appList = Just (List.sortBy App.nameOnly appNames) }
                     , Cmd.none
                     )
 
