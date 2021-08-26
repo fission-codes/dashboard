@@ -145,7 +145,7 @@ elmApp.ports.webnativeAppDelete.subscribe(async appUrl => {
     await webnative.apps.deleteByDomain(appUrl)
     elmApp.ports.webnativeAppDeleteSucceeded.send({ app: appUrl })
   } catch (error) {
-    console.error("Error while fetching the app index", error)
+    console.error("Error while deleting an app", error)
     elmApp.ports.webnativeAppDeleteFailed.send({ app: appUrl, error: error.message })
   }
 })
@@ -405,7 +405,7 @@ customElements.define("dashboard-upload-dropzone", class extends HTMLElement {
 
       this.dispatchPublishProgress(progress, total, `Saving file in WNFS: ${pathString}`)
       const path = webnative.path.combine(webnative.path.directory("public"), webnative.path.combine(appPath, relativePath)) as FilePath
-      await window.fs.write(path, arrayBuffer as Buffer)
+      await window.fs.write(path, new Uint8Array(arrayBuffer))
       progress += 1
     }
 
