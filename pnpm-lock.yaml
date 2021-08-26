@@ -19,7 +19,7 @@ specifiers:
   postcss-import: ^14.0.0
   tailwindcss: ^2.0.3
   uint8arrays: ^2.1.5
-  webnative: 0.27.0-alpha2
+  webnative: 0.27.0
   workbox-cli: ^6.1.0
   workbox-strategies: ^6.1.0
 
@@ -28,7 +28,7 @@ dependencies:
   lodash: 4.17.21
   tailwindcss: 2.0.3_759587f5361760629983e9fe457a3aed
   uint8arrays: 2.1.5
-  webnative: 0.27.0-alpha2
+  webnative: 0.27.0
 
 devDependencies:
   '@tailwindcss/aspect-ratio': 0.2.0
@@ -6758,8 +6758,8 @@ packages:
     resolution: {integrity: sha512-YQ+BmxuTgd6UXZW3+ICGfyqRyHXVlD5GtQr5+qjiNW7bF0cqrzX500HVXPBOvgXb5YnzDd+h0zqyv61KUD7+Sg==}
     dev: true
 
-  /webnative/0.27.0-alpha2:
-    resolution: {integrity: sha512-DcmE3k9iw/ESXwZdUut6WL7FmItvkxV8R/MtbetP9dCg79oRyeMPia3ujsdVzCMPwXZcKr6rGEOk8bG0+KRtaQ==}
+  /webnative/0.27.0:
+    resolution: {integrity: sha512-w1m4a3IGQ5qnKHZwUpCWe+7RIrKd41TydrQDsH8HxkYwpshixtnZpUAV+yfUGIQYOtd30IvX0KT7Aukw97IWNw==}
     engines: {node: '>=15'}
     dependencies:
       cborg: 1.5.0
