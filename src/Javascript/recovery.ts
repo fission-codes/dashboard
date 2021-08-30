@@ -248,6 +248,37 @@ async function addNewPrivateRootToFileSystem(username: string, readKey: string):
 
   const cid = await dataRoot.lookup(username)
 
+  if (cid == null) {
+    console.log("No filesystem exists yet - initialising")
+
+    const permissions = {
+      fs: {
+        private: [ path.root() ],
+        public: [ path.root() ]
+      }
+    }
+    const fs = await FileSystem.empty({
+      rootKey: readKey,
+      permissions,
+      localOnly: true,
+    })
+
+    // initialise filesystem like in auth-lobby
+    await fs.mkdir(path.directory("private", "Apps"))
+    await fs.mkdir(path.directory("private", "Audio"))
+    await fs.mkdir(path.directory("private", "Documents"))
+    await fs.mkdir(path.directory("private", "Photos"))
+    await fs.mkdir(path.directory("private", "Video"))
+
+    console.log("updating data root")
+
+    await uploadFileSystem(fs)
+
+    console.log("initialised filesystem")
+
+    return
+  }
+
   const fs = await FileSystem.fromCID(cid, {
     permissions: {
       fs: {
@@ -268,6 +299,12 @@ async function addNewPrivateRootToFileSystem(username: string, readKey: string):
 
   console.log("updating data root")
 
+  await uploadFileSystem(fs)
+
+  console.log("reinitialised private filesystem")
+}
+
+async function uploadFileSystem(fs: FileSystem): Promise<void> {
   const issuer = await did.write()
   const fsUcan = await ucan.build({
     potency: "APPEND",
@@ -277,6 +314,4 @@ async function addNewPrivateRootToFileSystem(username: string, readKey: string):
     issuer
   })
   await dataRoot.update(await fs.root.put(), ucan.encode(fsUcan))
-
-  console.log("reinitialised private filesystem")
 }

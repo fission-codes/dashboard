@@ -1,35 +1,12 @@
 import * as webnative from "webnative"
 import lodashMerge from "lodash/merge"
 import * as uint8arrays from "uint8arrays"
-import type FileSystem from "webnative/fs/index"
 import type { DirectoryPath, FilePath } from "webnative/path"
 
 
 //----------------------------------------
 // GLOBALS / CONFIG
 //----------------------------------------
-
-declare global {
-  const CONFIG_ENVIRONMENT: string
-  const CONFIG_API_ENDPOINT: string
-  const CONFIG_LOBBY: string
-  const CONFIG_USER: string
-
-  interface Window {
-    environment: string
-    endpoints: {
-      api: string
-      lobby: string
-      user: string
-    }
-    webnative: typeof webnative
-    fs: FileSystem
-    // For recovery.ts
-    clearBackup: () => void
-  }
-
-  const Elm: any
-}
 
 window.environment = CONFIG_ENVIRONMENT
 
