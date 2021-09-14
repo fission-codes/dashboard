@@ -19,7 +19,7 @@ specifiers:
   postcss-import: ^14.0.0
   tailwindcss: ^2.0.3
   uint8arrays: ^2.1.5
-  webnative: 0.28.0-alpha
+  webnative: 0.28.0
   workbox-cli: ^6.1.0
   workbox-strategies: ^6.1.0
 
@@ -28,7 +28,7 @@ dependencies:
   lodash: 4.17.21
   tailwindcss: 2.0.3_759587f5361760629983e9fe457a3aed
   uint8arrays: 2.1.5
-  webnative: 0.28.0-alpha
+  webnative: 0.28.0
 
 devDependencies:
   '@tailwindcss/aspect-ratio': 0.2.0
@@ -4191,13 +4191,13 @@ packages:
     resolution: {integrity: sha512-0wjZ2z/SfZZq01+3/8jYLd8aEShSa+aat1zyPGQY3IuKoEAp6DJGvu2zt6snELrQU9jbCkIlCyNOD7RdQbHhkQ==}
     dev: false
 
-  /keystore-idb/0.14.2:
-    resolution: {integrity: sha512-1jjL3Tjn4NSjczl/KBBnK1JefmouMSHC18Gv+2Eo27PiBSNrfa9ipGZkpW4OsV/tdYC50JA1IQ2yZRpeiYmH+w==}
+  /keystore-idb/0.15.0:
+    resolution: {integrity: sha512-CSUCwdSR/gv/ydyv0m4DiTVdtHw0WPKmiw1frMh0jI3Ri9eGwtLBnYefppb2zgC6xLk4aBrPpojpjrRCEaL0/A==}
     engines: {node: '>=10.21.0'}
     dependencies:
       '@ungap/global-this': 0.4.4
-      buffer: 6.0.3
       localforage: 1.10.0
+      uint8arrays: 3.0.0
     dev: false
 
   /keyv/3.1.0:
@@ -6882,8 +6882,8 @@ packages:
     resolution: {integrity: sha512-YQ+BmxuTgd6UXZW3+ICGfyqRyHXVlD5GtQr5+qjiNW7bF0cqrzX500HVXPBOvgXb5YnzDd+h0zqyv61KUD7+Sg==}
     dev: true
 
-  /webnative/0.28.0-alpha:
-    resolution: {integrity: sha512-DP1LC339SlwKetg36kwNKAzXhwx/5aeXPilDDtVE6FHj9I/RnRmLkOvlqXRLCshbjnpvrPmEJVa7mUKdAxFkaA==}
+  /webnative/0.28.0:
+    resolution: {integrity: sha512-IHahuroHEjmbQqZlNeXw4qr5X/uBEQ3tDZEtyb5fSloUx30S1AQ1FH8IkloAMtkbniNSMcPzfEX/Lu5GF1pi7A==}
     engines: {node: '>=15'}
     dependencies:
       cborg: 1.5.0
@@ -6892,8 +6892,9 @@ packages:
       ipfs-message-port-client: '@ipfs.runfission.com/ipfs/bafybeigx6q4aezve7my76s5vvfuiinbxtepapqvmjf2jbgrozrut6cjape/p/ipfs-message-port-client.tar.gz'
       ipfs-message-port-protocol: '@ipfs.runfission.com/ipfs/bafybeigx6q4aezve7my76s5vvfuiinbxtepapqvmjf2jbgrozrut6cjape/p/ipfs-message-port-protocol.tar.gz'
       ipld-dag-pb: 0.22.3
-      keystore-idb: 0.14.2
+      keystore-idb: 0.15.0
       localforage: 1.10.0
+      multiformats: 9.4.7
       noble-ed25519: 1.2.5
       throttle-debounce: 3.0.1
       uint8arrays: 2.1.10
