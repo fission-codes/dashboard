@@ -1,0 +1,57 @@
+Arguments: 
+  /usr/bin/node /usr/bin/yarn add one-webcrypto
+
+PATH: 
+  /home/philipp/.yarn/bin:/home/philipp/.config/yarn/global/node_modules/.bin:/home/philipp/.cabal/bin:/home/philipp/.npm-packages/bin:/home/philipp/.local/bin:/home/philipp/.yarn/bin:/home/philipp/.config/yarn/global/node_modules/.bin:/home/philipp/.cabal/bin:/home/philipp/.npm-packages/bin:/home/philipp/.local/bin:/home/philipp/.nix-profile/bin:/nix/var/nix/profiles/default/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/lib/emscripten:/var/lib/flatpak/exports/bin:/usr/lib/jvm/default/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl:/home/philipp/Android/Sdk/tools:/home/philipp/Android/Sdk/platform-tools:/home/philipp/.gem/ruby/2.5.0/bin:/home/philipp/.gem/ruby/2.6.0/bin:/home/philipp/.cargo/bin:/home/philipp/.ghcup/bin:/home/philipp/Android/Sdk/tools:/home/philipp/Android/Sdk/platform-tools:/home/philipp/.gem/ruby/2.5.0/bin:/home/philipp/.gem/ruby/2.6.0/bin:/home/philipp/.cargo/bin:/home/philipp/.ghcup/bin
+
+Yarn version: 
+  1.22.11
+
+Node version: 
+  16.9.0
+
+Platform: 
+  linux x64
+
+Trace: 
+  Error: ENOENT: no such file or directory, copyfile '/home/philipp/.cache/yarn/v6/npm-chalk-1.1.3-a8115c55e4a702fe4d150abd3872822a7e09fc98-integrity/node_modules/chalk/index.js' -> '/home/philipp/work/fission/dashboard/node_modules/elm-live/node_modules/chalk/index.js'
+
+npm manifest: 
+  {
+    "name": "fission-dashboard",
+    "description": "The frontend for the Fission Dashboard app.",
+    "version": "0.1.0",
+    "author": "Steven Vandevelde <icid.asset@gmail.com>, Philipp Krüger <philipp.krueger1@gmail.com>",
+    "type": "module",
+    "devDependencies": {
+      "@tailwindcss/aspect-ratio": "^0.2.0",
+      "@types/lodash": "^4.14.170",
+      "@types/wicg-entries-api": "^2020.8.0",
+      "@types/wicg-file-system-access": "^2020.9.1",
+      "autoprefixer": "^10.2.4",
+      "elm": "^0.19.1-5",
+      "elm-format": "^0.8.5",
+      "elm-live": "^4.0.2",
+      "elm-review": "^2.5.3",
+      "elm-tailwind-css": "^1.1.1",
+      "elm-tailwind-modules": "0.3.0",
+      "esbuild": "^0.12.8",
+      "postcss": "^8.2.6",
+      "postcss-import": "^14.0.0",
+      "workbox-cli": "^6.1.0",
+      "workbox-strategies": "^6.1.0"
+    },
+    "dependencies": {
+      "fission-kit": "fission-suite/kit#aed7844ccd76f6ca7feeca95981b47d4b1114a7c",
+      "lodash": "^4.17.21",
+      "tailwindcss": "^2.0.3",
+      "uint8arrays": "^2.1.5",
+      "webnative": "0.28.0"
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile

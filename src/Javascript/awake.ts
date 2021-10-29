@@ -3,8 +3,8 @@
 // It's used for linking fission accounts across devices
 
 import * as uint8arrays from 'uint8arrays'
-import * as did from 'webnative/did/index'
-import * as ucan from 'webnative/ucan/index'
+import * as did from 'webnative/did/index.js'
+import * as ucan from 'webnative/ucan/index.js'
 import { Channel, EncryptedChannel, JSONChannel, TextEncodedChannel } from './channel'
 
 
