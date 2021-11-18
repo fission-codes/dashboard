@@ -1,34 +1,36 @@
-let
+{rosetta ? false }:
+  let
 
-  sources = import ./nix/sources.nix;
-  pkgs = import sources.nixpkgs {};
+    overrides = if rosetta then { system = "x86_64-darwin"; } else {};
+    sources = import ./nix/sources.nix;
+    pkgs = import sources.nixpkgs overrides;
 
-  node = pkgs.nodejs-16_x;
-  node_pnpm = pkgs.nodePackages_latest.pnpm;
+    node = pkgs.nodejs-16_x;
+    node_pnpm = pkgs.nodePackages_latest.pnpm;
 
-  pnpm = pkgs.writeScriptBin "pnpm" "${node}/bin/node ${node_pnpm}/lib/node_modules/pnpm/bin/pnpm.cjs $@";
-  pnpx = pkgs.writeScriptBin "pnpx" "${node}/bin/node ${node_pnpm}/lib/node_modules/pnpm/bin/pnpx.cjs $@";
+    pnpm = pkgs.writeScriptBin "pnpm" "${node}/bin/node ${node_pnpm}/lib/node_modules/pnpm/bin/pnpm.cjs $@";
+    pnpx = pkgs.writeScriptBin "pnpx" "${node}/bin/node ${node_pnpm}/lib/node_modules/pnpm/bin/pnpx.cjs $@";
 
-in
+  in
 
-  pkgs.mkShell {
-    buildInputs = [
+    pkgs.mkShell {
+      buildInputs = [
 
-      # Dev Tools
-      pkgs.devd
-      pkgs.just
-      pkgs.watchexec
-      pkgs.jq
-      pkgs.niv
+        # Dev Tools
+        pkgs.devd
+        pkgs.just
+        pkgs.watchexec
+        pkgs.jq
+        pkgs.niv
 
-      # Elm
-      pkgs.elmPackages.elm
-      pkgs.elmPackages.elm-format
+        # Elm
+        pkgs.elmPackages.elm
+        pkgs.elmPackages.elm-format
 
-      # Node
-      node
-      pnpm
-      pnpx
+        # Node
+        node
+        pnpm
+        pnpx
 
-    ];
-  }
+      ];
+    }
