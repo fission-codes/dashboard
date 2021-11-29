@@ -27,6 +27,6 @@
     "lodash": "^4.17.21",
     "tailwindcss": "^2.0.3",
     "uint8arrays": "^2.1.5",
-    "webnative": "0.30.0-alpha5"
+    "webnative": "0.30.0-alpha6"
   }
 }
