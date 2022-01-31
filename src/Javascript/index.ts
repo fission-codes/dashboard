@@ -456,8 +456,8 @@ async function getPublicPathCid(appPath: DirectoryPath) {
   const appPathString = webnative.path.toPosix(appPath)
   const ipfs = await webnative.ipfs.get()
   const rootCid = await window.fs.root.put()
-  const { cid } = await ipfs.files.stat(`/ipfs/${rootCid}/p/${appPathString}`) as any
-  return cid.toString()
+  const { cid } = await ipfs.files.stat(`/ipfs/${rootCid}/p/${appPathString}`)
+  return cid
 }
 
 function wnfsAppPublishPathInPublic(appName: string): DirectoryPath {
