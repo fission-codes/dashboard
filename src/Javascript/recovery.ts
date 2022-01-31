@@ -96,7 +96,7 @@ elmApp.ports.verifyRecoveryKit.subscribe(async (recoveryKit: { username: string,
     const privateName = await getRootBlockPrivateName(recoveryKit.key)
 
     const mmpt = await tryRethrowing(
-      MMPT.fromCID(mmptCID.toString()),
+      MMPT.fromCID(mmptCID),
       e => ({
         isUserError: true,
         message: "Something went wrong: We couldn't load your private filesystem.",
