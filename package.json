@@ -16,16 +16,17 @@
     "elm-review": "^2.5.3",
     "elm-tailwind-css": "^1.1.1",
     "elm-tailwind-modules": "0.3.0",
-    "esbuild": "^0.12.8",
-    "postcss": "^8.2.6",
+    "esbuild": "^0.15.8",
+    "postcss": "^8.4.16",
     "postcss-import": "^14.0.0",
     "workbox-cli": "^6.1.0",
     "workbox-strategies": "^6.1.0"
   },
   "dependencies": {
+    "events": "^3.3.0",
     "fission-kit": "github:fission-codes/kit#aed7844ccd76f6ca7feeca95981b47d4b1114a7c",
     "lodash": "^4.17.21",
-    "tailwindcss": "^2.0.3",
+    "tailwindcss": "2.2.19",
     "uint8arrays": "^2.1.5",
     "webnative": "0.34.2"
   }
