@@ -1,7 +1,9 @@
+import type {} from "./index.d"
+import type { DirectoryPath, FilePath } from "webnative/path"
+
 import * as webnative from "webnative"
 import lodashMerge from "lodash/merge"
 import * as uint8arrays from "uint8arrays"
-import type { DirectoryPath, FilePath } from "webnative/path"
 
 
 //----------------------------------------
@@ -186,7 +188,7 @@ webnative
     // We either just got them, or we've got them denied. In any case we stop trying.
     savePermissionsWanted(null)
 
-    if (state.authenticated) {
+    if (state.authenticated && state.fs != null) {
       window.fs = state.fs;
     }
 
@@ -256,7 +258,7 @@ customElements.define("dashboard-upload-dropzone", class extends HTMLElement {
       event.preventDefault()
       event.stopPropagation()
 
-      const files = Array.from((event.target as HTMLInputElement).files)
+      const targetInputElement = event.target as HTMLInputElement
 
       const getFilePath = (file: File) => {
         // We strip off the first part of an uploaded directory (e.g. build/index.html -> index.html)
@@ -268,6 +270,12 @@ customElements.define("dashboard-upload-dropzone", class extends HTMLElement {
 
       try {
 
+        if (targetInputElement.files == null) {
+          throw new Error("Couldn't detect files to be uploaded")
+        }
+  
+        const files = Array.from(targetInputElement.files)
+  
         this.dispatchPublishStart()
 
         const appDomain = await this.targetAppDomain()
@@ -294,11 +302,21 @@ customElements.define("dashboard-upload-dropzone", class extends HTMLElement {
 
       try {
 
+        const files: FileSystemFileEntry[] = []
+        const dataTransfer = event.dataTransfer
+
+        if (dataTransfer == null) {
+          throw new Error("Something went wrong when trying to detect files dropped files")
+        }
+
         this.dispatchPublishStart()
 
-        const files: FileSystemFileEntry[] = []
-        for (const item of event.dataTransfer.items) {
+        for (const item of dataTransfer.items) {
           const entry = item.webkitGetAsEntry()
+          if (entry == null) {
+            console.warn("Couldn't read dropped item", item)
+            continue
+          }
           const entryFiles = await listFiles(entry)
           entryFiles.forEach(entryFile => {
             files.push(entryFile)
