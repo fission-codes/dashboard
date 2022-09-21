@@ -1,3 +1,5 @@
+import type {} from "./index.d"
+
 import * as webnative from "webnative"
 import FileSystem from "webnative/fs/filesystem.js"
 import PrivateTree from "webnative/fs/v1/PrivateTree.js"
