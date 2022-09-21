@@ -155,7 +155,7 @@ workbox_config := "./src/Javascript/workbox.config.cjs"
 
 @production-service-worker:
 	echo "⚙️  Generating service worker"
-	NODE_ENV=production pnpx workbox generateSW {{workbox_config}}
+	NODE_ENV=production npx workbox generateSW {{workbox_config}}
 
 
 @dev-server:
