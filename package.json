@@ -23,10 +23,10 @@
     "workbox-strategies": "^6.1.0"
   },
   "dependencies": {
-    "fission-kit": "fission-suite/kit#aed7844ccd76f6ca7feeca95981b47d4b1114a7c",
+    "fission-kit": "github:fission-codes/kit#aed7844ccd76f6ca7feeca95981b47d4b1114a7c",
     "lodash": "^4.17.21",
     "tailwindcss": "^2.0.3",
     "uint8arrays": "^2.1.5",
-    "webnative": "0.31.1"
+    "webnative": "0.34.2"
   }
 }
