@@ -161,7 +161,8 @@ workbox_config := "./src/Javascript/workbox.config.cjs"
 @dev-server:
 	echo "🧞  Putting up a server for ya"
 	echo "http://localhost:8004"
-	devd --quiet build --port=8004 --all
+	miniserve --spa --index index.html --port 8004 build
+
 
 
 @hot-server:

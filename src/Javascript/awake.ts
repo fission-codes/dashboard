@@ -3,64 +3,68 @@
 // It's used for linking fission accounts across devices
 
 import * as uint8arrays from 'uint8arrays'
-import * as did from 'webnative/did/index.js'
-import * as ucan from 'webnative/ucan/index.js'
+import { Crypto } from 'webnative'
+import * as did from 'webnative/did/index'
+import * as ucan from 'webnative/ucan/index'
 import { Channel, EncryptedChannel, JSONChannel, TextEncodedChannel } from './channel'
 
 
 export const RSA_KEY_ALGO = {
     name: "RSA-OAEP",
     modulusLength: 2048,
-    publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
+    publicExponent: new Uint8Array([ 0x01, 0x00, 0x01 ]),
     hash: { name: "SHA-256" }
 }
 
 
 /**
  * Establishes a secure connection with a given DID.
- * 
+ *
  * This assumes both connection partners know of this sender's
  * root user DID, which authenticates the secure channel, preventing
  * person-in-the-middle attacks.
  */
 export async function establishSecureChannelWith(
+    { crypto }: { crypto: Crypto.Implementation },
     recipientDID: string,
     baseChannel: Channel<ArrayBuffer>,
     authentication?: string, // an encoded UCAN. Not needed if this is in the context of the root DID
 ): Promise<EncryptedChannel> {
-    const crypto = getCrypto()
-    const { publicKey } = did.didToPublicKey(recipientDID) // Also ensures that it's a valid DID
-    const recipientPubKey = await crypto.importKey(
+    const subtleCrypto = getCrypto()
+    const { publicKey } = did.didToPublicKey(crypto, recipientDID) // Also ensures that it's a valid DID
+    const recipientPubKey = await subtleCrypto.importKey(
         "spki",
-        uint8arrays.fromString(publicKey, "base64pad").buffer,
+        publicKey,
         RSA_KEY_ALGO,
         false,
-        ["encrypt"]
+        [ "encrypt" ]
     )
 
-    const sessionKey = await crypto.generateKey(
+    const sessionKey = await subtleCrypto.generateKey(
         {
             name: "AES-GCM",
             length: 256
         },
         true,
-        ["encrypt", "decrypt"]
+        [ "encrypt", "decrypt" ]
     )
 
-    const sessionKeyRaw = await crypto.exportKey("raw", sessionKey)
+    const sessionKeyRaw = await subtleCrypto.exportKey("raw", sessionKey)
     const sessionKeyBase64 = uint8arrays.toString(new Uint8Array(sessionKeyRaw), "base64pad")
 
-    const encryptedSessionKey = await crypto.encrypt(
+    const encryptedSessionKey = await subtleCrypto.encrypt(
         { name: "RSA-OAEP" },
         recipientPubKey,
         sessionKeyRaw
     )
 
     const sessionKeyExchangeUcan = ucan.encode(await ucan.build({
-        issuer: await did.write(),
+        dependencies: { crypto },
+
+        issuer: await did.write(crypto),
         audience: recipientDID,
         lifetimeInSeconds: 60 * 5, // 5 minutes
-        facts: [{ sessionKey: sessionKeyBase64 }],
+        facts: [ { sessionKey: sessionKeyBase64 } ],
         potency: null,
         proof: authentication,
     }))
@@ -82,7 +86,7 @@ export async function establishSecureChannelWith(
         sessionKey: uint8arrays.toString(new Uint8Array(encryptedSessionKey), "base64pad"),
     })).buffer)
 
-    return new EncryptedChannel(sessionKey, baseChannel, crypto)
+    return new EncryptedChannel(sessionKey, baseChannel, subtleCrypto)
 }
 
 
@@ -106,13 +110,15 @@ export interface Challenge {
 }
 
 export async function authorize(
+    { crypto }: { crypto: Crypto.Implementation },
     { inquirerThrowawayDID, channel, validChallenge, readKey }: AuthorizeParams,
-    options?: AuthorizeOptions
+    possibleOptions?: AuthorizeOptions
 ): Promise<boolean> {
-    options = options || {
-        retriesOnMessages: options?.retriesOnMessages || 10,
-        retryIntervalMs: options?.retryIntervalMs || 100,
-        log: options?.log || function log() {},
+    const options: AuthorizeOptions = {
+        ...possibleOptions,
+        retriesOnMessages: possibleOptions?.retriesOnMessages || 10,
+        retryIntervalMs: possibleOptions?.retryIntervalMs || 100,
+        log: possibleOptions?.log || function log() { },
     }
     const retryOptions = {
         interval: options.retryIntervalMs,
@@ -121,18 +127,18 @@ export async function authorize(
     }
 
     // asserts that the DID is valid
-    did.didToPublicKey(inquirerThrowawayDID)
+    did.didToPublicKey(crypto, inquirerThrowawayDID)
 
     const { challengeData, encryptedChannel } = await retry(async () => {
 
         options.log("Trying to establish a secure channel with", inquirerThrowawayDID)
-        
+
         const encryptedChannel = new JSONChannel(new TextEncodedChannel(
-            await establishSecureChannelWith(inquirerThrowawayDID, channel)
+            await establishSecureChannelWith({ crypto }, inquirerThrowawayDID, channel)
         ))
 
         options.log("Retrieving challenge and real DID")
-    
+
         const challengeData: Challenge = await encryptedChannel.receive()
 
         if (!Array.isArray(challengeData.pin) || !challengeData.pin.every(n => typeof n === "number")) {
@@ -140,7 +146,7 @@ export async function authorize(
         }
 
         // asserts that the DID is valid
-        did.didToPublicKey(challengeData.did)
+        did.didToPublicKey(crypto, challengeData.did)
 
         return {
             challengeData,
@@ -160,6 +166,9 @@ export async function authorize(
     }
 
     const linkingUCAN = ucan.encode(await ucan.build({
+        dependencies: { crypto },
+
+        issuer: await did.agent(crypto),
         audience: challengeData.did,
         lifetimeInSeconds: 60 * 60 * 24 * 30 * 12 * 1000, // 1000 years
         potency: "SUPER_USER",
@@ -201,7 +210,7 @@ export async function retry<T>(
     action: () => Promise<T>,
     { maxRetries, signal, interval }: { maxRetries?: number, signal?: AbortSignal | null, interval?: number } = { maxRetries: -1, signal: null, interval: 200 }
 ): Promise<T> {
-    const errors = []
+    const errors: Error[] = []
     maxRetries = maxRetries || -1
     interval = interval || 200
     while (maxRetries-- !== 0) {
