@@ -214,9 +214,10 @@ createProgramWithIPFS()
     // We either just got them, or we've got them denied. In any case we stop trying.
     savePermissionsWanted(null)
 
-    elmApp.ports.webnativeInitialized.send(
-      program.session
-    )
+    elmApp.ports.webnativeInitialized.send({
+      permissions: permissions,
+      session: program.session,
+    })
 
     // Webnative will remove search params after authorisation.
     // To keep the URL in sync, we tell Elm about it

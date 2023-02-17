@@ -39,10 +39,6 @@ export const CONFIG: Configuration = {
   namespace: `dashboard-${CONFIG_USER}`,
   debug: true,
 
-  fileSystem: {
-    loadImmediately: false,
-  },
-
   permissions: PERMISSIONS_BASE,
 
   userMessages: {
