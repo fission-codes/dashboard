@@ -16,6 +16,7 @@ mkShell {
 
     # Node
     nodejs
+    nodePackages.pnpm
 
   ];
 
