@@ -66,7 +66,11 @@ createProgramWithIPFS().then(({ ipfs, program }) => {
 
 const elmApp = Elm.Recovery.Main.init({
   flags: {
-    endpoints: ENDPOINTS,
+    endpoints: {
+      api: `${ENDPOINTS.server}${ENDPOINTS.apiPath}`,
+      lobby: ENDPOINTS.lobby,
+      user: ENDPOINTS.userDomain,
+    },
     savedRecovery: {
       username: localStorage.getItem(RECOVERY_KIT_USERNAME_KEY),
       key: localStorage.getItem(RECOVERY_KIT_KEY)
@@ -222,7 +226,7 @@ elmApp.ports.linkingInitiate.subscribe(async ({ username, rootPublicKey, readKey
   }
 
   // After that, we can start authorizing auth lobbies
-  const wssApi = ENDPOINTS.apiPath.replace(/^https?:\/\//, "wss://")
+  const wssApi = ENDPOINTS.server.replace(/^https?:\/\//, "wss://")
   const rootDID = DID.publicKeyToDid(crypto, Uint8arrays.fromString(rootPublicKey, "base64pad"), "rsa")
   const endpoint = `${wssApi}/user/link/${rootDID}`
   const socket = new WebSocket(endpoint)
