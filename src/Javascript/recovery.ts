@@ -16,7 +16,7 @@ import throttle from "lodash/throttle"
 import * as Awake from "./awake"
 import { SymmAlg } from "webnative/components/crypto/implementation"
 import { WebSocketChannel, TextEncodedChannel } from "./channel"
-import { createProgramWithIPFS, ENDPOINTS } from "./webnative"
+import { CONFIG, createProgramWithIPFS, ENDPOINTS } from "./webnative"
 import { EventEmitter } from "webnative/events"
 
 
@@ -194,9 +194,13 @@ elmApp.ports.fetchWritePublicKey.subscribe(async () => {
     const { components } = program()
     // Make sure to generate a new publicWriteKey
     await components.crypto.keystore.clearStore()
-    const publicKeyBase64 = await components.crypto.keystore.publicWriteKey()
+    await Webnative.defaultCryptoComponent(CONFIG)
+
+    const publicKey = await components.crypto.keystore.publicWriteKey()
+    const publicKeyBase64 = Uint8arrays.toString(publicKey, "base64pad")
     elmApp.ports.writePublicKeyFetched.send(publicKeyBase64)
   } catch (e) {
+    console.error(e)
     elmApp.ports.writePublicKeyFailure.send(e.message)
   }
 })
