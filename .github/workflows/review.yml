@@ -28,6 +28,8 @@ jobs:
           path: ~/.elm
           key: ${{ runner.os }}-elm-home-${{ hashFiles('**/elm.json') }}
 
+      - run: export NIXPKGS_ALLOW_BROKEN=1
+
       - name: Add elm-review, elm and elm-format to path
         run: nix-shell --run "npm bin" >> $GITHUB_PATH
 
