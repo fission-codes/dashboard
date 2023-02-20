@@ -191,7 +191,7 @@ workbox_config := "./src/Javascript/workbox.config.cjs"
 
 
 @install-deps:
-	pnpm install
+	npm install
 
 
 @watch:

@@ -20,16 +20,6 @@ jobs:
         with:
           nix_path: nixpkgs=channel:nixos-unstable
 
-      - name: Cache pnpm modules
-        uses: actions/cache@v2
-        env:
-          cache-name: cache-pnpm-modules
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package.json') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-
       - name: Cache elm home
         uses: actions/cache@v2
         env:
@@ -37,9 +27,9 @@ jobs:
         with:
           path: ~/.elm
           key: ${{ runner.os }}-elm-home-${{ hashFiles('**/elm.json') }}
-      
+
       - name: Add elm-review, elm and elm-format to path
-        run: nix-shell --run "pnpm bin" >> $GITHUB_PATH
+        run: nix-shell --run "npm bin" >> $GITHUB_PATH
 
       - name: Install Dependencies
         run: nix-shell --run "just install-deps"
