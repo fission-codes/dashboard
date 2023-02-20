@@ -37,7 +37,7 @@ workbox_config := "./src/Javascript/workbox.config.cjs"
 
 @css:
 	echo "💄  Compiling CSS"
-	pnpx node src/Javascript/generate-css-modules.js
+	npx node src/Javascript/generate-css-modules.js
 
 
 @elm-dev:
