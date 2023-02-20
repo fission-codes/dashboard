@@ -89,39 +89,24 @@ updateOther msg model =
         -----------------------------------------
         InitializedWebnative result ->
             case result of
-                Ok webnativeState ->
+                Ok ( webnativeState, permissions ) ->
                     let
-                        onAuthenticated username maybePermissions =
-                            case maybePermissions of
-                                Just permissions ->
-                                    Authenticated.init model.url
-                                        { username = username
-                                        , permissions = permissions
-                                        }
-                                        |> Tuple.mapFirst
-                                            (\state -> { model | state = Authenticated state })
-
-                                Nothing ->
-                                    ( { model | state = SigninScreen }
-                                    , Ports.log [ E.string "No permissions after webnative initialisation" ]
-                                    )
+                        onAuthenticated username =
+                            { username = username
+                            , permissions = permissions
+                            }
+                                |> Authenticated.init model.url
+                                |> Tuple.mapFirst
+                                    (\state -> { model | state = Authenticated state })
                     in
                     case webnativeState of
-                        Webnative.Types.NotAuthorised _ ->
+                        Webnative.Types.NotAuthorised ->
                             ( { model | state = SigninScreen }
                             , Cmd.none
                             )
 
-                        Webnative.Types.AuthCancelled _ ->
-                            ( { model | state = SigninScreen }
-                            , Cmd.none
-                            )
-
-                        Webnative.Types.AuthSucceeded { username, permissions } ->
-                            onAuthenticated username permissions
-
-                        Webnative.Types.Continuation { username, permissions } ->
-                            onAuthenticated username permissions
+                        Webnative.Types.Authorised { username } ->
+                            onAuthenticated username
 
                 Err error ->
                     ( model

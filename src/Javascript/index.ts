@@ -1,69 +1,51 @@
-import type {} from "./index.d"
-import type { DirectoryPath, FilePath } from "webnative/path"
+import type { } from "./index.d"
 
-import * as webnative from "webnative"
+import type { DistinctivePath, DirectoryPath } from "webnative/path/index"
+import type { IPFS } from "webnative/components/depot/implementation/ipfs/node"
+
+import * as Fission from "webnative/components/auth/implementation/fission/index"
+import * as Path from "webnative/path/index"
+import * as RootKey from "webnative/common/root-key"
+import * as Uint8arrays from "uint8arrays"
+import * as Webnative from "webnative"
 import lodashMerge from "lodash/merge"
-import * as uint8arrays from "uint8arrays"
+
+import { PERMISSIONS_BASE, createProgramWithIPFS, ENDPOINTS } from "./webnative"
 
 
 //----------------------------------------
 // GLOBALS / CONFIG
 //----------------------------------------
 
-window.environment = CONFIG_ENVIRONMENT
-
-console.log(`Running in ${window.environment} environment`)
-
-window.endpoints = {
-  api: CONFIG_API_ENDPOINT,
-  lobby: CONFIG_LOBBY,
-  user: CONFIG_USER,
-}
-
-window.webnative = webnative
-
-webnative.setup.debug({ enabled: true })
-webnative.setup.endpoints(window.endpoints)
+const environment = CONFIG_ENVIRONMENT
+console.log(`Running in ${environment} environment`)
 
 
 //----------------------------------------
 // PERMISSIONS
 //----------------------------------------
 
-const permissionsBaseline = {
-  app: {
-    creator: "Fission",
-    name: "Dashboard",
-  },
-  fs: {
-    public: [{ directory: ["Apps"] }],
-  },
-  platform: {
-    apps: "*",
-  },
-}
-
-function lookupLocalStorage(key) {
+function lookupLocalStorage(key: string) {
   const saved = localStorage.getItem(key)
   try {
-    return JSON.parse(saved)
+    return saved ? JSON.parse(saved) : null
   } catch (_) {
     return null
   }
 }
 
-function saveLocalStorage(key, json) {
+function saveLocalStorage(key: string, json) {
   if (json == null) {
     localStorage.removeItem(key)
   }
   localStorage.setItem(key, JSON.stringify(json, null, 2))
 }
 
-const permissionsConfirmedKey = `permissions-confirmed-v1-${window.endpoints.api}`
+const permissionsConfirmedKey = `permissions-confirmed-v1-${CONFIG_API_ENDPOINT}`
 const lookupPermissionsConfirmed = () => lookupLocalStorage(permissionsConfirmedKey)
 const savePermissionsConfirmed = json => saveLocalStorage(permissionsConfirmedKey, json)
 
-const permissionsWantedKey = `permissions-wanted-v1-${window.endpoints.api}`
+const permissionsWantedKey = `permissions-wanted-v1-${CONFIG_API_ENDPOINT}`
 const lookupPermissionsWanted = () => lookupLocalStorage(permissionsWantedKey)
 const savePermissionsWanted = json => saveLocalStorage(permissionsWantedKey, json)
 
@@ -77,7 +59,7 @@ if (url.searchParams.get("cancelled") != null) {
 const permissionsConfirmed = lookupPermissionsConfirmed() || {}
 const permissionsWanted = lookupPermissionsWanted() || {}
 
-const permissions = lodashMerge(permissionsBaseline, permissionsConfirmed, permissionsWanted)
+const permissions = lodashMerge(PERMISSIONS_BASE, permissionsConfirmed, permissionsWanted)
 
 console.log("Permissions Confirmed:", permissionsConfirmed)
 console.log("Permissions Wanted:", permissionsWanted)
@@ -89,13 +71,13 @@ console.log("Permissions now trying:", permissions)
 //----------------------------------------
 
 const elmApp = Elm.Main.init({
-  flags: { permissionsBaseline }
+  flags: { permissionsBaseline: PERMISSIONS_BASE }
 })
 
 elmApp.ports.webnativeRedirectToLobby.subscribe(async ({ permissions }) => {
   console.log("Requesting permissions", permissions)
   savePermissionsWanted(permissions)
-  await webnative.redirectToLobby(permissions)
+  await program().capabilities.request(permissions)
 })
 
 elmApp.ports.log.subscribe(messages => {
@@ -104,7 +86,8 @@ elmApp.ports.log.subscribe(messages => {
 
 elmApp.ports.webnativeResendVerificationEmail.subscribe(async () => {
   try {
-    await webnative.lobby.resendVerificationEmail()
+    const { crypto, reference } = program().components
+    await Fission.resendVerificationEmail(ENDPOINTS, crypto, reference)
   } finally {
     elmApp.ports.webnativeVerificationEmailSent.send({})
   }
@@ -112,7 +95,8 @@ elmApp.ports.webnativeResendVerificationEmail.subscribe(async () => {
 
 elmApp.ports.webnativeAppIndexFetch.subscribe(async () => {
   try {
-    const index = await webnative.apps.index()
+    const deps = program().components
+    const index = await Webnative.apps.index(ENDPOINTS, deps)
     elmApp.ports.webnativeAppIndexFetched.send(index)
   } catch (error) {
     console.error("Error while fetching the app index", error)
@@ -121,7 +105,8 @@ elmApp.ports.webnativeAppIndexFetch.subscribe(async () => {
 
 elmApp.ports.webnativeAppDelete.subscribe(async appUrl => {
   try {
-    await webnative.apps.deleteByDomain(appUrl)
+    const deps = program().components
+    await Webnative.apps.deleteByDomain(ENDPOINTS, deps, appUrl)
     elmApp.ports.webnativeAppDeleteSucceeded.send({ app: appUrl })
   } catch (error) {
     console.error("Error while deleting an app", error)
@@ -133,27 +118,40 @@ elmApp.ports.webnativeAppRename.subscribe(async ({ from, to }: { from: string, t
   try {
     const fromPath = wnfsAppPath(appNameOnly(from))
     const toPath = wnfsAppPath(appNameOnly(to))
-    const newApp = await webnative.apps.create(appNameOnly(to))
-    const cid = await getPublicPathCid(wnfsAppPublishPathInPublic(appNameOnly(from)))
-    await webnative.apps.publish(newApp.domains[0], cid)
-    await window.fs.mv(fromPath, toPath)
-    await webnative.apps.deleteByDomain(from)
-    elmApp.ports.webnativeAppRenameSucceeded.send({ app: from, renamed: newApp.domains[0] })
+
+    const deps = program().components
+    const fs = fileSystem()
+
+    const newApp = await Webnative.apps.create(ENDPOINTS, deps, appNameOnly(to))
+    const cid = await getPublicPathCid(
+      wnfsAppPublishPathInPublic(appNameOnly(from))
+    )
+
+    await Webnative.apps.publish(ENDPOINTS, deps, newApp.domains[ 0 ], cid)
+    await fs.mv(fromPath, toPath)
+    await Webnative.apps.deleteByDomain(ENDPOINTS, deps, from)
+
+    elmApp.ports.webnativeAppRenameSucceeded.send({ app: from, renamed: newApp.domains[ 0 ] })
+
   } catch (error) {
     console.error(`Error while renaming an app from ${from} to ${to}`, error)
     elmApp.ports.webnativeAppRenameFailed.send({ app: from, error: error.message })
+
   }
 })
 
 elmApp.ports.fetchReadKey.subscribe(async () => {
   try {
-    const privateHash = await webnative.crypto.sha256Str("/private")
-    const keystore = await webnative.keystore.get()
-    const readKey = await keystore.getSymmKey(`wnfs__readKey__${privateHash}`)
-    const exported = await window.crypto.subtle.exportKey("raw", readKey)
-    const encoded = uint8arrays.toString(new Uint8Array(exported), "base64pad")
+    const { accountDID, components } = program()
+    const { username } = session()
+
+    const readKey = await RootKey.retrieve({
+      accountDID: await accountDID(username),
+      crypto: components.crypto,
+    })
+
     elmApp.ports.fetchedReadKey.send({
-      key: encoded,
+      key: Uint8arrays.toString(readKey, "base64pad"),
       createdAt: (new Date()).toDateString(),
     })
   } catch (error) {
@@ -165,7 +163,8 @@ elmApp.ports.fetchReadKey.subscribe(async () => {
 elmApp.ports.logout.subscribe(async () => {
   savePermissionsWanted(null)
   savePermissionsConfirmed(null)
-  await webnative.leave({ withoutRedirect: true })
+  const session = program().session
+  await session?.destroy()
   window.location.reload()
 })
 
@@ -174,12 +173,39 @@ elmApp.ports.logout.subscribe(async () => {
 // WEBNATIVE
 //----------------------------------------
 
-webnative
-  .initialise({
-    permissions
-  })
-  .then(state => {
-    if (state.authenticated) {
+let maybeIPFS: IPFS | null
+let maybeProgram: Webnative.Program | null
+
+
+function fileSystem(): Webnative.FileSystem {
+  const fs = program().session?.fs
+  if (!fs) throw new Error("Expected a FileSystem instance")
+  return fs
+}
+
+function ipfs(): IPFS {
+  if (!maybeIPFS) throw new Error("Expected a IPFS instance")
+  return maybeIPFS
+}
+
+function program(): Webnative.Program {
+  if (!maybeProgram) throw new Error("Expected a Program")
+  return maybeProgram
+}
+
+function session(): Webnative.Session {
+  const s = program().session
+  if (!s) throw new Error("Expected a Session")
+  return s
+}
+
+
+createProgramWithIPFS()
+  .then(({ ipfs, program }) => {
+    maybeIPFS = ipfs
+    maybeProgram = program
+
+    if (program.session) {
       savePermissionsConfirmed(permissions)
     } else {
       savePermissionsConfirmed(null)
@@ -188,11 +214,10 @@ webnative
     // We either just got them, or we've got them denied. In any case we stop trying.
     savePermissionsWanted(null)
 
-    if (state.authenticated && state.fs != null) {
-      window.fs = state.fs;
-    }
-
-    elmApp.ports.webnativeInitialized.send(state)
+    elmApp.ports.webnativeInitialized.send({
+      permissions: permissions,
+      session: program.session,
+    })
 
     // Webnative will remove search params after authorisation.
     // To keep the URL in sync, we tell Elm about it
@@ -201,7 +226,7 @@ webnative
   .catch(error => {
     console.error("Error in webnative initialisation", error)
     elmApp.ports.webnativeError.send("Initialisation error")
-  });
+  })
 
 
 //----------------------------------------
@@ -229,7 +254,7 @@ customElements.define("dashboard-upload-dropzone", class extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return ["app-name"]
+    return [ "app-name" ]
   }
 
   connectedCallback() {
@@ -245,8 +270,8 @@ customElements.define("dashboard-upload-dropzone", class extends HTMLElement {
       this.classList.remove("dropping")
     };
 
-    ["dragleave", "drop"].map(ev => this.addEventListener(ev, unhighlight));
-    ["dragenter", "dragover"].map(ev => this.addEventListener(ev, highlight));
+    [ "dragleave", "drop" ].map(ev => this.addEventListener(ev, unhighlight));
+    [ "dragenter", "dragover" ].map(ev => this.addEventListener(ev, highlight));
 
 
     // File upload events
@@ -264,7 +289,7 @@ customElements.define("dashboard-upload-dropzone", class extends HTMLElement {
         // We strip off the first part of an uploaded directory (e.g. build/index.html -> index.html)
         const firstSlash = file.webkitRelativePath.indexOf("/")
         const relativePath = file.webkitRelativePath.substring(firstSlash)
-        return webnative.path.fromPosix(relativePath) as FilePath
+        return Path.fromPosix(relativePath)
       }
       const getFileContents = async (file: File) => await file.arrayBuffer()
 
@@ -273,9 +298,9 @@ customElements.define("dashboard-upload-dropzone", class extends HTMLElement {
         if (targetInputElement.files == null) {
           throw new Error("Couldn't detect files to be uploaded")
         }
-  
+
         const files = Array.from(targetInputElement.files)
-  
+
         this.dispatchPublishStart()
 
         const appDomain = await this.targetAppDomain()
@@ -323,7 +348,7 @@ customElements.define("dashboard-upload-dropzone", class extends HTMLElement {
           })
         }
 
-        const getFilePath = (file: FileSystemFileEntry) => webnative.path.fromPosix(file.fullPath) as FilePath
+        const getFilePath = (file: FileSystemFileEntry) => Path.fromPosix(file.fullPath)
         const getFileContent = async (file: FileSystemFileEntry) => {
           const asJsFile = await fileContent(file)
           return await asJsFile.arrayBuffer()
@@ -350,8 +375,9 @@ customElements.define("dashboard-upload-dropzone", class extends HTMLElement {
     const appDomain = this.getAttribute("app-domain")
     if (appDomain == null || appDomain === "") {
       this.dispatchPublishAction("Reserving a new subdomain for your app")
-      const app = await webnative.apps.create(null)
-      return app.domains[0]
+      const deps = program().components
+      const app = await Webnative.apps.create(ENDPOINTS, deps, null)
+      return app.domains[ 0 ]
     }
     return appDomain
   }
@@ -359,32 +385,35 @@ customElements.define("dashboard-upload-dropzone", class extends HTMLElement {
   async publishAppFiles<T>(
     appDomain: string,
     files: T[],
-    getFilePath: (file: T) => FilePath,
+    getFilePath: (file: T) => DistinctivePath<Path.Segments>,
     getFileContent: (file: T) => Promise<ArrayBuffer>
   ) {
     const appName = appNameOnly(appDomain)
     const appPath = wnfsAppPublishPathInPublic(appName)
 
-    this.dispatchPublishAction("Preparing publish directory")
-    const path = webnative.path.combine(webnative.path.directory("public"), appPath)
+    const fs = fileSystem()
+    const deps = program().components
 
-    if (await window.fs.exists(path)) {
-      await window.fs.rm(path)
+    this.dispatchPublishAction("Preparing publish directory")
+    const path = Path.combine(Path.directory("public"), appPath)
+
+    if (await fs.exists(path)) {
+      await fs.rm(path)
     }
 
     const cid = await this.addAppFiles(appPath, files, getFilePath, getFileContent)
 
     this.dispatchPublishAction("Uploading files to fission")
-    await window.fs.publish()
+    await fs.publish()
 
     this.dispatchPublishAction("Telling fission to publish the app")
-    await webnative.apps.publish(appDomain, cid)
+    await Webnative.apps.publish(ENDPOINTS, deps, appDomain, cid)
   }
 
   async addAppFiles<T>(
-    appPath: DirectoryPath,
+    appPath: DirectoryPath<Path.Segments>,
     files: T[],
-    getFilePath: (file: T) => FilePath,
+    getFilePath: (file: T) => DistinctivePath<Path.Segments>,
     getFileContent: (file: T) => Promise<ArrayBuffer>
   ) {
     let progress = 0
@@ -392,15 +421,15 @@ customElements.define("dashboard-upload-dropzone", class extends HTMLElement {
 
     for (const file of files) {
       const relativePath = getFilePath(file)
-      const pathString = webnative.path.toPosix(relativePath)
+      const pathString = Path.toPosix(relativePath)
 
       this.dispatchPublishProgress(progress, total, `Uploading file to browser: ${pathString}`)
       const arrayBuffer = await getFileContent(file)
       progress += 1
 
       this.dispatchPublishProgress(progress, total, `Saving file in WNFS: ${pathString}`)
-      const path = webnative.path.combine(webnative.path.directory("public"), webnative.path.combine(appPath, relativePath)) as FilePath
-      await window.fs.write(path, new Uint8Array(arrayBuffer))
+      const path = Path.combine(Path.directory("public"), Path.combine(appPath, relativePath))
+      await fileSystem().write(path, new Uint8Array(arrayBuffer))
       progress += 1
     }
 
@@ -470,20 +499,21 @@ async function listFiles(entry: FileSystemEntry, files: FileSystemFileEntry[] = 
   return files
 }
 
-async function getPublicPathCid(appPath: DirectoryPath) {
-  const appPathString = webnative.path.toPosix(appPath)
-  const ipfs = await webnative.ipfs.get()
-  const rootCid = await window.fs.root.put()
-  const { cid } = await ipfs.files.stat(`/ipfs/${rootCid}/p/${appPathString}`)
+async function getPublicPathCid(
+  appPath: DirectoryPath<Path.Segments>
+) {
+  const appPathString = Path.toPosix(appPath)
+  const rootCid = await fileSystem().root.put()
+  const { cid } = await ipfs().files.stat(`/ipfs/${rootCid}/p/${appPathString}`)
   return cid
 }
 
-function wnfsAppPublishPathInPublic(appName: string): DirectoryPath {
-  return webnative.path.directory("Apps", appName, "Published")
+function wnfsAppPublishPathInPublic(appName: string) {
+  return Path.directory("Apps", appName, "Published")
 }
 
-function wnfsAppPath(appName: string): DirectoryPath {
-  return webnative.path.directory("public", "Apps", appName)
+function wnfsAppPath(appName: string) {
+  return Path.directory("public", "Apps", appName)
 }
 
 function appNameOnly(appName: string): string {

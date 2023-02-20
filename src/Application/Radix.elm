@@ -112,7 +112,7 @@ type Msg
       -----------------------------------------
       -- Webnative
       -----------------------------------------
-    | InitializedWebnative (Result Json.Error Webnative.Types.State)
+    | InitializedWebnative (Result Json.Error ( Webnative.Types.State, Webnative.Types.Permissions ))
     | GotWebnativeError String
     | RedirectToLobby Webnative.Types.Permissions
       -- Other

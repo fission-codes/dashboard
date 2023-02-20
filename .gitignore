@@ -1,8 +1,9 @@
-build
-elm-stuff
-node_modules
-src/Library/Css/Classes.elm
-.vscode
+/.direnv
+/.vscode
+/build
+/elm-stuff
+/node_modules
+/src/Generated
+/src/Library/Css/Classes.elm
 fission.yaml
-src/Generated
 yarn-error*

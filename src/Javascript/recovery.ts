@@ -1,49 +1,63 @@
-import type {} from "./index.d"
+import type { } from "./index.d"
+import type { IPFS } from "webnative/components/depot/implementation/ipfs/node"
 
-import * as webnative from "webnative"
-import FileSystem from "webnative/fs/filesystem.js"
-import PrivateTree from "webnative/fs/v1/PrivateTree.js"
-import * as path from "webnative/path.js"
-import * as ucan from "webnative/ucan/index.js"
-import * as did from "webnative/did/index.js"
-import * as dataRoot from "webnative/data-root.js"
-import * as webnativeIpfs from "webnative/ipfs/index.js"
-import * as crypto from "webnative/crypto/index.js"
-import * as namefilter from "webnative/fs/protocol/private/namefilter.js"
-import MMPT from "webnative/fs/protocol/private/mmpt.js"
+import * as DID from "webnative/did/index"
+import * as Namefilter from "webnative/fs/protocol/private/namefilter"
+import * as Path from "webnative/path/index"
+import * as Uint8arrays from "uint8arrays"
+import * as UCAN from "webnative/ucan/index"
+import * as Webnative from "webnative"
+
+import FileSystem from "webnative/fs/filesystem"
+import PrivateTree from "webnative/fs/v1/PrivateTree"
+import MMPT from "webnative/fs/protocol/private/mmpt"
 import throttle from "lodash/throttle"
 
-import * as awake from "./awake"
+import * as Awake from "./awake"
+import { SymmAlg } from "webnative/components/crypto/implementation"
 import { WebSocketChannel, TextEncodedChannel } from "./channel"
+import { CONFIG, createProgramWithIPFS, ENDPOINTS } from "./webnative"
+import { EventEmitter } from "webnative/events"
+
 
 //----------------------------------------
 // GLOBALS / CONFIG
 //----------------------------------------
 
-window.environment = CONFIG_ENVIRONMENT
-
-console.log(`Running in ${window.environment} environment`)
-
-window.endpoints = {
-  api: CONFIG_API_ENDPOINT,
-  lobby: CONFIG_LOBBY,
-  user: CONFIG_USER,
-}
-
-window.webnative = webnative
-
-webnative.setup.debug({ enabled: true })
-webnative.setup.endpoints(window.endpoints)
+const environment = CONFIG_ENVIRONMENT
+console.log(`Running in ${environment} environment`)
 
 const RECOVERY_KIT_USERNAME_KEY = "account-recovery-username"
 const RECOVERY_KIT_KEY = "account-recovery-key"
 
-function clearRecoveryKit () {
+function clearRecoveryKit() {
   localStorage.removeItem(RECOVERY_KIT_USERNAME_KEY)
   localStorage.removeItem(RECOVERY_KIT_KEY)
 }
 
-window["clearRecoveryKit"] = clearRecoveryKit
+
+//----------------------------------------
+// WEBNATIVE
+//----------------------------------------
+
+let maybeIPFS: IPFS | null
+let maybeProgram: Webnative.Program | null
+
+
+function ipfs(): IPFS {
+  if (!maybeIPFS) throw new Error("Expected a IPFS instance")
+  return maybeIPFS
+}
+
+function program(): Webnative.Program {
+  if (!maybeProgram) throw new Error("Expected a Program")
+  return maybeProgram
+}
+
+createProgramWithIPFS().then(({ ipfs, program }) => {
+  maybeIPFS = ipfs
+  maybeProgram = program
+})
 
 
 //----------------------------------------
@@ -52,7 +66,11 @@ window["clearRecoveryKit"] = clearRecoveryKit
 
 const elmApp = Elm.Recovery.Main.init({
   flags: {
-    endpoints: window.endpoints,
+    endpoints: {
+      api: `${ENDPOINTS.server}${ENDPOINTS.apiPath}`,
+      lobby: ENDPOINTS.lobby,
+      user: ENDPOINTS.userDomain,
+    },
     savedRecovery: {
       username: localStorage.getItem(RECOVERY_KIT_USERNAME_KEY),
       key: localStorage.getItem(RECOVERY_KIT_KEY)
@@ -60,13 +78,12 @@ const elmApp = Elm.Recovery.Main.init({
   }
 })
 
-window["elmApp"] = elmApp
-
 elmApp.ports.verifyRecoveryKit.subscribe(async (recoveryKit: { username: string, key: string }) => {
+  const { components } = program()
+
   try {
-    const ipfsPromise = webnativeIpfs.get()
     const rootCID = await tryRethrowing(
-      dataRoot.lookupOnFisson(recoveryKit.username),
+      components.reference.dataRoot.lookup(recoveryKit.username),
       e => ({
         isUserError: true,
         message: `We couldn't find a user with name "${recoveryKit.username}".`,
@@ -84,9 +101,8 @@ elmApp.ports.verifyRecoveryKit.subscribe(async (recoveryKit: { username: string,
       }
     }
 
-    const ipfs = await ipfsPromise
     const { cid: mmptCID } = await tryRethrowing(
-      ipfs.dag.resolve(`/ipfs/${rootCID}/private`),
+      ipfs().dag.resolve(`/ipfs/${rootCID}/private`),
       e => ({
         isUserError: true,
         message: "Something went wrong: We couldn't find a private filesystem in your personal datastore.",
@@ -95,10 +111,12 @@ elmApp.ports.verifyRecoveryKit.subscribe(async (recoveryKit: { username: string,
       })
     )
 
-    const privateName = await getRootBlockPrivateName(recoveryKit.key)
+    const privateName = await getRootBlockPrivateName(
+      Uint8arrays.fromString(recoveryKit.key, "base64pad")
+    )
 
     const mmpt = await tryRethrowing(
-      MMPT.fromCID(mmptCID),
+      MMPT.fromCID(components.depot, mmptCID),
       e => ({
         isUserError: true,
         message: "Something went wrong: We couldn't load your private filesystem.",
@@ -142,21 +160,25 @@ async function tryRethrowing<T, E>(promise: Promise<T>, rethrow: ((error: unknow
   return result
 }
 
-async function getRootBlockPrivateName(key: string): Promise<namefilter.PrivateName> {
-  const bareName = await namefilter.createBare(key)
-  const revisionName = await namefilter.addRevision(bareName, key, 1)
-  return await namefilter.toPrivateName(revisionName)
+async function getRootBlockPrivateName(key: Uint8Array): Promise<Namefilter.PrivateName> {
+  const { crypto } = program().components
+  const bareName = await Namefilter.createBare(crypto, key)
+  const revisionName = await Namefilter.addRevision(crypto, bareName, key, 1)
+  return await Namefilter.toPrivateName(crypto, revisionName)
 }
 
 
-elmApp.ports.usernameExists.subscribe(throttle(async (username: string) => {
-  if (webnative.lobby.isUsernameValid(username)) {
-    const exists = !await webnative.lobby.isUsernameAvailable(username)
-    elmApp.ports.usernameExistsResponse.send({ username, valid: true, exists })
-  } else {
-    elmApp.ports.usernameExistsResponse.send({ username, valid: false, exists: true })
-  }
-}, 500, { leading: false, trailing: true }))
+elmApp.ports.usernameExists.subscribe(
+  throttle(async (username: string) => {
+    const { auth } = program()
+    if (await auth.isUsernameValid(username)) {
+      const exists = !await auth.isUsernameAvailable(username)
+      elmApp.ports.usernameExistsResponse.send({ username, valid: true, exists })
+    } else {
+      elmApp.ports.usernameExistsResponse.send({ username, valid: false, exists: true })
+    }
+  }, 500, { leading: false, trailing: true })
+)
 
 
 elmApp.ports.saveUsername.subscribe(async (username: string) => {
@@ -169,24 +191,38 @@ elmApp.ports.saveRecoveryKit.subscribe(async (recoveryKit: string) => {
 
 elmApp.ports.fetchWritePublicKey.subscribe(async () => {
   try {
+    const { components } = program()
     // Make sure to generate a new publicWriteKey
-    await webnative.keystore.clear()
-    const publicKeyBase64 = await crypto.keystore.publicWriteKey()
+    await components.crypto.keystore.clearStore()
+    await Webnative.defaultCryptoComponent(CONFIG)
+
+    const publicKey = await components.crypto.keystore.publicWriteKey()
+    const publicKeyBase64 = Uint8arrays.toString(publicKey, "base64pad")
     elmApp.ports.writePublicKeyFetched.send(publicKeyBase64)
   } catch (e) {
+    console.error(e)
     elmApp.ports.writePublicKeyFailure.send(e.message)
   }
 })
 
 
 elmApp.ports.linkingInitiate.subscribe(async ({ username, rootPublicKey, readKey }: { username: string, rootPublicKey: string, readKey: string | null }) => {
-  const keystorePublicWriteKey = await crypto.keystore.publicWriteKey()
+  const { crypto } = program().components
+  const keystorePublicWriteKey = Uint8arrays.toString(
+    await crypto.keystore.publicWriteKey(),
+    "base64pad"
+  )
+
   if (keystorePublicWriteKey !== rootPublicKey) {
     console.error("The public key in the keystore is not the same as the public key used for account recovery", keystorePublicWriteKey, rootPublicKey)
   }
 
   // If we can't recover the user's files, we generate a new read key for them
-  const actualReadKey = readKey != null ? readKey : await crypto.aes.genKeyStr()
+  const actualReadKey = readKey != null
+    ? Uint8arrays.fromString(readKey, "base64pad")
+    : await crypto.aes.exportKey(
+      await crypto.aes.genKey(SymmAlg.AES_GCM)
+    )
 
   // as well as create a new private root in their filesystem
   if (readKey == null) {
@@ -194,8 +230,8 @@ elmApp.ports.linkingInitiate.subscribe(async ({ username, rootPublicKey, readKey
   }
 
   // After that, we can start authorizing auth lobbies
-  const wssApi = window.endpoints.api.replace(/^https?:\/\//, "wss://")
-  const rootDID = did.publicKeyToDid(rootPublicKey, did.KeyType.RSA)
+  const wssApi = ENDPOINTS.server.replace(/^https?:\/\//, "wss://")
+  const rootDID = DID.publicKeyToDid(crypto, Uint8arrays.fromString(rootPublicKey, "base64pad"), "rsa")
   const endpoint = `${wssApi}/user/link/${rootDID}`
   const socket = new WebSocket(endpoint)
   const socketChannel = new WebSocketChannel(socket)
@@ -211,10 +247,10 @@ elmApp.ports.linkingInitiate.subscribe(async ({ username, rootPublicKey, readKey
 
       const throwawayDID = await textChannel.receive()
 
-      const authorized = await awake.authorize({
+      const authorized = await Awake.authorize({ crypto }, {
         inquirerThrowawayDID: throwawayDID,
         channel: socketChannel,
-        readKey: actualReadKey,
+        readKey: Uint8arrays.toString(actualReadKey, "base64pad"),
         validChallenge: challenge => new Promise(resolve => {
           elmApp.ports.linkingPinVerified.subscribe(pinVerified)
 
@@ -233,7 +269,7 @@ elmApp.ports.linkingInitiate.subscribe(async ({ username, rootPublicKey, readKey
 
       if (authorized) {
         clearRecoveryKit()
-        await webnative.keystore.clear()
+        await crypto.keystore.clearStore()
         elmApp.ports.linkingDone.send({})
         return
       }
@@ -245,32 +281,37 @@ elmApp.ports.linkingInitiate.subscribe(async ({ username, rootPublicKey, readKey
 })
 
 
-async function addNewPrivateRootToFileSystem(username: string, readKey: string): Promise<void> {
+async function addNewPrivateRootToFileSystem(username: string, readKey: Uint8Array): Promise<void> {
   console.log("Loading filesystem")
 
-  const cid = await dataRoot.lookup(username)
+  const { crypto, depot, manners, reference } = program().components
+  const cid = await reference.dataRoot.lookup(username)
+  const rootDID = await reference.didRoot.lookup(username)
 
   if (cid == null) {
     console.log("No filesystem exists yet - initialising")
 
     const permissions = {
       fs: {
-        private: [ path.root() ],
-        public: [ path.root() ]
+        private: [ Path.root() ],
+        public: [ Path.root() ]
       }
     }
     const fs = await FileSystem.empty({
+      account: { rootDID },
+      dependencies: program().components,
+      eventEmitter: new EventEmitter(),
       rootKey: readKey,
       permissions,
       localOnly: true,
     })
 
     // initialise filesystem like in auth-lobby
-    await fs.mkdir(path.directory("private", "Apps"))
-    await fs.mkdir(path.directory("private", "Audio"))
-    await fs.mkdir(path.directory("private", "Documents"))
-    await fs.mkdir(path.directory("private", "Photos"))
-    await fs.mkdir(path.directory("private", "Video"))
+    await fs.mkdir(Path.directory("private", "Apps"))
+    await fs.mkdir(Path.directory("private", "Audio"))
+    await fs.mkdir(Path.directory("private", "Documents"))
+    await fs.mkdir(Path.directory("private", "Photos"))
+    await fs.mkdir(Path.directory("private", "Video"))
 
     console.log("updating data root")
 
@@ -282,9 +323,12 @@ async function addNewPrivateRootToFileSystem(username: string, readKey: string):
   }
 
   const fs = await FileSystem.fromCID(cid, {
+    account: { rootDID },
+    dependencies: program().components,
+    eventEmitter: new EventEmitter(),
     permissions: {
       fs: {
-        public: [path.root()],
+        public: [ Path.root() ],
         private: [],
       }
     }
@@ -292,12 +336,12 @@ async function addNewPrivateRootToFileSystem(username: string, readKey: string):
 
   console.log("Adding new private root")
 
-  const newPrivateRoot = await PrivateTree.create(fs.root.mmpt, readKey, null)
-  fs.root.privateNodes[path.toPosix(path.directory("private"))] = newPrivateRoot
+  const newPrivateRoot = await PrivateTree.create(crypto, depot, manners, reference, fs.root.mmpt, readKey, null)
+  fs.root.privateNodes[ Path.toPosix(Path.directory("private")) ] = newPrivateRoot
   await newPrivateRoot.put()
   fs.root.updatePuttable("private", fs.root.mmpt)
   const newCID = await fs.root.mmpt.put()
-  await fs.root.addPrivateLogEntry(newCID)
+  await fs.root.addPrivateLogEntry(depot, newCID)
 
   console.log("updating data root")
 
@@ -307,13 +351,20 @@ async function addNewPrivateRootToFileSystem(username: string, readKey: string):
 }
 
 async function uploadFileSystem(fs: FileSystem): Promise<void> {
-  const issuer = await did.write()
-  const fsUcan = await ucan.build({
+  const { crypto, reference } = program().components
+
+  const issuer = await DID.write(crypto)
+  const fsUcan = await UCAN.build({
+    dependencies: { crypto },
+
     potency: "APPEND",
     resource: "*",
 
     audience: issuer,
     issuer
   })
-  await dataRoot.update(await fs.root.put(), ucan.encode(fsUcan))
+  await reference.dataRoot.update(
+    await fs.root.put(),
+    fsUcan
+  )
 }
